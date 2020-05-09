@@ -1,13 +1,10 @@
 {
-  "name": "inspirum/<project-name>",
+  "name": "inspirum/<packagist-project-name>",
   "description": "",
   "keywords": [
     "inspirum",
     "inspishop",
-    "laravel",
-    "memcached",
-    "mcrouter",
-    "cache"
+    "laravel"
   ],
   "homepage": "https://github.com/inspirum/<project-name>",
   "license": "MIT",
