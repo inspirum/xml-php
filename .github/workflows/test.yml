@@ -16,7 +16,7 @@ jobs:
       - name: Set up PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.java }}
+          php-version: ${{ matrix.php }}
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress --no-suggest
       - name: Test
