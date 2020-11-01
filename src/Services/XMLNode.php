@@ -72,6 +72,28 @@ class XMLNode
     }
 
     /**
+     * Add XML data.
+     *
+     * @param string $content
+     *
+     * @return \Inspirum\XML\Services\XMLNode
+     */
+    public function addXMLData(string $content): ?XMLNode
+    {
+        if ($content === '') {
+            return null;
+        }
+
+        $fragment = $this->document->createDocumentFragment();
+        $fragment->appendXML($content);
+
+        $this->appendChild($fragment);
+
+        // return new node
+        return new self($this->document, $fragment);
+    }
+
+    /**
      * Create new (unconnected) element.
      *
      * @param string $name

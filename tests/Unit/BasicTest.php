@@ -142,4 +142,60 @@ class BasicTest extends AbstractTestCase
             $xml->toString()
         );
     }
+
+    public function testAddXMLData()
+    {
+        $xml = new XML();
+
+        $aE = $xml->addElement('a');
+        $bE = $aE->addElement('b');
+        $bE->addXMLData('<c a="1">2</c><d>test2</d>');
+
+        $this->assertEquals(
+            $this->getSampleXMLstring("<a><b><c a=\"1\">2</c><d>test2</d></b></a>"),
+            $xml->toString()
+        );
+    }
+
+    public function testAddEmptyStringXMLData()
+    {
+        $xml = new XML();
+
+        $aE = $xml->addElement('a');
+        $bE = $aE->addElement('b');
+        $bE->addXMLData('');
+
+        $this->assertEquals(
+            $this->getSampleXMLstring("<a><b/></a>"),
+            $xml->toString()
+        );
+    }
+
+    public function testAddEmptyXMLData()
+    {
+        $xml = new XML();
+
+        $aE = $xml->addElement('a');
+        $bE = $aE->addElement('b');
+        $bE->addXMLData('0');
+
+        $this->assertEquals(
+            $this->getSampleXMLstring("<a><b>0</b></a>"),
+            $xml->toString()
+        );
+    }
+
+    public function testAddWhitespaceXMLData()
+    {
+        $xml = new XML();
+
+        $aE = $xml->addElement('a');
+        $bE = $aE->addElement('b');
+        $bE->addXMLData('  ');
+
+        $this->assertEquals(
+            $this->getSampleXMLstring("<a><b>  </b></a>"),
+            $xml->toString()
+        );
+    }
 }
