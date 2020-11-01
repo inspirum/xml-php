@@ -6,6 +6,7 @@ use DOMDocument;
 use DOMElement;
 use DOMException;
 use DOMNode;
+use Throwable;
 
 class XMLNode
 {
@@ -108,15 +109,28 @@ class XMLNode
      * @param string                     $name
      * @param string|float|int|bool|null $value
      * @param array                      $attributes
+     * @param bool                       $forcedEscape
      *
      * @return \DOMElement
      */
-    private function createDOMElement(string $name, $value = null, array $attributes = []): DOMElement
+    private function createDOMElement(string $name, $value = null, array $attributes = [], bool $forcedEscape = false): DOMElement
     {
         $value = $this->normalizeValue($value);
 
         // create element with given value
-        $element = $this->document->createElement($name, $value);
+        try {
+            // escape values with "&", or with forced escaping flag
+            if ($value !== null && (strpos($value, '&') !== false || $forcedEscape)) {
+                throw new DOMException('DOMDocument::createElement(): unterminated entity reference');
+            }
+            // create element with given value
+            $element = $this->document->createElement($name, $value);
+        } catch (Throwable $exception) {
+            // encapsulate with CDATA
+            $element = $this->document->createElement($name);
+            $cdata   = $this->document->createCDATASection($value);
+            $element->appendChild($cdata);
+        }
 
         // set attributes
         foreach ($attributes as $attributeName => $attributeValue) {

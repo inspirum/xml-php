@@ -126,4 +126,20 @@ class BasicTest extends AbstractTestCase
             $xml->toString()
         );
     }
+
+    public function testCDATAEscaping()
+    {
+        $xml = new XML();
+
+        $aE = $xml->addElement('a');
+        $aE->addTextElement('b', "30&nbsp;km");
+        $aE->addTextElement('c', "me & you");
+        $aE->addTextElement('d', "2 > 1");
+        $aE->addTextElement('e', "<3", [], true);
+
+        $this->assertEquals(
+            $this->getSampleXMLstring("<a><b><![CDATA[30&nbsp;km]]></b><c><![CDATA[me & you]]></c><d>2 &gt; 1</d><e><![CDATA[<3]]></e></a>"),
+            $xml->toString()
+        );
+    }
 }
