@@ -3,9 +3,11 @@
 namespace Inspirum\XML\Services;
 
 use DOMDocument;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMException;
 use DOMNode;
+use InvalidArgumentException;
 use Throwable;
 
 class XMLNode
@@ -25,7 +27,7 @@ class XMLNode
     private $node;
 
     /**
-     * XMLNode constructor.
+     * XMLNode constructor
      *
      * @param \DOMDocument  $document
      * @param \DOMNode|null $element
@@ -37,7 +39,7 @@ class XMLNode
     }
 
     /**
-     * Add element to XML node.
+     * Add element to XML node
      *
      * @param string $name
      * @param array  $attributes
@@ -46,11 +48,11 @@ class XMLNode
      */
     public function addElement(string $name, array $attributes = []): XMLNode
     {
-        return $this->addTextElement($name, null, $attributes);
+        return $this->addTextElement($name, null, $attributes, false);
     }
 
     /**
-     * Add text element.
+     * Add text element
      *
      * @param string $name
      * @param mixed  $value
@@ -61,22 +63,19 @@ class XMLNode
      */
     public function addTextElement(string $name, $value = null, array $attributes = [], bool $forcedEscape = false): XMLNode
     {
-        // create element with given value
-        $element = $this->createDOMElement($name, $value, $attributes, $forcedEscape);
+        $element = $this->createFullDOMElement($name, $value, $attributes, $forcedEscape);
 
-        // attach to document
         $this->appendChild($element);
 
-        // return new node
         return new self($this->document, $element);
     }
 
     /**
-     * Add XML data.
+     * Add XML data
      *
      * @param string $content
      *
-     * @return \Inspirum\XML\Services\XMLNode
+     * @return \Inspirum\XML\Services\XMLNode|null
      */
     public function addXMLData(string $content): ?XMLNode
     {
@@ -84,17 +83,15 @@ class XMLNode
             return null;
         }
 
-        $fragment = $this->document->createDocumentFragment();
-        $fragment->appendXML($content);
+        $element = $this->createDOMFragment($content);
 
-        $this->appendChild($fragment);
+        $this->appendChild($element);
 
-        // return new node
-        return new self($this->document, $fragment);
+        return new self($this->document, $element);
     }
 
     /**
-     * Create new (unconnected) element.
+     * Create new (unconnected) element
      *
      * @param string $name
      * @param array  $attributes
@@ -103,11 +100,11 @@ class XMLNode
      */
     public function createElement(string $name, array $attributes = []): XMLNode
     {
-        return $this->createTextElement($name, null, $attributes);
+        return $this->createTextElement($name, null, $attributes, false);
     }
 
     /**
-     * Create new (unconnected) text element.
+     * Create new (unconnected) text element
      *
      * @param string $name
      * @param mixed  $value
@@ -116,50 +113,11 @@ class XMLNode
      *
      * @return \Inspirum\XML\Services\XMLNode
      */
-    public function createTextElement(string $name, $value = null, array $attributes = [], bool $forcedEscape = false): XMLNode
+    public function createTextElement(string $name, $value, array $attributes = [], bool $forcedEscape = false): XMLNode
     {
-        // create element with given value
-        $element = $this->createDOMElement($name, $value, $attributes, $forcedEscape);
+        $element = $this->createFullDOMElement($name, $value, $attributes, $forcedEscape);
 
-        // return new node
         return new self($this->document, $element);
-    }
-
-    /**
-     * Create new DOM element.
-     *
-     * @param string                     $name
-     * @param string|float|int|bool|null $value
-     * @param array                      $attributes
-     * @param bool                       $forcedEscape
-     *
-     * @return \DOMElement
-     */
-    private function createDOMElement(string $name, $value = null, array $attributes = [], bool $forcedEscape = false): DOMElement
-    {
-        $value = $this->normalizeValue($value);
-
-        // create element with given value
-        try {
-            // escape values with "&", or with forced escaping flag
-            if ($value !== null && (strpos($value, '&') !== false || $forcedEscape)) {
-                throw new DOMException('DOMDocument::createElement(): unterminated entity reference');
-            }
-            // create element with given value
-            $element = $this->document->createElement($name, $value);
-        } catch (Throwable $exception) {
-            // encapsulate with CDATA
-            $element = $this->document->createElement($name);
-            $cdata   = $this->document->createCDATASection($value);
-            $element->appendChild($cdata);
-        }
-
-        // set attributes
-        foreach ($attributes as $attributeName => $attributeValue) {
-            $element->setAttribute($attributeName, $this->normalizeValue($attributeValue));
-        }
-
-        return $element;
     }
 
     /**
@@ -175,6 +133,117 @@ class XMLNode
     }
 
     /**
+     * Create new DOM element.
+     *
+     * @param string                     $name
+     * @param string|float|int|bool|null $value
+     * @param array                      $attributes
+     * @param bool                       $forcedEscape
+     *
+     * @return \DOMElement
+     */
+    private function createFullDOMElement(string $name, $value = null, array $attributes = [], bool $forcedEscape = false): DOMElement
+    {
+        $this->registerNamespaces($attributes);
+
+        $element = $this->createDOMElementNS($name);
+
+        $this->setDOMElementValue($element, $value, $forcedEscape);
+
+        foreach ($attributes as $attributeName => $attributeValue) {
+            $this->setDOMAttributeNS($element, $attributeName, $attributeValue);
+        }
+
+        return $element;
+    }
+
+    /**
+     * Create new DOM fragment element
+     *
+     * @param string $content
+     *
+     * @return \DOMDocumentFragment
+     */
+    private function createDOMFragment(string $content): DOMDocumentFragment
+    {
+        $element = $this->document->createDocumentFragment();
+        $element->appendXML($content);
+
+        return $element;
+    }
+
+    /**
+     * Create new DOM element with namespace if exists
+     *
+     * @param string      $name
+     * @param string|null $value
+     *
+     * @return \DOMElement
+     */
+    private function createDOMElementNS(string $name, $value = null): DOMElement
+    {
+        $prefix = $this->getNamespacePrefix($name);
+        $value  = $this->normalizeValue($value);
+
+        if (XML::hasNamespace($prefix)) {
+            return $this->document->createElementNS(XML::getNamespace($prefix), $name, $value);
+        } else {
+            return $this->document->createElement($name, $value);
+        }
+    }
+
+    /**
+     * Set node value to element
+     *
+     * @param \DOMElement $element
+     * @param mixed       $value
+     * @param bool        $forcedEscape
+     *
+     * @return void
+     */
+    private function setDOMElementValue(DOMElement $element, $value, bool $forcedEscape = false): void
+    {
+        $value = $this->normalizeValue($value);
+
+        if ($value === '' || $value === null) {
+            return;
+        }
+
+        try {
+            if ($value !== null && (strpos($value, '&') !== false || $forcedEscape)) {
+                throw new DOMException('DOMDocument::createElement(): unterminated entity reference');
+            }
+            $element->nodeValue = $value;
+        } catch (Throwable $exception) {
+            $cdata = $this->document->createCDATASection($value);
+            $element->appendChild($cdata);
+        }
+    }
+
+    /**
+     * Create new DOM attribute with namespace if exists
+     *
+     * @param \DOMElement      $element
+     * @param string           $name
+     * @param string|float|int $value
+     *
+     * @return void
+     */
+    private function setDOMAttributeNS(DOMElement $element, string $name, $value): void
+    {
+        $prefix = $this->getNamespacePrefix($name);
+        $value  = $this->normalizeValue($value);
+
+        if ($prefix === 'xmlns') {
+            $element->setAttributeNS('http://www.w3.org/2000/xmlns/', $name, $value);
+        } elseif (XML::hasNamespace($prefix)) {
+            $element->setAttributeNS(XML::getNamespace($prefix), $name, $value);
+        } else {
+            $element->setAttribute($name, $value);
+        }
+    }
+
+    /**
      * Append child to parent node.
      *
      * @param \DOMNode $element
@@ -185,6 +254,68 @@ class XMLNode
     {
         $parentNode = $this->node ?: $this->document;
         $parentNode->appendChild($element);
+    }
+
+    /**
+     * Register xmlns namespace URLs
+     *
+     * @param array $attributes
+     *
+     * @return void
+     */
+    private function registerNamespaces(array $attributes): void
+    {
+        foreach ($attributes as $attributeName => $attributeValue) {
+            [$prefix, $namespaceLocalName] = $this->parseQualifiedName($attributeName);
+
+            if ($prefix === 'xmlns') {
+                XML::registerNamespace($namespaceLocalName, $attributeValue);
+            }
+        }
+    }
+
+    /**
+     * Parse node name to namespace prefix and un-prefixed name
+     *
+     * @param string $name
+     *
+     * @return array
+     */
+    private function parseQualifiedName(string $name): array
+    {
+        $this->validateElementName($name);
+
+        return array_pad(explode(':', $name, 2), -2, null);
+    }
+
+    /**
+     * Get namespace prefix from node name
+     *
+     * @param string $name
+     *
+     * @return string|null
+     */
+    private function getNamespacePrefix(string $name): ?string
+    {
+        return $this->parseQualifiedName($name)[0];
+    }
+
+    /**
+     * Validate element name
+     *
+     * @param string $value
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function validateElementName(string $value): void
+    {
+        $regex = '/^[a-zA-Z][a-zA-Z0-9]*(\:[a-zA-Z][a-zA-Z0-9]*)?$/';
+
+        if (preg_match($regex, $value) !== 1) {
+            throw new InvalidArgumentException(sprintf('Element name or namespace prefix [%s] has invalid value', $value));
+        }
     }
 
     /**

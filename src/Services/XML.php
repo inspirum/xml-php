@@ -8,6 +8,13 @@ use DOMException;
 class XML extends XMLNode
 {
     /**
+     * Map of registered namespaces
+     *
+     * @var array
+     */
+    private static $namespaces = [];
+
+    /**
      * XML constructor
      *
      * @param string $version
@@ -16,6 +23,8 @@ class XML extends XMLNode
     public function __construct(string $version = '1.0', string $encoding = 'UTF-8')
     {
         parent::__construct(new DOMDocument($version, $encoding), null);
+
+        self::$namespaces = [];
     }
 
     /**
@@ -105,5 +114,58 @@ class XML extends XMLNode
 
             return $filename;
         });
+    }
+
+    /**
+     * Register new namespace
+     *
+     * @param string $localName
+     * @param string $namespaceURI
+     *
+     * @return void
+     */
+    public static function registerNamespace(string $localName, string $namespaceURI): void
+    {
+        static::$namespaces[$localName] = $namespaceURI;
+    }
+
+    /**
+     * Determinate if namespace is registered
+     *
+     * @param string|null $localName
+     *
+     * @return bool
+     */
+    public static function hasNamespace(?string $localName): bool
+    {
+        return array_key_exists($localName, static::$namespaces);
+    }
+
+    /**
+     * Get namespace URI from local name
+     *
+     * @param string $localName
+     *
+     * @return string
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function getNamespace(string $localName): string
+    {
+        if (static::hasNamespace($localName) === false) {
+            throw new InvalidArgumentException(sprintf('Namespace [%s] does not exists', $localName));
+        }
+
+        return static::$namespaces[$localName];
+    }
+
+    /**
+     * Get all registered namespaces
+     *
+     * @return array
+     */
+    public static function getNamespaces(): array
+    {
+        return static::$namespaces;
     }
 }
