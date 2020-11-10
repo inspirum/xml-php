@@ -2,26 +2,67 @@
 
 namespace Inspirum\XML\Model\Values;
 
-use Inspirum\XML\Definition\Config as DefConfig;
+use Inspirum\XML\Definition\Attributes;
 
 class Config
 {
-    private $alwaysArray;
-    private $attributePrefix;
-    private $textContent;
-    private $autoCast;
-    private $full;
+    /**
+     * Attribute name for \DOMNode::attributes
+     *
+     * @var string
+     */
+    private $attributesName;
 
-    public function __construct(
-        array $alwaysArray = [],
-        string $attributePrefix = null,
-        string $textContent = null
-    ) {
+    /**
+     * Attribute name for \DOMNode::nodeValue
+     *
+     * @var string
+     */
+    private $valueName;
+
+    /**
+     * Attribute name for \DOMNode::childNodes
+     *
+     * @var string
+     */
+    private $nodesName;
+
+    /**
+     * List of \DOMNode::nodeName to always return as array (if not set to full-type array response)
+     *
+     * @var array
+     */
+    private $alwaysArray;
+
+    /**
+     * Flag to response full-type array response
+     *
+     * @var bool
+     */
+    private $fullResponse;
+
+    /**
+     * Flag to auto type-cast \DOMNode::nodeValue
+     *
+     * @var bool
+     */
+    private $autoCast;
+
+    /**
+     * Config constructor.
+     *
+     * @param array       $alwaysArray
+     * @param string|null $attributePrefix
+     * @param string|null $textContent
+     */
+    public function __construct(array $alwaysArray = [], bool $fullResponse = false)
+    {
+        $this->setAttributesName(Attributes::ATTRIBUTES);
+        $this->setValueName(Attributes::VALUE);
+        $this->setNodesName(Attributes::NODES);
         $this->setAlwaysArray($alwaysArray);
-        $this->setAttributePrefix($attributePrefix !== null ? $attributePrefix : DefConfig::ATTRIBUTES);
-        $this->setTextContent($textContent !== null ? $textContent : DefConfig::VALUE);
+        $this->setFullResponse($fullResponse);
         $this->setAutoCast(false);
-        $this->setFull(false);
     }
 
     /**
@@ -34,6 +75,8 @@ class Config
 
     /**
      * @param array $alwaysArray
+     *
+     * @return void
      */
     public function setAlwaysArray(array $alwaysArray): void
     {
@@ -41,66 +84,92 @@ class Config
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
-    public function getAttributePrefix()
+    public function getAttributesName(): string
     {
-        return $this->attributePrefix;
+        return $this->attributesName;
     }
 
     /**
-     * @param mixed|string $attributePrefix
+     * @param string $attributesName
+     *
+     * @return void
      */
-    public function setAttributePrefix(string $attributePrefix): void
+    public function setAttributesName(string $attributesName): void
     {
-        $this->attributePrefix = $attributePrefix;
+        $this->attributesName = $attributesName;
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
-    public function getTextContent()
+    public function getValueName(): string
     {
-        return $this->textContent;
+        return $this->valueName;
     }
 
     /**
-     * @param mixed|string $textContent
+     * @param string $value
+     *
+     * @return void
      */
-    public function setTextContent(string $textContent): void
+    public function setNodesName(string $value): void
     {
-        $this->textContent = $textContent;
+        $this->nodesName = $value;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getAutoCast()
+    public function getNodesName(): string
+    {
+        return $this->nodesName;
+    }
+
+    /**
+     * @param string $valueName
+     *
+     * @return void
+     */
+    public function setValueName(string $valueName): void
+    {
+        $this->valueName = $valueName;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAutoCast(): bool
     {
         return $this->autoCast;
     }
 
     /**
-     * @param mixed $autoCast
+     * @param bool $autoCast
+     *
+     * @return void
      */
-    public function setAutoCast($autoCast): void
+    public function setAutoCast(bool $autoCast = true): void
     {
         $this->autoCast = $autoCast;
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
-    public function getFull()
+    public function isFullResponse(): bool
     {
-        return $this->full;
+        return $this->fullResponse;
     }
 
     /**
-     * @param mixed $full
+     * @param bool $fullResponse
+     *
+     * @return void
      */
-    public function setFull(bool $full = true): void
+    public function setFullResponse(bool $fullResponse = true): void
     {
-        $this->full = $full;
+        $this->fullResponse = $fullResponse;
     }
 }

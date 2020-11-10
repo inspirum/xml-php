@@ -184,7 +184,7 @@ class XMLNode
     private function createDOMElementNS(string $name, $value = null): DOMElement
     {
         $prefix = $this->getNamespacePrefix($name);
-        $value  = $this->normalizeValue($value);
+        $value  = $this->encodeValue($value);
 
         if (XML::hasNamespace($prefix)) {
             return $this->document->createElementNS(XML::getNamespace($prefix), $name, $value);
@@ -204,7 +204,7 @@ class XMLNode
      */
     private function setDOMElementValue(DOMElement $element, $value, bool $forcedEscape = false): void
     {
-        $value = $this->normalizeValue($value);
+        $value = $this->encodeValue($value);
 
         if ($value === '' || $value === null) {
             return;
@@ -233,7 +233,7 @@ class XMLNode
     private function setDOMAttributeNS(DOMElement $element, string $name, $value): void
     {
         $prefix = $this->getNamespacePrefix($name);
-        $value  = $this->normalizeValue($value);
+        $value  = $this->encodeValue($value);
 
         if ($prefix === 'xmlns') {
             $element->setAttributeNS('http://www.w3.org/2000/xmlns/', $name, $value);
@@ -326,10 +326,34 @@ class XMLNode
      *
      * @return mixed
      */
-    private function normalizeValue($value)
+    private function encodeValue($value)
     {
         if (is_bool($value)) {
             $value = $value ? 'true' : 'false';
+        }
+
+        return $value;
+    }
+
+    /**
+     * Normalize value.
+     *
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    private function decodeValue($value)
+    {
+        if (is_numeric($value)) {
+            return $value + 0;
+        }
+
+        if (in_array($value, ['true', 'True'])) {
+            return true;
+        }
+
+        if (in_array($value, ['false', 'False'])) {
+            return false;
         }
 
         return $value;
@@ -366,7 +390,13 @@ class XMLNode
      */
     public function toArray(Config $options = null): array
     {
-        return $this->nodeToArray($this->node ?: $this->document, $options ?: new Config());
+        $result = $this->nodeToArray($this->node ?: $this->document, $options ?: new Config());
+
+        if (is_array($result) === false) {
+            $result = [$result];
+        }
+
+        return $result;
     }
 
     /**
@@ -379,69 +409,73 @@ class XMLNode
      */
     private function nodeToArray(DOMNode $node, Config $options)
     {
-        $result = [];
+        $result = [
+            $options->getAttributesName() => [],
+            $options->getValueName()      => null,
+            $options->getNodesName()      => [],
+        ];
 
+        /** @var \DOMAttr $attribute */
         if ($node->hasAttributes()) {
-            /** @var \DOMAttr $attribute */
             foreach ($node->attributes as $attribute) {
-                $result[$options->getAttributePrefix()][$attribute->nodeName] = $attribute->nodeValue;
+                $result[$options->getAttributesName()][$attribute->nodeName] = $options->isAutoCast() ?
+                    $this->decodeValue($attribute->nodeValue)
+                    : $attribute->nodeValue;
             }
         }
 
+        /** @var \DOMNode $child */
         if ($node->hasChildNodes()) {
-            $children = $node->childNodes;
-            if ($children->length === 1) {
-                $child = $children->item(0);
+            foreach ($node->childNodes as $child) {
                 if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
-                    $result[$options->getTextContent()] = $child->nodeValue;
-                    return count($result) === 1
-                        ? $result[$options->getTextContent()]
-                        : $result;
-                }
-            }
-
-            /** @var \DOMNode $child */
-            foreach ($children as $child) {
-                if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
-                    if (trim($child->nodeValue) === '') {
-                        continue;
-                    } else {
-                        $result[$options->getTextContent()] = $child->nodeValue;
+                    if (trim($child->nodeValue) !== '') {
+                        $result[$options->getValueName()] = $options->isAutoCast() ?
+                            $this->decodeValue($child->nodeValue)
+                            : $child->nodeValue;
                     }
+                    continue;
                 }
 
-                $castToArray = (
-                    array_key_exists($child->nodeName, $result)
-                    || in_array($child->nodeName, $options->getAlwaysArray())
-                    || in_array($node->nodeName . '.' . $child->nodeName, $options->getAlwaysArray())
-                );
-
-                if ($castToArray) {
-                    if (
-                        array_key_exists($child->nodeName, $result)
-                        && (
-                            is_array($result[$child->nodeName]) === false
-                            || array_keys($result[$child->nodeName]) !== range(0, count($result[$child->nodeName]) - 1)
-                        )
-                    ) {
-                        $result[$child->nodeName] = [$result[$child->nodeName]];
-                    } elseif (isset($result[$child->nodeName]) === false) {
-                        $result[$child->nodeName] = [];
-                    }
-                    $result[$child->nodeName][] = $this->nodeToArray($child, $options);
-                } else {
-                    $result[$child->nodeName] = $this->nodeToArray($child, $options);
+                if (array_key_exists($child->nodeName, $result[$options->getNodesName()]) === false) {
+                    $result[$options->getNodesName()][$child->nodeName] = [];
                 }
+
+                $result[$options->getNodesName()][$child->nodeName][] = $this->nodeToArray($child, $options);
             }
-        } elseif (count($result) > 0) {
-            $result[$options->getTextContent()] = null;
         }
 
-        if (count($result) === 0) {
+        if ($options->isFullResponse()) {
+            return $result;
+        }
+
+        if (count($result[$options->getNodesName()]) === 0 && count($result[$options->getAttributesName()]) === 0) {
+            return $result[$options->getValueName()];
+        }
+
+        if (count(array_filter($result)) === 0) {
             return null;
         }
 
-        return $result;
+        $simpleResult = $result[$options->getNodesName()];
+        foreach ($simpleResult as $nodeName => $values) {
+            if (
+                in_array($nodeName, $options->getAlwaysArray()) === false
+                && in_array($node->nodeName . '.' . $nodeName, $options->getAlwaysArray()) === false
+                && array_keys($values) === [0]
+            ) {
+                $simpleResult[$nodeName] = $values[0];
+            }
+        }
+
+        if (count($result[$options->getAttributesName()]) > 0) {
+            $simpleResult[$options->getAttributesName()] = $result[$options->getAttributesName()];
+        }
+
+        if ($result[$options->getValueName()] !== null) {
+            $simpleResult[$options->getValueName()] = $result[$options->getValueName()];
+        }
+
+        return $simpleResult;
     }
 
     /**
@@ -466,16 +500,6 @@ class XMLNode
         restore_error_handler();
 
         return $response;
-    }
-
-    /**
-     * Convert to array
-     *
-     * @return array
-     */
-    public function __toArray()
-    {
-        return $this->toArray();
     }
 
     /**

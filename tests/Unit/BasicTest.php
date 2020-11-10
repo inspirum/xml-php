@@ -112,6 +112,23 @@ class BasicTest extends AbstractTestCase
         );
     }
 
+    public function testCastToString()
+    {
+        $xml = new XML();
+
+        $aE = $xml->addElement('a');
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 1);
+        $bE->addTextElement('c2', true);
+        $bE->addTextElement('c3', "test");
+        $aE->addTextElement('b', "2");
+
+        $this->assertEquals(
+            $this->getSampleXMLstring("<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>"),
+            (string) $xml
+        );
+    }
+
     public function testBuilderWithEncoding()
     {
         $xml = new XML('1.0', 'WINDOWS-1250');
@@ -473,9 +490,31 @@ class BasicTest extends AbstractTestCase
         $bE->addTextElement('c1', 1);
         $bE->addTextElement('c2', true);
         $bE->addTextElement('c3', 'test');
-        $bE = $aE->addElement('b');
-        $bE->addTextElement('c1', 2);
-        $bE->addElement('c2');
+        $bE  = $aE->addElement('b');
+        $c1E = $bE->addTextElement('c1', 0);
+        $c2E = $bE->addElement('c2');
+
+        $this->assertEquals(
+            [
+                null,
+            ],
+            $c2E->toArray()
+        );
+
+        $this->assertEquals(
+            [
+                '0',
+            ],
+            $c1E->toArray()
+        );
+
+        $this->assertEquals(
+            [
+                'c1' => '0',
+                'c2' => null,
+            ],
+            $bE->toArray()
+        );
 
         $this->assertEquals(
             [
@@ -487,8 +526,8 @@ class BasicTest extends AbstractTestCase
                             'c3' => 'test',
                         ],
                         1 => [
-                            'c1' => 2,
-                            'c2' => '',
+                            'c1' => '0',
+                            'c2' => null,
                         ],
                     ],
                 ],
@@ -689,8 +728,8 @@ class BasicTest extends AbstractTestCase
         $xml->addTextElement('a', 2, ['test' => true]);
 
         $config = new Config();
-        $config->setAttributePrefix('@attr');
-        $config->setTextContent('@val');
+        $config->setAttributesName('@attr');
+        $config->setValueName('@val');
 
         $this->assertEquals(
             [
@@ -712,4 +751,138 @@ class BasicTest extends AbstractTestCase
             $xml->toArray($config)
         );
     }
+
+    public function testToArraysWithFullConfig()
+    {
+        $xml = new XML();
+
+        $aE = $xml->addElement('a', ['test' => true, 'a' => 'b']);
+        $aE->addTextElement('b', 'test');
+        $xml->addTextElement('a', 2);
+        $cE = $xml->addTextElement('c', 3);
+
+        $config = new Config();
+        $config->setFullResponse();
+
+        $this->assertEquals(
+            [
+                '@attributes' => [],
+                '@value'      => '3',
+                '@nodes'      => [],
+            ],
+            $cE->toArray($config)
+        );
+
+        $this->assertEquals(
+            [
+                '@attributes' => [
+                    'test' => 'true',
+                    'a'    => 'b',
+                ],
+                '@value'      => null,
+                '@nodes'      => [
+                    'b' => [
+                        0 => [
+                            '@attributes' => [],
+                            '@value'      => 'test',
+                            '@nodes'      => [],
+                        ],
+                    ],
+                ],
+            ],
+            $aE->toArray($config)
+        );
+
+        $this->assertEquals(
+            [
+                '@attributes' => [],
+                '@value'      => null,
+                '@nodes'      => [
+                    'a' => [
+                        0 => [
+                            '@attributes' => [
+                                'test' => 'true',
+                                'a'    => 'b',
+                            ],
+                            '@value'      => null,
+                            '@nodes'      => [
+                                'b' => [
+                                    0 => [
+                                        '@attributes' => [],
+                                        '@value'      => 'test',
+                                        '@nodes'      => [],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        1 => [
+                            '@attributes' => [],
+                            '@value'      => '2',
+                            '@nodes'      => [],
+                        ],
+                    ],
+                    'c' => [
+                        0 => [
+                            '@attributes' => [],
+                            '@value'      => '3',
+                            '@nodes'      => [],
+                        ],
+                    ],
+                ],
+            ],
+            $xml->toArray($config)
+        );
+    }
+
+    public function testToArraysWithAutoCast()
+    {
+        $xml = new XML();
+
+        $aE = $xml->addElement('a', [
+            'version' => '1.0',
+        ]);
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 1, ['test' => true, 'a' => 1.4]);
+        $bE->addTextElement('c2', false);
+        $bE->addTextElement('c3', 'test');
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 0, ['test' => 'cc', 'b' => 2]);
+
+        $config = new Config();
+        $config->setAutoCast();
+
+        $this->assertEquals(
+            [
+                'a' => [
+                    '@attributes' => [
+                        'version' => 1.0,
+                    ],
+                    'b'           => [
+                        0 => [
+                            'c1' => [
+                                '@attributes' => [
+                                    'a'    => 1.4,
+                                    'test' => true,
+                                ],
+                                '@value'      => 1,
+                            ],
+                            'c2' => false,
+                            'c3' => 'test',
+                        ],
+                        1 => [
+                            'c1' => [
+                                '@attributes' => [
+                                    'test' => 'cc',
+                                    'b'    => 2,
+                                ],
+                                '@value'      => 0,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            $xml->toArray($config)
+        );
+    }
+
 }
