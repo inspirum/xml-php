@@ -7,6 +7,7 @@ use DOMDocumentFragment;
 use DOMElement;
 use DOMException;
 use DOMNode;
+use Inspirum\XML\Model\Values\Config;
 use InvalidArgumentException;
 use Throwable;
 
@@ -61,7 +62,7 @@ class XMLNode
      *
      * @return \Inspirum\XML\Services\XMLNode
      */
-    public function addTextElement(string $name, $value = null, array $attributes = [], bool $forcedEscape = false): XMLNode
+    public function addTextElement(string $name, $value, array $attributes = [], bool $forcedEscape = false): XMLNode
     {
         $element = $this->createFullDOMElement($name, $value, $attributes, $forcedEscape);
 
@@ -357,6 +358,93 @@ class XMLNode
     }
 
     /**
+     * Convert to array
+     *
+     * @param \Inspirum\XML\Model\Values\Config|null $options
+     *
+     * @return array
+     */
+    public function toArray(Config $options = null): array
+    {
+        return $this->nodeToArray($this->node ?: $this->document, $options ?: new Config());
+    }
+
+    /**
+     * Convert node to array
+     *
+     * @param \DOMNode                          $node
+     * @param \Inspirum\XML\Model\Values\Config $options
+     *
+     * @return array|string|null
+     */
+    private function nodeToArray(DOMNode $node, Config $options)
+    {
+        $result = [];
+
+        if ($node->hasAttributes()) {
+            /** @var \DOMAttr $attribute */
+            foreach ($node->attributes as $attribute) {
+                $result[$options->getAttributePrefix()][$attribute->nodeName] = $attribute->nodeValue;
+            }
+        }
+
+        if ($node->hasChildNodes()) {
+            $children = $node->childNodes;
+            if ($children->length === 1) {
+                $child = $children->item(0);
+                if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
+                    $result[$options->getTextContent()] = $child->nodeValue;
+                    return count($result) === 1
+                        ? $result[$options->getTextContent()]
+                        : $result;
+                }
+            }
+
+            /** @var \DOMNode $child */
+            foreach ($children as $child) {
+                if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
+                    if (trim($child->nodeValue) === '') {
+                        continue;
+                    } else {
+                        $result[$options->getTextContent()] = $child->nodeValue;
+                    }
+                }
+
+                $castToArray = (
+                    array_key_exists($child->nodeName, $result)
+                    || in_array($child->nodeName, $options->getAlwaysArray())
+                    || in_array($node->nodeName . '.' . $child->nodeName, $options->getAlwaysArray())
+                );
+
+                if ($castToArray) {
+                    if (
+                        array_key_exists($child->nodeName, $result)
+                        && (
+                            is_array($result[$child->nodeName]) === false
+                            || array_keys($result[$child->nodeName]) !== range(0, count($result[$child->nodeName]) - 1)
+                        )
+                    ) {
+                        $result[$child->nodeName] = [$result[$child->nodeName]];
+                    } elseif (isset($result[$child->nodeName]) === false) {
+                        $result[$child->nodeName] = [];
+                    }
+                    $result[$child->nodeName][] = $this->nodeToArray($child, $options);
+                } else {
+                    $result[$child->nodeName] = $this->nodeToArray($child, $options);
+                }
+            }
+        } elseif (count($result) > 0) {
+            $result[$options->getTextContent()] = null;
+        }
+
+        if (count($result) === 0) {
+            return null;
+        }
+
+        return $result;
+    }
+
+    /**
      * Register custom error handler to throw Exception on warning message
      *
      * @param callable $callback
@@ -381,7 +469,17 @@ class XMLNode
     }
 
     /**
-     * Convert to string.
+     * Convert to array
+     *
+     * @return array
+     */
+    public function __toArray()
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Convert to string
      *
      * @return string
      */
