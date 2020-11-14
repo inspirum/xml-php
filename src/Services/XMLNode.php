@@ -365,6 +365,8 @@ class XMLNode
      * @param bool $formatOutput
      *
      * @return string
+     *
+     * @throws \DOMException
      */
     public function toString(bool $formatOutput = false): string
     {
@@ -374,7 +376,9 @@ class XMLNode
             $xml = $this->document->saveXML($this->node, null);
 
             if ($xml === false) {
+                // @codeCoverageIgnoreStart
                 throw new DOMException('\DOMDocument::saveXML() method failed');
+                // @codeCoverageIgnoreEnd
             }
 
             return $xml;
@@ -464,10 +468,6 @@ class XMLNode
 
         if (count($result[$options->getNodesName()]) === 0 && count($result[$options->getAttributesName()]) === 0) {
             return $result[$options->getValueName()];
-        }
-
-        if (count(array_filter($result)) === 0) {
-            return null;
         }
 
         $simpleResult = $result[$options->getNodesName()];

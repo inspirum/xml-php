@@ -58,7 +58,9 @@ class XMLReader
         });
 
         if ($opened == false) {
+            // @codeCoverageIgnoreStart
             throw new Exception('\XMLReader::open() method failed');
+            // @codeCoverageIgnoreEnd
         }
 
         return $xmlReader;
@@ -73,7 +75,6 @@ class XMLReader
      */
     public function iterateNode(string $nodeName): iterable
     {
-        // find first element with name $element
         $found = $this->moveToNode($nodeName);
 
         if ($found === false) {
@@ -81,10 +82,8 @@ class XMLReader
         }
 
         do {
-            // read new element
             $item = $this->readNode();
 
-            // yield element data
             if ($item !== null) {
                 yield $item;
             }
@@ -118,7 +117,7 @@ class XMLReader
      */
     private function moveToNode(string $nodeName): bool
     {
-        while ($this->reader->read()) {
+        while ($this->read()) {
             if ($this->isNodeElementType() && $this->getNodeName() === $nodeName) {
                 return true;
             }
@@ -130,13 +129,19 @@ class XMLReader
     /**
      * Move to next sibling element by tag name
      *
-     * @param string $element
+     * @param string $nodeName
      *
      * @return bool
      */
-    private function moveToNextNode(string $element): bool
+    private function moveToNextNode(string $nodeName): bool
     {
-        return $this->reader->next($this->getLocalName($element));
+        while ($this->reader->next($this->getLocalName($nodeName))) {
+            if ($this->getNodeName() === $nodeName) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -148,33 +153,31 @@ class XMLReader
      */
     private function readNode(): ?XMLNode
     {
-        $nodeName = $this->getNodeName();
-
-        $text     = null;
-        $elements = [];
-
+        $nodeName   = $this->getNodeName();
         $attributes = $this->getNodeAttributes();
 
         if ($this->isNodeEmptyElementType()) {
             return $this->xml->createElement($nodeName, $attributes);
         }
 
-        while ($this->reader->read()) {
-            if ($this->isNodeElementEndType() && $this->getNodeName() == $nodeName) {
-                if (count($elements) > 0) {
-                    $node = $this->xml->createElement($nodeName, $attributes);
-                    foreach ($elements as $element) {
-                        $node->append($element);
-                    }
-                    return $node;
-                }
+        $node     = null;
+        $text     = null;
+        $elements = [];
 
-                return $this->xml->createTextElement($nodeName, $text, $attributes);
+        while ($this->read()) {
+            if ($this->isNodeElementEndType() && $this->getNodeName() == $nodeName) {
+                $node = $this->xml->createTextElement($nodeName, $text, $attributes);
+
+                foreach ($elements as $element) {
+                    $node->append($element);
+                }
+                
+                break;
             } elseif ($this->isNodeTextType()) {
                 $text = $this->getNodeValue();
             } elseif ($this->isNodeElementType()) {
                 if ($this->isNodeEmptyElementType()) {
-                    $elements[$this->getNodeName()] = [$this->xml->createElement($this->getNodeName())];
+                    $elements[] = $this->xml->createElement($this->getNodeName());
                     continue;
                 }
 
@@ -186,7 +189,21 @@ class XMLReader
             }
         }
 
-        return null;
+        return $node;
+    }
+
+    /**
+     * Move to next node in document
+     *
+     * @return bool
+     *
+     * @throws \DOMException
+     */
+    private function read(): bool
+    {
+        return $this->withErrorHandler(function () {
+            return $this->reader->read();
+        });
     }
 
     /**
@@ -199,7 +216,7 @@ class XMLReader
     private function getLocalName(string $name): string
     {
         $i = strpos($name, ':');
-        
+
         if ($i !== false) {
             return substr($name, $i + 1);
         }

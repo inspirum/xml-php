@@ -4,6 +4,7 @@ namespace Inspirum\XML\Services;
 
 use DOMDocument;
 use DOMException;
+use InvalidArgumentException;
 
 class XML extends XMLNode
 {
@@ -81,7 +82,9 @@ class XML extends XMLNode
             $xml = $this->document->loadXML($content, null);
 
             if ($xml === false) {
+                // @codeCoverageIgnoreStart
                 throw new DOMException('\DOMDocument::load() method failed');
+                // @codeCoverageIgnoreEnd
             }
         });
     }
@@ -93,7 +96,7 @@ class XML extends XMLNode
      *
      * @return void
      *
-     * @throws \Exception
+     * @throws \DOMException
      */
     public function validate(string $filename): void
     {
@@ -101,30 +104,35 @@ class XML extends XMLNode
             $xml = $this->document->schemaValidate($filename);
 
             if ($xml === false) {
+                // @codeCoverageIgnoreStart
                 throw new DOMException('\DOMDocument::schemaValidate() method failed');
+                // @codeCoverageIgnoreEnd
             }
         });
     }
 
     /**
-     * Save to file.
+     * Save to file
      *
      * @param string $filename
+     * @param bool   $formatOutput
      *
-     * @return string
+     * @return void
      *
-     * @throws \Exception
+     * @throws \DOMException
      */
-    public function save(string $filename): string
+    public function save(string $filename, bool $formatOutput = false): void
     {
-        $this->withErrorHandler(function () use ($filename) {
+        $this->withErrorHandler(function () use ($filename, $formatOutput) {
+            $this->document->formatOutput = $formatOutput;
+
             $xml = $this->document->save($filename, null);
 
             if ($xml === false) {
+                // @codeCoverageIgnoreStart
                 throw new DOMException('\DOMDocument::save() method failed');
+                // @codeCoverageIgnoreEnd
             }
-
-            return $filename;
         });
     }
 
