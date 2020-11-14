@@ -10,7 +10,7 @@
                 <xs:element name="items">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="item">
+                            <xs:element name="item" maxOccurs="unbounded" minOccurs="0">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element type="xs:integer" name="id"/>

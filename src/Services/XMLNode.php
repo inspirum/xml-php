@@ -400,6 +400,20 @@ class XMLNode
     }
 
     /**
+     * Get node text content
+     *
+     * @return string|null
+     */
+    public function getTextContent(): ?string
+    {
+        if ($this->node === null) {
+            return null;
+        }
+
+        return $this->node->textContent;
+    }
+
+    /**
      * Convert node to array
      *
      * @param \DOMNode                          $node

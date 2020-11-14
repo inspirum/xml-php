@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed version="2.0">
+    <updated>2020-08-25T13:53:38+00:00</updated>
+    <title>Test feed</title>
+    <errors id="1"></errors>
+    <errors2 id="2"/>
+    <items>
+        <item i="0">
+            <id uuid="12345">1</id>
+            <name price="10.1">Test 1</name>
+        </item>
+        <item i="1">
+            <id uuid="61648">2</id>
+            <name price="5">Test 2</name>
+        </item>
+        <item i="2">
+            <id>3</id>
+            <name price="500">Test 3</name>
+        </item>
+        <item i="3">
+            <id uuid="894654">4</id>
+            <name>Test 4</name>
+        </item>
+        <item i="4">
+            <id uuid="78954">5</id>
+            <name price="0.99">Test 5</name>
+        </item>
+    </items>
+</feed>

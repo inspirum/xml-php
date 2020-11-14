@@ -55,6 +55,18 @@ class XML extends XMLNode
     }
 
     /**
+     * Parse file with XMLReader
+     *
+     * @param string $filepath
+     *
+     * @return \Inspirum\XML\Services\XMLReader
+     */
+    public static function parse(string $filepath): XMLReader
+    {
+        return new XMLReader($filepath);
+    }
+
+    /**
      * Load XML
      *
      * @param string $content
