@@ -4,6 +4,7 @@ namespace Inspirum\XML\Services;
 
 use DOMDocument;
 use DOMException;
+use Exception;
 use InvalidArgumentException;
 
 class XML extends XMLNode
@@ -11,7 +12,7 @@ class XML extends XMLNode
     /**
      * Map of registered namespaces
      *
-     * @var array
+     * @var array<string,string>
      */
     private static $namespaces = [];
 
@@ -34,16 +35,24 @@ class XML extends XMLNode
      * @param string $filepath
      *
      * @return self
+     *
+     * @throws \Exception
      */
     public static function load(string $filepath): self
     {
-        return self::create(file_get_contents($filepath));
+        $content = @file_get_contents($filepath);
+
+        if ($content === false) {
+            throw new Exception(error_get_last()['message'] ?? sprintf('Failed to open file [%s]', $filepath));
+        }
+
+        return self::create($content);
     }
 
     /**
      * Load from data
      *
-     * @param string $filename
+     * @param string $content
      *
      * @return self
      */
@@ -79,7 +88,7 @@ class XML extends XMLNode
         $this->withErrorHandler(function () use ($content) {
             $this->document->preserveWhiteSpace = false;
 
-            $xml = $this->document->loadXML($content, null);
+            $xml = $this->document->loadXML($content);
 
             if ($xml === false) {
                 // @codeCoverageIgnoreStart
@@ -92,7 +101,7 @@ class XML extends XMLNode
     /**
      * Validate with xml scheme file (.xsd).
      *
-     * @param $filename
+     * @param string $filename
      *
      * @return void
      *
@@ -126,7 +135,7 @@ class XML extends XMLNode
         $this->withErrorHandler(function () use ($filename, $formatOutput) {
             $this->document->formatOutput = $formatOutput;
 
-            $xml = $this->document->save($filename, null);
+            $xml = $this->document->save($filename);
 
             if ($xml === false) {
                 // @codeCoverageIgnoreStart
@@ -152,11 +161,11 @@ class XML extends XMLNode
     /**
      * Determinate if namespace is registered
      *
-     * @param string|null $localName
+     * @param string $localName
      *
      * @return bool
      */
-    public static function hasNamespace(?string $localName): bool
+    public static function hasNamespace(string $localName): bool
     {
         return array_key_exists($localName, static::$namespaces);
     }
@@ -182,7 +191,7 @@ class XML extends XMLNode
     /**
      * Get all registered namespaces
      *
-     * @return array
+     * @return array<string,string>
      */
     public static function getNamespaces(): array
     {

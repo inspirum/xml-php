@@ -42,8 +42,8 @@ class XMLNode
     /**
      * Add element to XML node
      *
-     * @param string $name
-     * @param array  $attributes
+     * @param string               $name
+     * @param array<string,string> $attributes
      *
      * @return \Inspirum\XML\Services\XMLNode
      */
@@ -55,10 +55,10 @@ class XMLNode
     /**
      * Add text element
      *
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $attributes
-     * @param bool   $forcedEscape
+     * @param string               $name
+     * @param mixed                $value
+     * @param array<string,string> $attributes
+     * @param bool                 $forcedEscape
      *
      * @return \Inspirum\XML\Services\XMLNode
      */
@@ -94,8 +94,8 @@ class XMLNode
     /**
      * Create new (unconnected) element
      *
-     * @param string $name
-     * @param array  $attributes
+     * @param string               $name
+     * @param array<string,string> $attributes
      *
      * @return \Inspirum\XML\Services\XMLNode
      */
@@ -107,10 +107,10 @@ class XMLNode
     /**
      * Create new (unconnected) text element
      *
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $attributes
-     * @param bool   $forcedEscape
+     * @param string               $name
+     * @param mixed                $value
+     * @param array<string,string> $attributes
+     * @param bool                 $forcedEscape
      *
      * @return \Inspirum\XML\Services\XMLNode
      */
@@ -130,7 +130,9 @@ class XMLNode
      */
     public function append(XMLNode $element): void
     {
-        $this->appendChild($element->node);
+        if ($element->node !== null) {
+            $this->appendChild($element->node);
+        }
     }
 
     /**
@@ -138,13 +140,17 @@ class XMLNode
      *
      * @param string                     $name
      * @param string|float|int|bool|null $value
-     * @param array                      $attributes
+     * @param array<string,string>       $attributes
      * @param bool                       $forcedEscape
      *
      * @return \DOMElement
      */
-    private function createFullDOMElement(string $name, $value = null, array $attributes = [], bool $forcedEscape = false): DOMElement
-    {
+    private function createFullDOMElement(
+        string $name,
+        $value = null,
+        array $attributes = [],
+        bool $forcedEscape = false
+    ): DOMElement {
         $this->registerNamespaces($attributes);
 
         $element = $this->createDOMElementNS($name);
@@ -186,7 +192,7 @@ class XMLNode
         $prefix = $this->getNamespacePrefix($name);
         $value  = $this->encodeValue($value);
 
-        if (XML::hasNamespace($prefix)) {
+        if ($prefix !== null && XML::hasNamespace($prefix)) {
             return $this->document->createElementNS(XML::getNamespace($prefix), $name, $value);
         } else {
             return $this->document->createElement($name, $value);
@@ -237,7 +243,7 @@ class XMLNode
 
         if ($prefix === 'xmlns') {
             $element->setAttributeNS('http://www.w3.org/2000/xmlns/', $name, $value);
-        } elseif (XML::hasNamespace($prefix)) {
+        } elseif ($prefix !== null && XML::hasNamespace($prefix)) {
             $element->setAttributeNS(XML::getNamespace($prefix), $name, $value);
         } else {
             $element->setAttribute($name, $value);
@@ -260,7 +266,7 @@ class XMLNode
     /**
      * Register xmlns namespace URLs
      *
-     * @param array $attributes
+     * @param array<string,string> $attributes
      *
      * @return void
      */
@@ -280,7 +286,7 @@ class XMLNode
      *
      * @param string $name
      *
-     * @return array
+     * @return array<int,string|null>
      */
     private function parseQualifiedName(string $name): array
     {
@@ -315,7 +321,9 @@ class XMLNode
         $regex = '/^[a-zA-Z][a-zA-Z0-9]*(\:[a-zA-Z][a-zA-Z0-9]*)?$/';
 
         if (preg_match($regex, $value) !== 1) {
-            throw new InvalidArgumentException(sprintf('Element name or namespace prefix [%s] has invalid value', $value));
+            throw new InvalidArgumentException(
+                sprintf('Element name or namespace prefix [%s] has invalid value', $value)
+            );
         }
     }
 
@@ -373,7 +381,9 @@ class XMLNode
         return $this->withErrorHandler(function () use ($formatOutput) {
             $this->document->formatOutput = $formatOutput;
 
-            $xml = $this->document->saveXML($this->node, null);
+            $xml = $this->node !== null
+                ? $this->document->saveXML($this->node)
+                : $this->document->saveXML();
 
             if ($xml === false) {
                 // @codeCoverageIgnoreStart
@@ -390,7 +400,7 @@ class XMLNode
      *
      * @param \Inspirum\XML\Model\Values\Config|null $options
      *
-     * @return array
+     * @return array<int|string,mixed>
      */
     public function toArray(Config $options = null): array
     {
@@ -423,7 +433,7 @@ class XMLNode
      * @param \DOMNode                          $node
      * @param \Inspirum\XML\Model\Values\Config $options
      *
-     * @return array|string|null
+     * @return array<int|string,mixed>|string|null
      */
     private function nodeToArray(DOMNode $node, Config $options)
     {
@@ -433,8 +443,8 @@ class XMLNode
             $options->getNodesName()      => [],
         ];
 
-        /** @var \DOMAttr $attribute */
         if ($node->hasAttributes()) {
+            /** @var \DOMAttr $attribute */
             foreach ($node->attributes as $attribute) {
                 $result[$options->getAttributesName()][$attribute->nodeName] = $options->isAutoCast() ?
                     $this->decodeValue($attribute->nodeValue)
@@ -442,8 +452,8 @@ class XMLNode
             }
         }
 
-        /** @var \DOMNode $child */
         if ($node->hasChildNodes()) {
+            /** @var \DOMNode $child */
             foreach ($node->childNodes as $child) {
                 if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
                     if (trim($child->nodeValue) !== '') {

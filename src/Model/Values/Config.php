@@ -30,7 +30,7 @@ class Config
     /**
      * List of \DOMNode::nodeName to always return as array (if not set to full-type array response)
      *
-     * @var array
+     * @var array<int,string>
      */
     private $alwaysArray;
 
@@ -49,11 +49,10 @@ class Config
     private $autoCast;
 
     /**
-     * Config constructor.
+     * Config constructor
      *
-     * @param array       $alwaysArray
-     * @param string|null $attributePrefix
-     * @param string|null $textContent
+     * @param array<int,string> $alwaysArray
+     * @param bool              $fullResponse
      */
     public function __construct(array $alwaysArray = [], bool $fullResponse = false)
     {
@@ -66,7 +65,7 @@ class Config
     }
 
     /**
-     * @return array
+     * @return array<int,string>
      */
     public function getAlwaysArray(): array
     {
@@ -74,7 +73,7 @@ class Config
     }
 
     /**
-     * @param array $alwaysArray
+     * @param array<int,string> $alwaysArray
      *
      * @return void
      */

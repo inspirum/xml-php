@@ -1,2 +1,5 @@
 includes:
 	- vendor/phpstan/phpstan-mockery/extension.neon
+parameters:
+	ignoreErrors:
+		- '#Strict comparison using === between int and false will always evaluate to false#'

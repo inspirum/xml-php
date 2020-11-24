@@ -3,6 +3,7 @@
 namespace Inspirum\XML\Tests\Unit;
 
 use DOMException;
+use Exception;
 use Inspirum\XML\Services\XML;
 use Inspirum\XML\Services\XMLReader;
 use Inspirum\XML\Tests\AbstractTestCase;
@@ -65,6 +66,13 @@ class FacadeTest extends AbstractTestCase
             $this->getSampleXMLstring('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
             $xml->toString()
         );
+    }
+
+    public function testLoadMethodFromWrongFile()
+    {
+        $this->expectException(Exception::class);
+
+        $xml = XML::load('wrong.xml');
     }
 
     public function testLoadMethodFromFileWithInvalidXml()

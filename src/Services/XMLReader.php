@@ -147,8 +147,6 @@ class XMLReader
     /**
      * Return associative array of element by name
      *
-     * @param array $alwayArray
-     *
      * @return \Inspirum\XML\Services\XMLNode|null
      */
     private function readNode(): ?XMLNode
@@ -171,7 +169,7 @@ class XMLReader
                 foreach ($elements as $element) {
                     $node->append($element);
                 }
-                
+
                 break;
             } elseif ($this->isNodeTextType()) {
                 $text = $this->getNodeValue();
@@ -309,7 +307,7 @@ class XMLReader
     /**
      * Get current node attributes
      *
-     * @return array
+     * @return array<string,string>
      */
     private function getNodeAttributes(): array
     {
