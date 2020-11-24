@@ -89,14 +89,12 @@ class FacadeTest extends AbstractTestCase
 
         $this->assertEquals(
             $this->getSampleXMLstring(
-                <<<END
-                <root>
-                  <a>
-                    <b1>1</b1>
-                    <b2>test</b2>
-                  </a>
-                </root>
-                END
+                "<root>
+  <a>
+    <b1>1</b1>
+    <b2>test</b2>
+  </a>
+</root>"
             ),
             $xml->toString(true)
         );

@@ -190,7 +190,7 @@ class BuilderTest extends AbstractTestCase
                 'a' => 'a.xsd',
                 'b' => 'b.xsd',
             ],
-            XML::getNamespaces(),
+            XML::getNamespaces()
         );
     }
 
@@ -306,12 +306,12 @@ class BuilderTest extends AbstractTestCase
 
         $this->assertEquals(
             $this->getSampleXMLstring('<rss xmlns:a="http://base.google.com/ns/1.0" version="2.0"><channel><title>Feed</title></channel><item><a:id>8765</a:id><a:price>100.1</a:price></item></rss>'),
-            $xml->toString(),
+            $xml->toString()
         );
 
         $this->assertEquals(
             ['a' => 'http://base.google.com/ns/1.0'],
-            XML::getNamespaces(),
+            XML::getNamespaces()
         );
     }
 
@@ -335,7 +335,7 @@ class BuilderTest extends AbstractTestCase
         $this->assertEquals(['g' => 'stock.xsd'], XML::getNamespaces());
         $this->assertEquals(
             $this->getSampleXMLstring('<g:feed xmlns:g="stock.xsd" g:version="2.0"><g:updated>2020-08-25T13:53:38+00:00</g:updated><g:items><g:item><g:id>8765</g:id><g:name>Test</g:name><g:price>100.1</g:price></g:item></g:items></g:feed>'),
-            $xml->toString(),
+            $xml->toString()
         );
     }
 

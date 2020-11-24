@@ -4,7 +4,9 @@ namespace Inspirum\XML\Services;
 
 use DOMDocument;
 use DOMException;
+use DOMNode;
 use Exception;
+use Inspirum\XML\Model\Values\Config;
 use InvalidArgumentException;
 
 class XML extends XMLNode
@@ -14,7 +16,7 @@ class XML extends XMLNode
      *
      * @var array<string,string>
      */
-    private static $namespaces = [];
+    protected static $namespaces = [];
 
     /**
      * XML constructor

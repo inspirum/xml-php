@@ -8,7 +8,6 @@ use DOMElement;
 use DOMException;
 use DOMNode;
 use Inspirum\XML\Model\Values\Config;
-use InvalidArgumentException;
 use Throwable;
 
 class XMLNode
@@ -189,8 +188,8 @@ class XMLNode
      */
     private function createDOMElementNS(string $name, $value = null): DOMElement
     {
-        $prefix = $this->getNamespacePrefix($name);
-        $value  = $this->encodeValue($value);
+        $prefix = Formatter::getNamespacePrefix($name);
+        $value  = Formatter::encodeValue($value);
 
         if ($prefix !== null && XML::hasNamespace($prefix)) {
             return $this->document->createElementNS(XML::getNamespace($prefix), $name, $value);
@@ -210,14 +209,14 @@ class XMLNode
      */
     private function setDOMElementValue(DOMElement $element, $value, bool $forcedEscape = false): void
     {
-        $value = $this->encodeValue($value);
+        $value = Formatter::encodeValue($value);
 
         if ($value === '' || $value === null) {
             return;
         }
 
         try {
-            if ($value !== null && (strpos($value, '&') !== false || $forcedEscape)) {
+            if (strpos($value, '&') !== false || $forcedEscape) {
                 throw new DOMException('DOMDocument::createElement(): unterminated entity reference');
             }
             $element->nodeValue = $value;
@@ -238,8 +237,8 @@ class XMLNode
      */
     private function setDOMAttributeNS(DOMElement $element, string $name, $value): void
     {
-        $prefix = $this->getNamespacePrefix($name);
-        $value  = $this->encodeValue($value);
+        $prefix = Formatter::getNamespacePrefix($name);
+        $value  = Formatter::encodeValue($value);
 
         if ($prefix === 'xmlns') {
             $element->setAttributeNS('http://www.w3.org/2000/xmlns/', $name, $value);
@@ -273,98 +272,12 @@ class XMLNode
     private function registerNamespaces(array $attributes): void
     {
         foreach ($attributes as $attributeName => $attributeValue) {
-            [$prefix, $namespaceLocalName] = $this->parseQualifiedName($attributeName);
+            [$prefix, $namespaceLocalName] = Formatter::parseQualifiedName($attributeName);
 
             if ($prefix === 'xmlns') {
                 XML::registerNamespace($namespaceLocalName, $attributeValue);
             }
         }
-    }
-
-    /**
-     * Parse node name to namespace prefix and un-prefixed name
-     *
-     * @param string $name
-     *
-     * @return array<int,string|null>
-     */
-    private function parseQualifiedName(string $name): array
-    {
-        $this->validateElementName($name);
-
-        return array_pad(explode(':', $name, 2), -2, null);
-    }
-
-    /**
-     * Get namespace prefix from node name
-     *
-     * @param string $name
-     *
-     * @return string|null
-     */
-    private function getNamespacePrefix(string $name): ?string
-    {
-        return $this->parseQualifiedName($name)[0];
-    }
-
-    /**
-     * Validate element name
-     *
-     * @param string $value
-     *
-     * @return void
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function validateElementName(string $value): void
-    {
-        $regex = '/^[a-zA-Z][a-zA-Z0-9]*(\:[a-zA-Z][a-zA-Z0-9]*)?$/';
-
-        if (preg_match($regex, $value) !== 1) {
-            throw new InvalidArgumentException(
-                sprintf('Element name or namespace prefix [%s] has invalid value', $value)
-            );
-        }
-    }
-
-    /**
-     * Normalize value.
-     *
-     * @param mixed $value
-     *
-     * @return mixed
-     */
-    private function encodeValue($value)
-    {
-        if (is_bool($value)) {
-            $value = $value ? 'true' : 'false';
-        }
-
-        return $value;
-    }
-
-    /**
-     * Normalize value.
-     *
-     * @param mixed $value
-     *
-     * @return mixed
-     */
-    private function decodeValue($value)
-    {
-        if (is_numeric($value)) {
-            return $value + 0;
-        }
-
-        if (in_array($value, ['true', 'True'])) {
-            return true;
-        }
-
-        if (in_array($value, ['false', 'False'])) {
-            return false;
-        }
-
-        return $value;
     }
 
     /**
@@ -443,33 +356,25 @@ class XMLNode
             $options->getNodesName()      => [],
         ];
 
-        if ($node->hasAttributes()) {
-            /** @var \DOMAttr $attribute */
-            foreach ($node->attributes as $attribute) {
-                $result[$options->getAttributesName()][$attribute->nodeName] = $options->isAutoCast() ?
-                    $this->decodeValue($attribute->nodeValue)
-                    : $attribute->nodeValue;
-            }
+        /** @var \DOMAttr $attribute */
+        foreach ($node->attributes as $attribute) {
+            $result[$options->getAttributesName()][$attribute->nodeName] = $options->isAutoCast()
+                ? Formatter::decodeValue($attribute->nodeValue)
+                : $attribute->nodeValue;
         }
 
-        if ($node->hasChildNodes()) {
-            /** @var \DOMNode $child */
-            foreach ($node->childNodes as $child) {
-                if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
-                    if (trim($child->nodeValue) !== '') {
-                        $result[$options->getValueName()] = $options->isAutoCast() ?
-                            $this->decodeValue($child->nodeValue)
-                            : $child->nodeValue;
-                    }
-                    continue;
+        /** @var \DOMNode $child */
+        foreach ($node->childNodes as $child) {
+            if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
+                if (trim($child->nodeValue) !== '') {
+                    $result[$options->getValueName()] = $options->isAutoCast()
+                        ? Formatter::decodeValue($child->nodeValue)
+                        : $child->nodeValue;
                 }
-
-                if (array_key_exists($child->nodeName, $result[$options->getNodesName()]) === false) {
-                    $result[$options->getNodesName()][$child->nodeName] = [];
-                }
-
-                $result[$options->getNodesName()][$child->nodeName][] = $this->nodeToArray($child, $options);
+                continue;
             }
+
+            $result[$options->getNodesName()][$child->nodeName][] = $this->nodeToArray($child, $options);
         }
 
         if ($options->isFullResponse()) {
@@ -480,6 +385,20 @@ class XMLNode
             return $result[$options->getValueName()];
         }
 
+        return $this->simplifyArray($result, $options, $node);
+    }
+
+    /**
+     * Remove unnecessary data
+     *
+     * @param array<int|string,mixed>           $result
+     * @param \Inspirum\XML\Model\Values\Config $options
+     * @param \DOMNode                          $node
+     *
+     * @return array<int|string,mixed>
+     */
+    private function simplifyArray(array $result, Config $options, DOMNode $node): array
+    {
         $simpleResult = $result[$options->getNodesName()];
         foreach ($simpleResult as $nodeName => $values) {
             if (

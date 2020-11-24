@@ -135,7 +135,7 @@ class XMLReader
      */
     private function moveToNextNode(string $nodeName): bool
     {
-        while ($this->reader->next($this->getLocalName($nodeName))) {
+        while ($this->reader->next(Formatter::getLocalName($nodeName))) {
             if ($this->getNodeName() === $nodeName) {
                 return true;
             }
@@ -202,24 +202,6 @@ class XMLReader
         return $this->withErrorHandler(function () {
             return $this->reader->read();
         });
-    }
-
-    /**
-     * Get local name from qualified name
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    private function getLocalName(string $name): string
-    {
-        $i = strpos($name, ':');
-
-        if ($i !== false) {
-            return substr($name, $i + 1);
-        }
-
-        return $name;
     }
 
     /**
