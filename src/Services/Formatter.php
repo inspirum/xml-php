@@ -53,7 +53,7 @@ class Formatter
      *
      * @throws \InvalidArgumentException
      */
-    private static function validateElementName(string $value): void
+    protected static function validateElementName(string $value): void
     {
         $regex = '/^[a-zA-Z][a-zA-Z0-9]*(\:[a-zA-Z][a-zA-Z0-9]*)?$/';
 
