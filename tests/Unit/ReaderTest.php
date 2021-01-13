@@ -7,13 +7,19 @@ use Generator;
 use Inspirum\XML\Services\XMLNode;
 use Inspirum\XML\Services\XMLReader;
 use Inspirum\XML\Tests\AbstractTestCase;
+use ValueError;
 
 class ReaderTest extends AbstractTestCase
 {
     public function testEmptyFilepath()
     {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Empty string supplied');
+        if (PHP_VERSION_ID < 80000) {
+            $this->expectException(Exception::class);
+            $this->expectExceptionMessage('Empty string supplied');
+        } else {
+            $this->expectException(ValueError::class);
+            $this->expectExceptionMessage('Argument #1 ($uri) cannot be empty');
+        }
 
         new XMLReader('');
     }

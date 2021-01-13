@@ -356,25 +356,29 @@ class XMLNode
             $options->getNodesName()      => [],
         ];
 
-        /** @var \DOMAttr $attribute */
-        foreach ($node->attributes as $attribute) {
-            $result[$options->getAttributesName()][$attribute->nodeName] = $options->isAutoCast()
-                ? Formatter::decodeValue($attribute->nodeValue)
-                : $attribute->nodeValue;
+        if ($node->hasAttributes()) {
+            /** @var \DOMAttr $attribute */
+            foreach ($node->attributes as $attribute) {
+                $result[$options->getAttributesName()][$attribute->nodeName] = $options->isAutoCast()
+                    ? Formatter::decodeValue($attribute->nodeValue)
+                    : $attribute->nodeValue;
+            }
         }
 
-        /** @var \DOMNode $child */
-        foreach ($node->childNodes as $child) {
-            if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
-                if (trim($child->nodeValue) !== '') {
-                    $result[$options->getValueName()] = $options->isAutoCast()
-                        ? Formatter::decodeValue($child->nodeValue)
-                        : $child->nodeValue;
+        if ($node->hasChildNodes()) {
+            /** @var \DOMNode $child */
+            foreach ($node->childNodes as $child) {
+                if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
+                    if (trim($child->nodeValue) !== '') {
+                        $result[$options->getValueName()] = $options->isAutoCast()
+                            ? Formatter::decodeValue($child->nodeValue)
+                            : $child->nodeValue;
+                    }
+                    continue;
                 }
-                continue;
-            }
 
-            $result[$options->getNodesName()][$child->nodeName][] = $this->nodeToArray($child, $options);
+                $result[$options->getNodesName()][$child->nodeName][] = $this->nodeToArray($child, $options);
+            }
         }
 
         if ($options->isFullResponse()) {
