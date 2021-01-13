@@ -3,7 +3,7 @@
 **Created as part of [inspishop][link-inspishop] e-commerce platform by [inspirum][link-inspirum] team.**
 
 [![Latest Stable Version][ico-packagist-stable]][link-packagist-stable]
-[![Build Status][ico-travis]][link-travis]
+[![Build Status][ico-workflow]][link-workflow]
 [![Coverage Status][ico-scrutinizer]][link-scrutinizer]
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![PHPStan][ico-phpstan]][link-phpstan]
@@ -642,7 +642,7 @@ The MIT License (MIT). Please see [License File][link-licence] for more informat
 
 
 [ico-license]:              https://img.shields.io/github/license/inspirum/xml-php.svg?style=flat-square&colorB=blue
-[ico-travis]:               https://img.shields.io/travis/inspirum/xml-php/master.svg?branch=master&style=flat-square
+[ico-workflow]:             https://img.shields.io/github/workflow/status/inspirum/xml-php/Test/master?style=flat-square
 [ico-scrutinizer]:          https://img.shields.io/scrutinizer/coverage/g/inspirum/xml-php/master.svg?style=flat-square
 [ico-code-quality]:         https://img.shields.io/scrutinizer/g/inspirum/xml-php.svg?style=flat-square
 [ico-packagist-stable]:     https://img.shields.io/packagist/v/inspirum/xml.svg?style=flat-square&colorB=blue
@@ -655,7 +655,7 @@ The MIT License (MIT). Please see [License File][link-licence] for more informat
 [link-changelog]:           ./CHANGELOG.md
 [link-contributing]:        ./docs/CONTRIBUTING.md
 [link-code-of-conduct]:     ./docs/CODE_OF_CONDUCT.md
-[link-travis]:              https://travis-ci.org/inspirum/xml-php
+[link-workflow]:            https://github.com/inspirum/xml-php/actions
 [link-scrutinizer]:         https://scrutinizer-ci.com/g/inspirum/xml-php/code-structure
 [link-code-quality]:        https://scrutinizer-ci.com/g/inspirum/xml-php
 [link-inspishop]:           https://www.inspishop.cz/
