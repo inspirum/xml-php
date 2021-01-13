@@ -5,21 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2020-01-01
+## [1.0.0] - 2021-01-13
 ### Added
-- Add new feature
-
-### Changed
-- Changed existing functionality.
-
-### Deprecated
-- Soon-to-be removed features.
-
-### Removed
-- Removed features.
-
-### Fixed
-- Fixed any bug.
-
-### Security
-- Fixed vulnerabilities.
+- Added XML builder
+  - Fluent builder support
+  - Automatic (or forced) CDATA escaping
+  - Option to add XML fragments
+  - Automatic namespace usage  
+  - XML validation with XSD schema
+- Added memory efficient XML reader 
+  - Reading XML files into [**XMLNode**](./src/Services/XMLNode.php) instances
+  - Powerful cast to array method
+  - Iterate all nodes with given name
