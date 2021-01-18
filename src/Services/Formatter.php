@@ -55,7 +55,7 @@ class Formatter
      */
     protected static function validateElementName(string $value): void
     {
-        $regex = '/^[a-zA-Z][a-zA-Z0-9]*(\:[a-zA-Z][a-zA-Z0-9]*)?$/';
+        $regex = '/^[a-zA-Z][a-zA-Z0-9\_]*(\:[a-zA-Z][a-zA-Z0-9\_]*)?$/';
 
         if (preg_match($regex, $value) !== 1) {
             throw new InvalidArgumentException(

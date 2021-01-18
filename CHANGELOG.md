@@ -6,10 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased](https://github.com/inspirum/xml-php/compare/v1.0.0...master)
+## [Unreleased](https://github.com/inspirum/xml-php/compare/v1.0.1...master)
 
 
-## [1.0.0] - 2021-01-13
+## [v1.0.1 (2020-01-18)](https://github.com/inspirum/xml-php/compare/v1.0.0...v1.0.1)
+### Fixed
+- Support "_" in elements name
+
+
+## v1.0.0 (2021-01-13) 
 ### Added
 - Added XML builder
   - Fluent builder support
