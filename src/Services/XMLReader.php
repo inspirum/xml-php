@@ -322,10 +322,12 @@ class XMLReader
      */
     protected function withErrorHandler(callable $callback)
     {
-        set_error_handler(function (int $code, string $message) {
+        set_error_handler(function (int $code, string $message, string $file, int $line, array $context): bool {
             if (strpos($message, 'XMLReader::') !== false) {
                 throw new Exception($message, $code);
             }
+
+            return false;
         });
 
         $response = $callback();
