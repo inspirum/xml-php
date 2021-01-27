@@ -135,7 +135,13 @@ class XMLReader
      */
     private function moveToNextNode(string $nodeName): bool
     {
-        while ($this->reader->next(Formatter::getLocalName($nodeName))) {
+        $localName = Formatter::getLocalName($nodeName);
+
+        if ($localName === null) {
+            return false;
+        }
+
+        while ($this->reader->next($localName)) {
             if ($this->getNodeName() === $nodeName) {
                 return true;
             }

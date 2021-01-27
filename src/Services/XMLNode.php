@@ -274,7 +274,7 @@ class XMLNode
         foreach ($attributes as $attributeName => $attributeValue) {
             [$prefix, $namespaceLocalName] = Formatter::parseQualifiedName($attributeName);
 
-            if ($prefix === 'xmlns') {
+            if ($prefix === 'xmlns' && $namespaceLocalName !== null) {
                 XML::registerNamespace($namespaceLocalName, $attributeValue);
             }
         }
@@ -358,7 +358,7 @@ class XMLNode
 
         if ($node->hasAttributes()) {
             /** @var \DOMAttr $attribute */
-            foreach ($node->attributes as $attribute) {
+            foreach ($node->attributes ?? [] as $attribute) {
                 $result[$options->getAttributesName()][$attribute->nodeName] = $options->isAutoCast()
                     ? Formatter::decodeValue($attribute->nodeValue)
                     : $attribute->nodeValue;
@@ -367,7 +367,7 @@ class XMLNode
 
         if ($node->hasChildNodes()) {
             /** @var \DOMNode $child */
-            foreach ($node->childNodes as $child) {
+            foreach ($node->childNodes ?? [] as $child) {
                 if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
                     if (trim($child->nodeValue) !== '') {
                         $result[$options->getValueName()] = $options->isAutoCast()
