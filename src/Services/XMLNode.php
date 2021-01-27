@@ -436,7 +436,7 @@ class XMLNode
      */
     protected function withErrorHandler(callable $callback)
     {
-        set_error_handler(function (int $code, string $message, string $file, int $line, array $context): bool {
+        set_error_handler(function (int $code, string $message, string $file, int $line, array $context = []): bool {
             if (strpos($message, 'DOMDocument::') !== false) {
                 throw new DOMException($message, $code);
             }
