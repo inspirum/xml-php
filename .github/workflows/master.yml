@@ -10,7 +10,7 @@ jobs:
     name: PHP ${{ matrix.php }}
     strategy:
       matrix:
-        php: ['7.1', '7.2', '7.3', '7.4', '8.0']
+        php: ['8.1']
     steps:
       - uses: actions/checkout@v2
       - name: Set up PHP ${{ matrix.php }}
@@ -31,10 +31,10 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress --no-suggest
       - name: Test
         run: |
-          vendor/bin/phpcs --standard=./ruleset.xml src/
-          vendor/bin/phpstan analyse -l 7 -c phpstan.neon.dist src/
+          vendor/bin/phpcs src/
+          vendor/bin/phpstan analyse -l 8 -c phpstan.neon.dist src/
           vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
-          if [[ "${{ matrix.php }}" == '7.4' ]]; then
+          if [[ "${{ matrix.php }}" == '8.1' ]]; then
             wget https://scrutinizer-ci.com/ocular.phar
             php ocular.phar code-coverage:upload --format=php-clover coverage.clover
           fi

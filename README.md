@@ -25,71 +25,74 @@ Simple XML fluent writer and memory efficient XML reader.
 Writing Google Merchant XML feed file
 
 ```php
-use Inspirum\XML\Services\XML;
+use Inspirum\XML\Builder\DocumentFactory;
 
-$locale       = 'cs';
-$currencyCode = 'CZK';
-
-$xml = new XML();
-$rss = $xml->addElement('rss', [
-    'version' => '2.0',
-    'xmlns:g' => 'http://base.google.com/ns/1.0',
-]);
-
-$channel = $rss->addElement('channel');
-$channel->addTextElement('title', 'Google Merchant');
-$channel->addTextElement('link', 'https://www.inspishop.cz');
-$channel->addTextElement('description', 'Google Merchant products feed');
-$channel->addTextElement('language', $locale);
-$channel->addTextElement('lastBuildDate', (new \DateTime())->format('D, d M y H:i:s O'));
-$channel->addTextElement('generator', 'Inspishop');
-
-foreach ($products as $product) {
-    $item = $xml->createElement('item');
-    $item->addTextElement('g:id', $product->getId());
-    $item->addTextElement('title', $product->getName($locale));
-    $item->addTextElement('link', $product->getUrl());
-    $item->addTextElement('description', strip_tags($product->getDescription($locale)));
-    $item->addTextElement('g:image_link', $product->getImageUrl());
-    foreach ($product->getAdditionalImageUrls() as $imageUrl) {
-        $item->addTextElement('g:additional_image_link', $imageUrl);
+function generateFeed(DocumentFactory $factory): void
+{
+    $locale       = 'cs';
+    $currencyCode = 'CZK';
+    
+    $xml = $factory->create();
+    $rss = $xml->addElement('rss', [
+        'version' => '2.0',
+        'xmlns:g' => 'http://base.google.com/ns/1.0',
+    ]);
+    
+    $channel = $rss->addElement('channel');
+    $channel->addTextElement('title', 'Google Merchant');
+    $channel->addTextElement('link', 'https://www.inspishop.cz');
+    $channel->addTextElement('description', 'Google Merchant products feed');
+    $channel->addTextElement('language', $locale);
+    $channel->addTextElement('lastBuildDate', (new \DateTime())->format('D, d M y H:i:s O'));
+    $channel->addTextElement('generator', 'Inspishop');
+    
+    foreach ($products as $product) {
+        $item = $xml->createElement('item');
+        $item->addTextElement('g:id', $product->getId());
+        $item->addTextElement('title', $product->getName($locale));
+        $item->addTextElement('link', $product->getUrl());
+        $item->addTextElement('description', \strip_tags($product->getDescription($locale)));
+        $item->addTextElement('g:image_link', $product->getImageUrl());
+        foreach ($product->getAdditionalImageUrls() as $imageUrl) {
+            $item->addTextElement('g:additional_image_link', $imageUrl);
+        }
+        $price = $product->getPrice($currencyCode);
+        $item->addTextElement('g:price', $price->getOriginalPriceWithVat() . ' ' . $currencyCode);
+        if ($price->inDiscount()) {
+            $item->addTextElement('g:sale_price', $price->getPriceWithVat() . ' ' . $currencyCode);
+        }
+        if ($product->hasEAN()) {
+            $item->addTextElement('g:gtin', $product->getEAN());
+        } else {
+            $item->addTextElement('g:identifier_exists', 'no');
+        }
+        $item->addTextElement('g:condition', 'new');
+        if ($product->inStock()) {
+            $item->addTextElement('g:availability', 'in stock');
+        } elseif ($product->hasPreorder()) {
+            $item->addTextElement('g:availability', 'preorder');
+            $item->addTextElement('g:availability_date', $product->getDeliveryDate());
+        } else {
+            $item->addTextElement('g:availability', 'out of stock');
+        }
+        $item->addTextElement('g:brand', $product->getBrand());
+        $item->addTextElement('g:size', $product->getParameterValue('size', $locale));
+        $item->addTextElement('g:color', $product->getParameterValue('color', $locale));
+        $item->addTextElement('g:material', $product->getParameterValue('material', $locale));
+        if ($product->isVariant()) {
+            $item->addTextElement('g:item_group_id', $product->getParentProductId()());
+        }
+        if ($product->getCustomAttribute('google_category') !== null) {
+            $item->addTextElement('g:google_product_category', $product->getCustomAttribute('google_category'));
+        } elseif ($product->getMainCategory() !== null) {
+            $item->addTextElement('g:product_type', $product->getMainCategory()->getFullname($locale));
+        }
     }
-    $price = $product->getPrice($currencyCode);
-    $item->addTextElement('g:price', $price->getOriginalPriceWithVat() . ' ' . $currencyCode);
-    if ($price->inDiscount()) {
-        $item->addTextElement('g:sale_price', $price->getPriceWithVat() . ' ' . $currencyCode);
-    }
-    if ($product->hasEAN()) {
-        $item->addTextElement('g:gtin', $product->getEAN());
-    } else {
-        $item->addTextElement('g:identifier_exists', 'no');
-    }
-    $item->addTextElement('g:condition', 'new');
-    if ($product->inStock()) {
-        $item->addTextElement('g:availability', 'in stock');
-    } elseif ($product->hasPreorder()) {
-        $item->addTextElement('g:availability', 'preorder');
-        $item->addTextElement('g:availability_date', $product->getDeliveryDate());
-    } else {
-        $item->addTextElement('g:availability', 'out of stock');
-    }
-    $item->addTextElement('g:brand', $product->getBrand());
-    $item->addTextElement('g:size', $product->getParameterValue('size', $locale));
-    $item->addTextElement('g:color', $product->getParameterValue('color', $locale));
-    $item->addTextElement('g:material', $product->getParameterValue('material', $locale));
-    if ($product->isVariant()) {
-        $item->addTextElement('g:item_group_id', $product->getParentProductId()());
-    }
-    if ($product->getCustomAttribute('google_category') !== null) {
-        $item->addTextElement('g:google_product_category', $product->getCustomAttribute('google_category'));
-    } elseif ($product->getMainCategory() !== null) {
-        $item->addTextElement('g:product_type', $product->getMainCategory()->getFullname($locale));
-    }
+    
+    $xml->validate('/google_feed.xsd');
+    
+    $xml->save('/output/feeds/google.xml');
 }
-
-$xml->validate('/google_feed.xsd');
-
-$xml->save('/output/feeds/google.xml');
 
 /*
 var_dump($xml->toString(true));
@@ -126,43 +129,47 @@ var_dump($xml->toString(true));
 Reading data from Google Merchant XML feed
 
 ```php
-use Inspirum\XML\Services\XML;
+use Inspirum\XML\Reader\ReaderFactory;
 
-$reader = XML::parse('/output/feeds/google.xml');
-
-$title = $reader->nextNode('title')->getTextContent();
-
-/*
-var_dump($title);
-'Google Merchant'
-*/
-
-$lastBuildDate = $reader->nextNode('lastBuildDate')->getTextContent();
-
-/*
-var_dump($lastBuildDate);
-'2020-08-25T13:53:38+00:00'
-*/
-
-
-$price = 0.0;
-foreach ($reader->iterateNode('item') as $item) {
-    $data = $item->toArray();
-    $price += (float) $data['g:price'];
+function calculateTotalPrice(ReaderFactory $factory): float
+{
+    $reader = $factory->create('/output/feeds/google.xml');
+    
+    $title = $reader->nextNode('title')->getTextContent();
+    
+    /*
+    var_dump($title);
+    'Google Merchant'
+    */
+    
+    $lastBuildDate = $reader->nextNode('lastBuildDate')->getTextContent();
+    
+    /*
+    var_dump($lastBuildDate);
+    '2020-08-25T13:53:38+00:00'
+    */
+    
+    $price = 0.0;
+    foreach ($reader->iterateNode('item') as $item) {
+        $data = $item->toArray();
+        $price += (float) $data['g:price'];
+    }
+    
+    /*
+    var_dump($price);
+    501.98
+    */
+    
+    return $price;
 }
-
-/*
-var_dump($price);
-501.98
-*/
-
 ```
 
 
 ## System requirements
 
-* [PHP 7.1+](http://php.net/releases/7_1_0.php)
+* [PHP 8.1+](http://php.net/releases/8_1_0.php)
 * [ext-dom](http://php.net/dom)
+* [ext-json](http://php.net/json)
 * [ext-xmlreader](http://php.net/xmlreader)
 
 
@@ -174,7 +181,7 @@ $ composer require inspirum/xml
 ```
 or add requirement to your `composer.json`
 ```json
-"inspirum/xml": "^1.0"
+"inspirum/xml": "^2.0"
 ```
 
 ## Usage
@@ -184,14 +191,16 @@ or add requirement to your `composer.json`
 Optionally you can specify XML version and encoding (defaults to UTF-8).
 
 ```php
-use Inspirum\XML\Services\XML;
+use Inspirum\XML\Builder\DefaultDocumentFactory;
 
-$xml = new XML('1.0', 'WINDOWS-1250');
+$factory = new DefaultDocumentFactory()
+
+$xml = $factory->create('1.0', 'WINDOWS-1250');
 /*
 <?xml version="1.0" encoding="WINDOWS-1250"?>
 */
 
-$xml = new XML();
+$xml = $factory->create();
 /*
 <?xml version="1.0" encoding="UTF-8"?>
 */
@@ -319,16 +328,6 @@ try {
 
 #### XML Reader
 
-Init reader with constructor or static method
-```php
-use Inspirum\XML\Services\XML;
-use Inspirum\XML\Services\XMLReader;
-
-$reader = new XMLReader('/sample.xml');
-
-$reader = XML::parse('/sample.xml');
-```
-
 > /sample.xml
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -409,17 +408,16 @@ var_dump($ids);
 
 
 Optional options supported for toArray method
+
 ```php
-use Inspirum\XML\Services\XML;
-use Inspirum\XML\Model\Values\Config;
+use Inspirum\XML\Builder\DefaultDocumentFactory;
+use Inspirum\XML\Formatter\Config;
 
-$config = new Config();
-$config->setAttributesName('@attr');
-$config->setValueName('@val');
-$config->setFullResponse();
-$config->setAutoCast();
+$factory = new DefaultDocumentFactory()
 
-$data = XML::load('/sample.xml')->toArray();
+$config = new Config(attributesName: '@attr', valueName: '@val', fullResponse: true, autoCast: true);
+
+$data = $factory->createForFile('/sample.xml')->toArray($config);
 
 /*
 var_dump($ids);
@@ -557,52 +555,11 @@ var_dump($ids);
 
 ### All available methods
 
-```php
-interface XML extends XMLNode {
-
-    static function load(string $filepath): self;
-  
-    static function create(string $content): self;
-  
-    static function parse(string $filepath): XMLReader;
-
-    function validate(string $filename): void;
-
-    function save(string $filename, bool $formatOutput = false): void;
-}
-```
-
-```php
-interface XMLNode {
-
-    function addElement(string $name, array $attributes = []): XMLNode;
-   
-    function addTextElement(string $name, $value, array $attributes = [], bool $forcedEscape = false): XMLNode;
-   
-    function addXMLData(string $content): ?XMLNode;
-
-    function createElement(string $name, array $attributes = []): XMLNode;
-
-    function createTextElement(string $name, $value, array $attributes = [], bool $forcedEscape = false): XMLNode;
-   
-    function append(XMLNode $element): void;
-   
-    function toString(bool $formatOutput = false): string;
-   
-    function toArray(Config $options = null): array;
-   
-    function getTextContent(): ?string;
-}
-```
-
-```php
-interface XMLReader {
-
-    function iterateNode(string $nodeName): iterable;
-
-    function nextNode(string $nodeName): ?XMLNode;
-}
-```
+- [`Inspirum\XML\Builder\DocumentFactory`](./src/Builder/DocumentFactory.php)
+- [`Inspirum\XML\Builder\Document`](./src/Builder/Document.php)
+- [`Inspirum\XML\Builder\Node`](./src/Builder/Node.php)
+- [`Inspirum\XML\Reader\ReaderFactory`](./src/Reader/ReaderFactory.php)
+- [`Inspirum\XML\Reader\Reader`](./src/Reader/Reader.php)
 
 
 ## Testing
