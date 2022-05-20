@@ -13,14 +13,8 @@ use Inspirum\XML\Exception\Handler;
 use Inspirum\XML\Formatter\Config;
 use Inspirum\XML\Formatter\Formatter;
 use Throwable;
-use function array_keys;
-use function count;
-use function in_array;
 use function is_array;
 use function strpos;
-use function trim;
-use const XML_CDATA_SECTION_NODE;
-use const XML_TEXT_NODE;
 
 abstract class BaseNode implements Node
 {
@@ -254,7 +248,7 @@ abstract class BaseNode implements Node
      */
     public function toArray(?Config $config = null): array
     {
-        $result = $this->nodeToArray($this->node ?? $this->document, $config ?? new Config());
+        $result = Formatter::nodeToArray($this->node ?? $this->document, $config ?? new Config());
 
         if (is_array($result) === false) {
             $result = [$result];
@@ -269,91 +263,5 @@ abstract class BaseNode implements Node
     public function jsonSerialize(): array
     {
         return $this->toArray();
-    }
-
-    /**
-     * Convert node to array
-     *
-     * @param \DOMNode                       $node
-     * @param \Inspirum\XML\Formatter\Config $config
-     *
-     * @return mixed
-     */
-    private function nodeToArray(DOMNode $node, Config $config): mixed
-    {
-        $result = [
-            $config->attributesName => [],
-            $config->valueName      => null,
-            $config->nodesName => [],
-        ];
-
-        if ($node->hasAttributes()) {
-            /** @var \DOMAttr $attribute */
-            foreach ($node->attributes ?? [] as $attribute) {
-                $result[$config->attributesName][$attribute->nodeName] = $config->autoCast
-                    ? Formatter::decodeValue($attribute->nodeValue)
-                    : $attribute->nodeValue;
-            }
-        }
-
-        if ($node->hasChildNodes()) {
-            /** @var \DOMNode $child */
-            foreach ($node->childNodes ?? [] as $child) {
-                if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
-                    if (trim((string) $child->nodeValue) !== '') {
-                        $result[$config->valueName] = $config->autoCast
-                            ? Formatter::decodeValue($child->nodeValue)
-                            : $child->nodeValue;
-                    }
-
-                    continue;
-                }
-
-                $result[$config->nodesName][$child->nodeName][] = $this->nodeToArray($child, $config);
-            }
-        }
-
-        if ($config->fullResponse) {
-            return $result;
-        }
-
-        if (count($result[$config->nodesName]) === 0 && count($result[$config->attributesName]) === 0) {
-            return $result[$config->valueName];
-        }
-
-        return $this->simplifyArray($result, $config, $node);
-    }
-
-    /**
-     * Remove unnecessary data
-     *
-     * @param array<int|string,mixed>        $result
-     * @param \Inspirum\XML\Formatter\Config $config
-     * @param \DOMNode                       $node
-     *
-     * @return array<int|string,mixed>
-     */
-    private function simplifyArray(array $result, Config $config, DOMNode $node): array
-    {
-        $simpleResult = $result[$config->nodesName];
-        foreach ($simpleResult as $nodeName => $values) {
-            if (
-                in_array($nodeName, $config->alwaysArray) === false
-                && in_array($node->nodeName . '.' . $nodeName, $config->alwaysArray) === false
-                && array_keys($values) === [0]
-            ) {
-                $simpleResult[$nodeName] = $values[0];
-            }
-        }
-
-        if (count($result[$config->attributesName]) > 0) {
-            $simpleResult[$config->attributesName] = $result[$config->attributesName];
-        }
-
-        if ($result[$config->valueName] !== null) {
-            $simpleResult[$config->valueName] = $result[$config->valueName];
-        }
-
-        return $simpleResult;
     }
 }

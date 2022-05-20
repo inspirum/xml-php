@@ -50,7 +50,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
     public function testCreateMethodWithInvalidXml(): void
     {
         $this->expectException(DOMException::class);
-        $this->expectExceptionMessage('DOMDocument::loadXML(): expected \'>\' in Entity');
+        $this->expectExceptionMessage('DOMDocument::loadXML()');
 
         $factory = $this->newDocumentFactory();
         $factory->createForContent('<?xml version="1.0" encoding="UTF-8"?><root><a>A</aa></root>');
@@ -89,7 +89,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
     public function testLoadMethodFromFileWithInvalidXml(): void
     {
         $this->expectException(DOMException::class);
-        $this->expectExceptionMessage('DOMDocument::loadXML(): expected \'>\' in Entity');
+        $this->expectExceptionMessage('DOMDocument::loadXML()');
 
         $factory = $this->newDocumentFactory();
         $factory->createForFile($this->getTestFilePath('sample_02.xml'));
