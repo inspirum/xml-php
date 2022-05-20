@@ -1,0 +1,31 @@
+<xs:schema elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="stock.xsd"
+           xmlns="https://inspirum.cz/xsd/stock.xsd">
+    <xs:element name="feed">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="xs:dateTime" name="updated"/>
+                <xs:element type="xs:integer" name="domain" minOccurs="0"/>
+                <xs:element name="items">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="item" maxOccurs="unbounded" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:integer" name="id"/>
+                                        <xs:element type="xs:string" name="name"/>
+                                        <xs:element type="xs:float" name="stock" default="0" minOccurs="0"/>
+                                        <xs:element type="xs:float" name="price" default="0" minOccurs="0"/>
+                                        <xs:element type="xs:boolean" name="active" default="1" minOccurs="0"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="version" form="qualified" use="required"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -415,7 +415,12 @@ use Inspirum\XML\Formatter\Config;
 
 $factory = new DefaultDocumentFactory()
 
-$config = new Config(attributesName: '@attr', valueName: '@val', fullResponse: true, autoCast: true);
+$config = new Config(
+    attributesName: '@attr', 
+    valueName: '@val',
+    fullResponse: true, 
+    autoCast: true,
+);
 
 $data = $factory->createForFile('/sample.xml')->toArray($config);
 

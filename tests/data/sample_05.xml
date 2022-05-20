@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<g:feed xmlns:g="stock.xsd" g:version="2.0">
+    <g:updated>2020-08-25T13:53:38+00:00</g:updated>
+    <g:items>
+        <g:item>
+            <g:id>1</g:id>
+            <g:name g:price="10.1">Test 1</g:name>
+        </g:item>
+        <g:item>
+            <g:id>2</g:id>
+            <g:name>Test 2</g:name>
+        </g:item>
+        <g:item>
+            <g:id>3</g:id>
+            <g:name g:price="0.99">Test 3</g:name>
+        </g:item>
+        <g:item>
+            <g:id>4</g:id>
+            <g:name>Test 4</g:name>
+        </g:item>
+        <g:item>
+            <g:id>5</g:id>
+            <g:name g:price="500">Test 5</g:name>
+        </g:item>
+        <g:item>
+            <g:id>6</g:id>
+            <g:name>Test 6</g:name>
+        </g:item>
+    </g:items>
+</g:feed>
