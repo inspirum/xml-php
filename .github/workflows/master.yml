@@ -35,6 +35,6 @@ jobs:
           vendor/bin/phpstan analyse -l 8 -c phpstan.neon.dist src/
           vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
           if [[ "${{ matrix.php }}" == '8.1' ]]; then
-            wget https://scrutinizer-ci.com/ocular.phar
-            php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+            composer require --dev --no-interaction --no-progress --quiet scrutinizer/ocular
+            vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
           fi
