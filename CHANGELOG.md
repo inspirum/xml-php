@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v2.0.0...master)
 
 
-## [v2.0.0 (2022-05-20)](https://github.com/inspirum/xml-php/compare/v1.0.1...v2.0.0)
+## [v2.0.0 (2022-05-21)](https://github.com/inspirum/xml-php/compare/v1.0.1...v2.0.0)
 ### Changed
 - Support only **PHP 8.1+**
 - Major refactor of all services
