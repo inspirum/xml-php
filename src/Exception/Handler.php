@@ -28,7 +28,9 @@ final class Handler
                 throw new Exception($message, $code);
             }
 
+            // @codeCoverageIgnoreStart
             return false;
+            // @codeCoverageIgnoreENd
         }, $callback);
     }
 

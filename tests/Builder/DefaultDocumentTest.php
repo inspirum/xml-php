@@ -6,10 +6,14 @@ namespace Inspirum\XML\Tests\Builder;
 
 use DOMDocument;
 use DOMException;
+use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocument;
 use Inspirum\XML\Builder\DefaultDocumentFactory;
 use Inspirum\XML\Tests\BaseTestCase;
 use InvalidArgumentException;
+use function file_get_contents;
+use function sys_get_temp_dir;
+use function tempnam;
 
 final class DefaultDocumentTest extends BaseTestCase
 {
@@ -45,6 +49,19 @@ final class DefaultDocumentTest extends BaseTestCase
             $this->getSampleXMLString('<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>'),
             (string) $xml
         );
+    }
+
+    public function testToStringFailed(): void
+    {
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('DOMDocument::saveXML() method failed');
+
+        $document = $this->createMock(DOMDocument::class);
+        $document->expects(self::once())->method('saveXML')->willReturn(false);
+
+        $xml = new DefaultDocument($document);
+
+        $xml->toString();
     }
 
     public function testNodeTextContent(): void
@@ -384,6 +401,19 @@ final class DefaultDocumentTest extends BaseTestCase
         $this->assertTrue(true);
     }
 
+    public function testValidateXsdFailed(): void
+    {
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('DOMDocument::schemaValidate() method failed');
+
+        $document = $this->createMock(DOMDocument::class);
+        $document->expects(self::once())->method('schemaValidate')->willReturn(false);
+
+        $xml = new DefaultDocument($document);
+
+        $xml->validate($this->getTestFilePath('example_03.xsd'));
+    }
+
     public function testValidateWithoutXmlns(): void
     {
         $this->expectException(DOMException::class);
@@ -466,6 +496,91 @@ final class DefaultDocumentTest extends BaseTestCase
         $xml->validate($this->getTestFilePath('example_03.xsd'));
     }
 
+    public function testFormattedOutput(): void
+    {
+        $factory = $this->newDocumentFactory();
+        $xml     = $factory->createForContent('<?xml version="1.0" encoding="UTF-8"?><root><a><b1>1</b1><b2>test</b2></a></root>');
+
+        $this->assertSame(
+            $this->getSampleXMLString(
+                <<<XML
+                <root>
+                  <a>
+                    <b1>1</b1>
+                    <b2>test</b2>
+                  </a>
+                </root>
+                XML
+            ),
+            $xml->toString(true)
+        );
+    }
+
+    public function testSaveMethod(): void
+    {
+        $factory = $this->newDocumentFactory();
+        $xml     = $factory->createForFile($this->getTestFilePath('sample_01.xml'));
+
+        $name = (string) tempnam(sys_get_temp_dir(), 'xml_tests_');
+        $this->assertSame('', file_get_contents($name));
+        $xml->save($name);
+
+        $this->assertFileExists($name);
+        $this->assertSame(
+            $this->getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
+            file_get_contents($name)
+        );
+    }
+
+    public function testSaveMethodWithFormatOutput(): void
+    {
+        $factory = $this->newDocumentFactory();
+        $xml     = $factory->createForFile($this->getTestFilePath('sample_01.xml'));
+
+        $name = (string) tempnam(sys_get_temp_dir(), 'xml_tests_');
+        $this->assertSame('', file_get_contents($name));
+        $xml->save($name, true);
+
+        $this->assertFileExists($name);
+        $this->assertSame(
+            $this->getSampleXMLString(
+                <<<XML
+                <root>
+                  <a>
+                    <b1>1</b1>
+                    <b2>test</b2>
+                  </a>
+                  <a>
+                    <b1>2</b1>
+                    <b2>test2</b2>
+                    <b3>true</b3>
+                  </a>
+                  <b>
+                    <a>
+                      <b1>3</b1>
+                      <b3>false</b3>
+                    </a>
+                  </b>
+                </root>
+                XML
+            ),
+            file_get_contents($name)
+        );
+    }
+
+    public function testSaveMethodFailed(): void
+    {
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('DOMDocument::save() method failed');
+
+        $document = $this->createMock(DOMDocument::class);
+        $document->expects(self::once())->method('save')->willReturn(false);
+
+        $xml = new DefaultDocument($document);
+
+        $xml->save('test.xml', true);
+    }
+
     private function newDocument(?string $version = null, ?string $encoding = null): DefaultDocument
     {
         return new DefaultDocument(new DOMDocument($version ?? '1.0', $encoding ?? 'UTF-8'));
@@ -473,6 +588,6 @@ final class DefaultDocumentTest extends BaseTestCase
 
     private function newDocumentFactory(): DefaultDocumentFactory
     {
-        return new DefaultDocumentFactory();
+        return new DefaultDocumentFactory(new DefaultDOMDocumentFactory());
     }
 }

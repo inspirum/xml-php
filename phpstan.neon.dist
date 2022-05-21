@@ -10,3 +10,7 @@ parameters:
 			message: "#^If condition is always false\\.$#"
 			path: src/Reader/DefaultReader.php
 			count: 1
+		-
+			message: "#^Method Inspirum\\\\XML\\\\Formatter\\\\Formatter\\:\\:parseQualifiedName\\(\\) should return array{string|null, string} but returns array\\.$#"
+			path: src/Formatter/Formatter.php
+			count: 1

@@ -8,6 +8,7 @@ use DOMDocument;
 use Inspirum\XML\Builder\DefaultDocument;
 use Inspirum\XML\Formatter\Config;
 use Inspirum\XML\Tests\BaseTestCase;
+use function json_encode;
 
 class NodeToArrayTest extends BaseTestCase
 {
@@ -446,6 +447,44 @@ class NodeToArrayTest extends BaseTestCase
                 ],
             ],
             $xml->toArray($config)
+        );
+    }
+
+    public function testJsonSerialize(): void
+    {
+        $xml = $this->newDocument();
+
+        $aE = $xml->addElement('a');
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 1);
+        $bE->addTextElement('c2', true);
+        $bE->addTextElement('c3', 'test');
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 0);
+        $bE->addElement('c2');
+
+        $this->assertEquals(
+            [
+                'a' => [
+                    'b' => [
+                        0 => [
+                            'c1' => '1',
+                            'c2' => 'true',
+                            'c3' => 'test',
+                        ],
+                        1 => [
+                            'c1' => '0',
+                            'c2' => null,
+                        ],
+                    ],
+                ],
+            ],
+            $xml->jsonSerialize()
+        );
+
+        $this->assertEquals(
+            '{"a":{"b":[{"c1":"1","c2":"true","c3":"test"},{"c1":"0","c2":null}]}}',
+            json_encode($xml)
         );
     }
 

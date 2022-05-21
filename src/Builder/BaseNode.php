@@ -221,7 +221,7 @@ abstract class BaseNode implements Node
 
     public function toString(bool $formatOutput = false): string
     {
-        return Handler::withErrorHandlerForDOMDocument(function () use ($formatOutput) {
+        return Handler::withErrorHandlerForDOMDocument(function () use ($formatOutput): string {
             $this->document->formatOutput = $formatOutput;
 
             $xml = $this->document->saveXML($this->node);

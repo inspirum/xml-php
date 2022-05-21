@@ -24,7 +24,7 @@ final class Formatter
     /**
      * Parse node name to namespace prefix and local name
      *
-     * @return array<int,string|null>
+     * @return array{0: string|null, 1: string}
      */
     public static function parseQualifiedName(string $name): array
     {
@@ -36,7 +36,7 @@ final class Formatter
     /**
      * Get local name from node name
      */
-    public static function getLocalName(string $name): ?string
+    public static function getLocalName(string $name): string
     {
         return static::parseQualifiedName($name)[1];
     }

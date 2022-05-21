@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Inspirum\XML\Tests\Reader;
 
 use Generator;
+use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocumentFactory;
 use Inspirum\XML\Builder\Node;
 use Inspirum\XML\Reader\DefaultReaderFactory;
+use Inspirum\XML\Reader\DefaultXMLReaderFactory;
 use Inspirum\XML\Reader\Reader;
+use Inspirum\XML\Reader\XMLReaderFactory;
 use Inspirum\XML\Tests\BaseTestCase;
 use Throwable;
 use ValueError;
@@ -231,7 +234,7 @@ class DefaultReaderTest extends BaseTestCase
         $this->assertSame('Test feed', $node?->getTextContent());
 
         $price = null;
-        /** @var \Inspirum\XML\Builder\Node $item*/
+        /** @var \Inspirum\XML\Builder\Node $item */
         foreach ($reader->iterateNode('item') as $item) {
             $data = $item->toArray();
             if ((int) $data['@attributes']['i'] === 4) {
@@ -242,10 +245,16 @@ class DefaultReaderTest extends BaseTestCase
         $this->assertSame(0.99, $price);
     }
 
-    private function newReader(string $filepath, ?string $version = null, ?string $encoding = null): Reader
-    {
-        $documentFactory = new DefaultDocumentFactory();
-        $readerFactory   = new DefaultReaderFactory($documentFactory);
+    private function newReader(
+        string $filepath,
+        ?string $version = null,
+        ?string $encoding = null,
+        ?XMLReaderFactory $readerFactory = null
+    ): Reader {
+        $readerFactory = new DefaultReaderFactory(
+            $readerFactory ?? new DefaultXMLReaderFactory(),
+            new DefaultDocumentFactory(new DefaultDOMDocumentFactory()),
+        );
 
         return $readerFactory->create($filepath, $version, $encoding);
     }

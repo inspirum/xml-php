@@ -28,8 +28,8 @@ final class DefaultDocument extends BaseNode implements Document
     public function validate(string $filename): void
     {
         Handler::withErrorHandlerForDOMDocument(function () use ($filename): void {
-            $xml = $this->getDocument()->schemaValidate($filename);
-            if ($xml === false) {
+            $validated = $this->getDocument()->schemaValidate($filename);
+            if ($validated === false) {
                 throw new DOMException('\DOMDocument::schemaValidate() method failed');
             }
         });
@@ -40,8 +40,8 @@ final class DefaultDocument extends BaseNode implements Document
         Handler::withErrorHandlerForDOMDocument(function () use ($filename, $formatOutput): void {
             $this->getDocument()->formatOutput = $formatOutput;
 
-            $xml = $this->getDocument()->save($filename);
-            if ($xml === false) {
+            $saved = $this->getDocument()->save($filename);
+            if ($saved === false) {
                 throw new DOMException('\DOMDocument::save() method failed');
             }
         });

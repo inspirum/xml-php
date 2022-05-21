@@ -69,10 +69,6 @@ final class DefaultReader implements Reader
     {
         $localName = Formatter::getLocalName($nodeName);
 
-        if ($localName === null) {
-            return false;
-        }
-
         while ($this->reader->next($localName)) {
             if ($this->getNodeName() === $nodeName) {
                 return true;

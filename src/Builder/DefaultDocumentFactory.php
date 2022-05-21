@@ -14,9 +14,14 @@ use function sprintf;
 
 final class DefaultDocumentFactory implements DocumentFactory
 {
+    public function __construct(
+        private DOMDocumentFactory $factory,
+    ) {
+    }
+
     public function create(?string $version = null, ?string $encoding = null): Document
     {
-        return new DefaultDocument($this->createDOMDocument($version, $encoding));
+        return new DefaultDocument($this->factory->create($version, $encoding));
     }
 
     public function createForFile(string $filepath, ?string $version = null, ?string $encoding = null): Document
@@ -31,15 +36,10 @@ final class DefaultDocumentFactory implements DocumentFactory
 
     public function createForContent(string $content, ?string $version = null, ?string $encoding = null): Document
     {
-        $document = $this->createDOMDocument($version, $encoding);
+        $document = $this->factory->create($version, $encoding);
         $this->loadXML($document, $content);
 
         return new DefaultDocument($document);
-    }
-
-    private function createDOMDocument(?string $version = null, ?string $encoding = null): DOMDocument
-    {
-        return new DOMDocument($version ?? '1.0', $encoding ?? 'UTF-8');
     }
 
     /**
@@ -50,9 +50,9 @@ final class DefaultDocumentFactory implements DocumentFactory
         Handler::withErrorHandlerForDOMDocument(static function () use ($document, $content): void {
             $document->preserveWhiteSpace = false;
 
-            $xml = $document->loadXML($content);
-            if ($xml === false) {
-                throw new DOMException('\DOMDocument::load() method failed');
+            $loaded = $document->loadXML($content);
+            if ($loaded === false) {
+                throw new DOMException('\DOMDocument::loadXML() method failed');
             }
         });
     }
