@@ -263,7 +263,7 @@ Forced CDATA escaping
 ```php
 $a = $xml->addElement('a');
 $a->addTextElement('b', 'me');
-$a->addTextElement('b', 'you', [], true);
+$a->addTextElement('b', 'you', forcedEscape: true);
 
 /*
 <?xml version="1.0" encoding="UTF-8"?>
@@ -280,7 +280,7 @@ Adding XML fragments
 ```php
 $a = $xml->addElement('a');
 $a->addXMLData('<b><c>CC</c></b><b>0</b>');
-$a->addTextElement('a', 'you', [], true);
+$a->addTextElement('b', '1');
 
 /*
 <?xml version="1.0" encoding="UTF-8"?>
@@ -289,6 +289,7 @@ $a->addTextElement('a', 'you', [], true);
     <c>CC</c>
   </b>
   <b>0</b>
+  <b>1</b>
 </a>
 */
 ```
@@ -297,7 +298,7 @@ To use automatic namespace usage you only have to set `xmlns:{prefix}` attribute
 
 Elements (or/and attributes) use given prefix as `{prefix}:{localName}`, and it will be created with [`createElementNS`](https://php.net/manual/domdocument.createelementns.php) or [`createAttributeNS`](https://php.net/manual/domdocument.createattributens.php) method.
 ```php
-$root = $xml->addElement('g:root', ['xmlns:g' =>'stock.xsd', 'g:version' => '1.0']);
+$root = $xml->addElement('g:root', ['xmlns:g' =>'stock.xsd', 'g:version' => '2.0']);
 $items = $root->addElement('g:items');
 $items->addTextElement('g:item', 1);
 $items->addTextElement('g:item', 2);
@@ -350,7 +351,7 @@ try {
     </g:items>
 </g:feed>
 ```
-Reading XML files into [**XMLNode**](./src/Services/XMLNode.php) instances
+Reading XML files into [**Node**](./src/Builder/Node.php) instances
 
 Read next node with given name
 ```php
@@ -407,7 +408,7 @@ var_dump($ids);
 ```
 
 
-Optional options supported for toArray method
+Optional config supported for `toArray` method
 
 ```php
 use Inspirum\XML\Builder\DefaultDocumentFactory;
