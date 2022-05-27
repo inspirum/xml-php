@@ -63,10 +63,10 @@ final class Handler
     {
         set_error_handler($errorCallback);
 
-        $response = $functionCallback();
-
-        restore_error_handler();
-
-        return $response;
+        try {
+            return $functionCallback();
+        } finally {
+            restore_error_handler();
+        }
     }
 }
