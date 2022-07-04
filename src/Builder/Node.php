@@ -6,11 +6,15 @@ namespace Inspirum\XML\Builder;
 
 use DOMDocument;
 use DOMNode;
+use Inspirum\Arrayable\Arrayable;
 use Inspirum\XML\Formatter\Config;
 use JsonSerializable;
 use Stringable;
 
-interface Node extends Stringable, JsonSerializable
+/**
+ * @extends \Inspirum\Arrayable\Arrayable<int|string,mixed>
+ */
+interface Node extends Arrayable, Stringable, JsonSerializable
 {
     /**
      * Add element to XML node
@@ -75,27 +79,9 @@ interface Node extends Stringable, JsonSerializable
     public function toString(bool $formatOutput = false): string;
 
     /**
-     * Convert to string
-     *
-     * @see toString()
-     *
-     * @return string
-     */
-    public function __toString(): string;
-
-    /**
      * Convert to array
      *
      * @return array<int|string,mixed>
      */
     public function toArray(?Config $config = null): array;
-
-    /**
-     * Convert to array
-     *
-     * @see toArray()
-     *
-     * @return array<int|string,mixed>
-     */
-    public function jsonSerialize(): array;
 }

@@ -258,7 +258,19 @@ abstract class BaseNode implements Node
     }
 
     /**
-     * @inheritDoc
+     * Convert to array
+     *
+     * @return array<int|string,mixed>
+     */
+    public function __toArray(): array
+    {
+        return $this->toArray();
+    }
+
+    /**
+     * Convert to array
+     *
+     * @return array<int|string,mixed>
      */
     public function jsonSerialize(): array
     {

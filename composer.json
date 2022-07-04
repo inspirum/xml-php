@@ -1,12 +1,14 @@
 {
   "name": "inspirum/xml",
-  "description": "",
+  "description": "Simple XML writer and memory efficient XML reader with powerful xml-to-array cast",
   "keywords": [
     "inspirum",
     "xml",
     "xml-reader",
+    "xml-parser",
     "xml-writer",
-    "xml-parser"
+    "xml-builder",
+    "xml-to-array"
   ],
   "homepage": "https://github.com/inspirum/xml-php",
   "license": "MIT",
@@ -22,19 +24,22 @@
     "php": ">=8.1",
     "ext-dom": "*",
     "ext-json": "*",
-    "ext-xmlreader": "*"
+    "ext-xmlreader": "*",
+    "inspirum/arrayable": "^1.0"
   },
   "require-dev": {
-    "inspirum/coding-standard": "^1.0",
-    "phpstan/phpstan": "^1.6",
+    "inspirum/coding-standard": "^1.1",
+    "phpstan/phpstan": "^1.8",
     "phpunit/phpunit": "^9.5",
-    "squizlabs/php_codesniffer": "^3.6"
+    "squizlabs/php_codesniffer": "^3.7"
   },
   "autoload": {
     "psr-4": {
       "Inspirum\\XML\\": "src"
     }
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "autoload-dev": {
     "psr-4": {
       "Inspirum\\XML\\Tests\\": "tests"
