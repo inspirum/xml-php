@@ -15,6 +15,8 @@ use Inspirum\XML\Reader\XMLReaderFactory;
 use Inspirum\XML\Tests\BaseTestCase;
 use Throwable;
 use ValueError;
+use function is_array;
+use function is_numeric;
 
 class DefaultReaderTest extends BaseTestCase
 {
@@ -237,7 +239,14 @@ class DefaultReaderTest extends BaseTestCase
         /** @var \Inspirum\XML\Builder\Node $item */
         foreach ($reader->iterateNode('item') as $item) {
             $data = $item->toArray();
-            if ((int) $data['@attributes']['i'] === 4) {
+            if (
+                is_array($data['@attributes'])
+                && is_numeric($data['@attributes']['i'])
+                && (int) $data['@attributes']['i'] === 4
+                && is_array($data['name'])
+                && is_array($data['name']['@attributes'])
+                && is_numeric($data['name']['@attributes']['price'])
+            ) {
                 $price = (float) $data['name']['@attributes']['price'];
             }
         }

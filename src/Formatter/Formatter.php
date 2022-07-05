@@ -6,13 +6,14 @@ namespace Inspirum\XML\Formatter;
 
 use DOMNode;
 use InvalidArgumentException;
+use Stringable;
 use function array_keys;
-use function array_pad;
 use function count;
 use function explode;
 use function in_array;
 use function is_bool;
 use function is_numeric;
+use function is_scalar;
 use function preg_match;
 use function sprintf;
 use function trim;
@@ -30,7 +31,12 @@ final class Formatter
     {
         static::validateElementName($name);
 
-        return array_pad(explode(':', $name, 2), -2, null);
+        $parsed = explode(':', $name, 2);
+
+        return [
+            count($parsed) === 2 ? $parsed[0] : null,
+            count($parsed) === 2 ? $parsed[1] : $parsed[0],
+        ];
     }
 
     /**
@@ -78,7 +84,11 @@ final class Formatter
             $value = $value ? 'true' : 'false';
         }
 
-        return (string) $value;
+        if (is_scalar($value) || $value instanceof Stringable) {
+            return (string) $value;
+        }
+
+        return null;
     }
 
     /**
@@ -94,11 +104,11 @@ final class Formatter
             return $value + 0;
         }
 
-        if (in_array($value, ['true', 'True'])) {
+        if (in_array($value, ['true', 'True'], true)) {
             return true;
         }
 
-        if (in_array($value, ['false', 'False'])) {
+        if (in_array($value, ['false', 'False'], true)) {
             return false;
         }
 
@@ -115,16 +125,16 @@ final class Formatter
      */
     public static function nodeToArray(DOMNode $node, Config $config): mixed
     {
-        $result = [
-            $config->attributesName => [],
-            $config->valueName      => null,
-            $config->nodesName      => [],
-        ];
+        $value = null;
+        /** @var array<string, mixed> $attributes */
+        $attributes = [];
+        /** @var array<string, array<mixed>> $nodes */
+        $nodes = [];
 
         if ($node->hasAttributes()) {
             /** @var \DOMAttr $attribute */
             foreach ($node->attributes ?? [] as $attribute) {
-                $result[$config->attributesName][$attribute->nodeName] = $config->autoCast
+                $attributes[$attribute->nodeName] = $config->autoCast
                     ? self::decodeValue($attribute->nodeValue)
                     : $attribute->nodeValue;
             }
@@ -135,7 +145,7 @@ final class Formatter
             foreach ($node->childNodes ?? [] as $child) {
                 if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
                     if (trim((string) $child->nodeValue) !== '') {
-                        $result[$config->valueName] = $config->autoCast
+                        $value = $config->autoCast
                             ? self::decodeValue($child->nodeValue)
                             : $child->nodeValue;
                     }
@@ -143,47 +153,52 @@ final class Formatter
                     continue;
                 }
 
-                $result[$config->nodesName][$child->nodeName][] = self::nodeToArray($child, $config);
+                $nodes[$child->nodeName][] = self::nodeToArray($child, $config);
             }
         }
 
         if ($config->fullResponse) {
-            return $result;
+            return [
+                $config->attributesName => $attributes,
+                $config->valueName      => $value,
+                $config->nodesName      => $nodes,
+            ];
         }
 
-        if (count($result[$config->nodesName]) === 0 && count($result[$config->attributesName]) === 0) {
-            return $result[$config->valueName];
+        if (count($nodes) === 0 && count($attributes) === 0) {
+            return $value;
         }
 
-        return self::simplifyArray($result, $config, $node);
+        return self::simplifyArray($attributes, $value, $nodes, $config, $node);
     }
 
     /**
      * Remove unnecessary data
      *
-     * @param array<int|string,mixed> $result
+     * @param array<string,mixed>        $attributes
+     * @param array<string,array<mixed>> $nodes
      *
      * @return array<int|string,mixed>
      */
-    private static function simplifyArray(array $result, Config $config, DOMNode $node): array
+    private static function simplifyArray(array $attributes, mixed $value, array $nodes, Config $config, DOMNode $node): array
     {
-        $simpleResult = $result[$config->nodesName];
-        foreach ($simpleResult as $nodeName => $values) {
+        $simpleResult = $nodes;
+        foreach ($nodes as $nodeName => $values) {
             if (
-                in_array($nodeName, $config->alwaysArray) === false
-                && in_array($node->nodeName . '.' . $nodeName, $config->alwaysArray) === false
+                in_array($nodeName, $config->alwaysArray, true) === false
+                && in_array($node->nodeName . '.' . $nodeName, $config->alwaysArray, true) === false
                 && array_keys($values) === [0]
             ) {
                 $simpleResult[$nodeName] = $values[0];
             }
         }
 
-        if (count($result[$config->attributesName]) > 0) {
-            $simpleResult[$config->attributesName] = $result[$config->attributesName];
+        if (count($attributes) > 0) {
+            $simpleResult[$config->attributesName] = $attributes;
         }
 
-        if ($result[$config->valueName] !== null) {
-            $simpleResult[$config->valueName] = $result[$config->valueName];
+        if ($value !== null) {
+            $simpleResult[$config->valueName] = $value;
         }
 
         return $simpleResult;

@@ -11,7 +11,7 @@ final class Config
     private const VALUE      = '@value';
 
     /**
-     * @param array<int,string> $alwaysArray
+     * @param array<string> $alwaysArray
      */
     public function __construct(
         public readonly array $alwaysArray = [],

@@ -14,6 +14,7 @@ use Inspirum\XML\Formatter\Config;
 use Inspirum\XML\Formatter\Formatter;
 use Throwable;
 use function is_array;
+use function is_string;
 use function strpos;
 
 abstract class BaseNode implements Node
@@ -101,7 +102,7 @@ abstract class BaseNode implements Node
     /**
      * Create new DOM element.
      *
-     * @param array<string,string> $attributes
+     * @param array<string,mixed> $attributes
      */
     private function createFullDOMElement(string $name, mixed $value, array $attributes, bool $forcedEscape): DOMElement
     {
@@ -199,14 +200,14 @@ abstract class BaseNode implements Node
     /**
      * Register xmlns namespace URLs
      *
-     * @param array<string,string> $attributes
+     * @param array<string,mixed> $attributes
      */
     private function registerNamespaces(array $attributes): void
     {
         foreach ($attributes as $attributeName => $attributeValue) {
             [$prefix, $namespaceLocalName] = Formatter::parseQualifiedName($attributeName);
 
-            if ($prefix === 'xmlns' && $namespaceLocalName !== null) {
+            if ($prefix === 'xmlns' && $namespaceLocalName !== null && is_string($attributeValue)) {
                 $this->namespaceRegistry->registerNamespace($namespaceLocalName, $attributeValue);
             }
         }
