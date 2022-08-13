@@ -186,6 +186,28 @@ or add requirement to your `composer.json`
 
 ## Usage
 
+Available framework integrations:
+
+- [Symfony](https://github.com/inspirum/xml-php-symfony)
+
+But you can also use it without any framework implementation
+
+```php
+use Inspirum\XML\Builder\DefaultDocumentFactory;
+use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
+use Inspirum\XML\Reader\DefaultReaderFactory;
+use Inspirum\XML\Reader\DefaultXMLReaderFactory;
+
+$documentFactory = new DefaultDocumentFactory(new DefaultDOMDocumentFactory());
+$document = $documentFactory->create();
+// ...
+
+$readerFactory = new DefaultReaderFactory(new DefaultXMLReaderFactory(), $documentFactory);
+$reader = $readerFactory->create('/path/to/file.xml');
+// ...
+```
+
+
 #### XML Writer
 
 Optionally you can specify XML version and encoding (defaults to UTF-8).
