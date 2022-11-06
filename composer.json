@@ -21,15 +21,15 @@
     }
   ],
   "require": {
-    "php": ">=8.1",
+    "php": "^8.1",
     "ext-dom": "*",
     "ext-json": "*",
     "ext-xmlreader": "*",
-    "inspirum/arrayable": "^1.0"
+    "inspirum/arrayable": "^1.1"
   },
   "require-dev": {
-    "inspirum/coding-standard": "^1.1",
-    "phpstan/phpstan": "^1.8",
+    "inspirum/coding-standard": "^1.2",
+    "phpstan/phpstan": "^1.9",
     "phpunit/phpunit": "^9.5",
     "squizlabs/php_codesniffer": "^3.7"
   },
@@ -38,8 +38,6 @@
       "Inspirum\\XML\\": "src"
     }
   },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "autoload-dev": {
     "psr-4": {
       "Inspirum\\XML\\Tests\\": "tests"
@@ -91,9 +89,9 @@
       "@composerUnused"
     ],
     "phpunit": "./vendor/bin/phpunit",
-    "phpcs": "./vendor/bin/phpcs -p -s --extensions=php --colors --report-width=140 --parallel=50 || true",
+    "phpcs": "./vendor/bin/phpcs -p -s --extensions=php --colors --report-width=140 || true",
     "phpstan": "./vendor/bin/phpstan analyse -c phpstan.neon.dist",
-    "phpcbf": "./vendor/bin/phpcbf -p --extensions=php --parallel=50",
+    "phpcbf": "./vendor/bin/phpcbf -p --extensions=php",
     "infection": "./tools/infection",
     "composerRequireChecker": "./tools/composer-require-checker check",
     "composerUnused": "./tools/composer-unused"

@@ -29,14 +29,14 @@ class NodeToArrayTest extends BaseTestCase
             [
                 null,
             ],
-            $c2E->toArray()
+            $c2E->toArray(),
         );
 
         $this->assertEquals(
             [
                 '0',
             ],
-            $c1E->toArray()
+            $c1E->toArray(),
         );
 
         $this->assertEquals(
@@ -44,7 +44,7 @@ class NodeToArrayTest extends BaseTestCase
                 'c1' => '0',
                 'c2' => null,
             ],
-            $bE->toArray()
+            $bE->toArray(),
         );
 
         $this->assertEquals(
@@ -63,7 +63,7 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
             ],
-            $xml->toArray()
+            $xml->toArray(),
         );
     }
 
@@ -111,7 +111,7 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
             ],
-            $xml->toArray()
+            $xml->toArray(),
         );
     }
 
@@ -131,7 +131,7 @@ class NodeToArrayTest extends BaseTestCase
                     'id' => '1',
                 ],
             ],
-            $aE->toArray()
+            $aE->toArray(),
         );
     }
 
@@ -149,7 +149,7 @@ class NodeToArrayTest extends BaseTestCase
             [
                 null,
             ],
-            $aE->toArray()
+            $aE->toArray(),
         );
     }
 
@@ -178,7 +178,7 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
             ],
-            $xml->toArray()
+            $xml->toArray(),
         );
     }
 
@@ -218,7 +218,7 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
             ],
-            $xml->toArray(new Config())
+            $xml->toArray(new Config()),
         );
     }
 
@@ -250,7 +250,7 @@ class NodeToArrayTest extends BaseTestCase
                 ],
                 'd' => 1,
             ],
-            $xml->toArray(new Config(['c']))
+            $xml->toArray(new Config(['c'])),
         );
     }
 
@@ -285,7 +285,7 @@ class NodeToArrayTest extends BaseTestCase
                     'd' => 1,
                 ],
             ],
-            $xml->toArray(new Config(['b.d']))
+            $xml->toArray(new Config(['b.d'])),
         );
     }
 
@@ -315,7 +315,7 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
             ],
-            $xml->toArray($config)
+            $xml->toArray($config),
         );
     }
 
@@ -336,7 +336,7 @@ class NodeToArrayTest extends BaseTestCase
                 '@value'      => '3',
                 '@nodes'      => [],
             ],
-            $cE->toArray($config)
+            $cE->toArray($config),
         );
 
         $this->assertEquals(
@@ -356,7 +356,7 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
             ],
-            $aE->toArray($config)
+            $aE->toArray($config),
         );
 
         $this->assertEquals(
@@ -396,7 +396,7 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
             ],
-            $xml->toArray($config)
+            $xml->toArray($config),
         );
     }
 
@@ -446,7 +446,7 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
             ],
-            $xml->toArray($config)
+            $xml->toArray($config),
         );
     }
 
@@ -479,12 +479,12 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
             ],
-            $xml->jsonSerialize()
+            $xml->jsonSerialize(),
         );
 
         $this->assertEquals(
             '{"a":{"b":[{"c1":"1","c2":"true","c3":"test"},{"c1":"0","c2":null}]}}',
-            json_encode($xml)
+            json_encode($xml),
         );
     }
 

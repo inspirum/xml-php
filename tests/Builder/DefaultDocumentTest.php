@@ -30,7 +30,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -47,7 +47,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>'),
-            (string) $xml
+            (string) $xml,
         );
     }
 
@@ -102,7 +102,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>', '1.0', 'WINDOWS-1250'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -118,7 +118,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<a><b><![CDATA[30&nbsp;km]]></b><c><![CDATA[me & you]]></c><d>2 &gt; 1</d><e><![CDATA[<3]]></e></a>'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -132,7 +132,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<a><b><c a="1">2</c><d>test2</d></b></a>'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -146,7 +146,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<a><b/></a>'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -160,7 +160,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<a><b>0</b></a>'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -174,7 +174,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<a><b>  </b></a>'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -187,7 +187,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<a price="23.4" domain="2"><b test="true" locale="cs">Nazev</b></a>'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -207,7 +207,7 @@ final class DefaultDocumentTest extends BaseTestCase
                 'a' => 'a.xsd',
                 'b' => 'b.xsd',
             ],
-            $xml->getNamespaces()
+            $xml->getNamespaces(),
         );
     }
 
@@ -340,12 +340,12 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<rss xmlns:a="http://base.google.com/ns/1.0" version="2.0"><channel><title>Feed</title></channel><item><a:id>8765</a:id><a:price>100.1</a:price></item></rss>'),
-            $xml->toString()
+            $xml->toString(),
         );
 
         $this->assertSame(
             ['a' => 'http://base.google.com/ns/1.0'],
-            $xml->getNamespaces()
+            $xml->getNamespaces(),
         );
     }
 
@@ -369,7 +369,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $this->assertSame(['g' => 'stock.xsd'], $xml->getNamespaces());
         $this->assertSame(
             $this->getSampleXMLString('<g:feed xmlns:g="stock.xsd" g:version="2.0"><g:updated>2020-08-25T13:53:38+00:00</g:updated><g:items><g:item><g:id>8765</g:id><g:name>Test</g:name><g:price>100.1</g:price></g:item></g:items></g:feed>'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -503,16 +503,16 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString(
-                <<<XML
+                <<<'XML'
                 <root>
                   <a>
                     <b1>1</b1>
                     <b2>test</b2>
                   </a>
                 </root>
-                XML
+                XML,
             ),
-            $xml->toString(true)
+            $xml->toString(true),
         );
     }
 
@@ -528,7 +528,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $this->assertFileExists($name);
         $this->assertSame(
             $this->getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
-            file_get_contents($name)
+            file_get_contents($name),
         );
     }
 
@@ -544,7 +544,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $this->assertFileExists($name);
         $this->assertSame(
             $this->getSampleXMLString(
-                <<<XML
+                <<<'XML'
                 <root>
                   <a>
                     <b1>1</b1>
@@ -562,9 +562,9 @@ final class DefaultDocumentTest extends BaseTestCase
                     </a>
                   </b>
                 </root>
-                XML
+                XML,
             ),
-            file_get_contents($name)
+            file_get_contents($name),
         );
     }
 

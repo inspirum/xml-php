@@ -66,7 +66,7 @@ final class Formatter
 
         if (preg_match($regex, $value) !== 1) {
             throw new InvalidArgumentException(
-                sprintf('Element name or namespace prefix [%s] has invalid value', $value)
+                sprintf('Element name or namespace prefix [%s] has invalid value', $value),
             );
         }
     }

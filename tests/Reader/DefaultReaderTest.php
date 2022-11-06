@@ -96,7 +96,7 @@ class DefaultReaderTest extends BaseTestCase
 
         $this->assertSame(
             '<feed version="2.0"><updated>2020-08-25T13:53:38+00:00</updated><title>Test feed</title><errors id="1"/><errors2/><items><item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item><item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item><item i="2"><id>3</id><name price="500">Test 3</name></item><item i="3"><id uuid="894654">4</id><name>Test 4</name></item><item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item></items></feed>',
-            $node?->toString()
+            $node?->toString(),
         );
     }
 
@@ -107,7 +107,7 @@ class DefaultReaderTest extends BaseTestCase
         $node = $reader->nextNode('errors');
 
         $this->assertSame('', $node?->getTextContent());
-        $this->assertSame('<errors id="1"/>', $node?->toString());
+        $this->assertSame('<errors id="1"/>', $node->toString());
     }
 
     public function testNextEmptyNode(): void
@@ -117,7 +117,7 @@ class DefaultReaderTest extends BaseTestCase
         $node = $reader->nextNode('errors2');
 
         $this->assertSame('', $node?->getTextContent());
-        $this->assertSame('<errors2 id="2"/>', $node?->toString());
+        $this->assertSame('<errors2 id="2"/>', $node->toString());
     }
 
     public function testIterateInvalidNodes(): void
@@ -157,7 +157,7 @@ class DefaultReaderTest extends BaseTestCase
                 '<item i="3"><id uuid="894654">4</id><name>Test 4</name></item>',
                 '<item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item>',
             ],
-            $output
+            $output,
         );
     }
 
@@ -184,7 +184,7 @@ class DefaultReaderTest extends BaseTestCase
                 '<g:item><g:id>5</g:id><g:name g:price="500">Test 5</g:name></g:item>',
                 '<g:item><g:id>6</g:id><g:name>Test 6</g:name></g:item>',
             ],
-            $output
+            $output,
         );
     }
 
@@ -203,7 +203,7 @@ class DefaultReaderTest extends BaseTestCase
                 '<g:item><g:id>1</g:id><g:name>Test 1</g:name></g:item>',
                 '<g:item><g:id>3</g:id><g:name>Test 3</g:name></g:item>',
             ],
-            $output
+            $output,
         );
     }
 
@@ -221,7 +221,7 @@ class DefaultReaderTest extends BaseTestCase
             [
                 '<item><g:id>2</g:id><g:name>Test 2</g:name></item>',
             ],
-            $output
+            $output,
         );
     }
 
@@ -258,7 +258,7 @@ class DefaultReaderTest extends BaseTestCase
         string $filepath,
         ?string $version = null,
         ?string $encoding = null,
-        ?XMLReaderFactory $readerFactory = null
+        ?XMLReaderFactory $readerFactory = null,
     ): Reader {
         $readerFactory = new DefaultReaderFactory(
             $readerFactory ?? new DefaultXMLReaderFactory(),

@@ -21,7 +21,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
 
         $this->assertSame(
             '<?xml version="1.0" encoding="UTF-8"?>' . "\n",
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -32,7 +32,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
 
         $this->assertSame(
             '<?xml version="1.1" encoding="WINDOWS-1250"?>' . "\n",
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -43,7 +43,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
 
         $this->assertSame(
             '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<root><a><b1>1</b1><b2>test</b2></a></root>' . "\n",
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -79,7 +79,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 
@@ -90,7 +90,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
 
         $this->assertSame(
             $this->getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
-            $xml->toString()
+            $xml->toString(),
         );
     }
 

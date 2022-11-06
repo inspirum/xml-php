@@ -190,7 +190,7 @@ Available framework integrations:
 
 - [Symfony](https://github.com/inspirum/xml-php-symfony)
 
-But you can also use it without any framework implementation
+But you can also use it without any framework implementation:
 
 ```php
 use Inspirum\XML\Builder\DefaultDocumentFactory;
