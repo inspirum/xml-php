@@ -15,14 +15,14 @@ use Inspirum\XML\Formatter\Formatter;
 use Throwable;
 use function is_array;
 use function is_string;
-use function strpos;
+use function str_contains;
 
 abstract class BaseNode implements Node
 {
     protected function __construct(
-        private DOMDocument $document,
-        private ?DOMNode $node,
-        private NamespaceRegistry $namespaceRegistry,
+        private readonly DOMDocument $document,
+        private readonly ?DOMNode $node,
+        private readonly NamespaceRegistry $namespaceRegistry,
     ) {
     }
 
@@ -103,6 +103,8 @@ abstract class BaseNode implements Node
      * Create new DOM element.
      *
      * @param array<string,mixed> $attributes
+     *
+     * @throws \DOMException
      */
     private function createFullDOMElement(string $name, mixed $value, array $attributes, bool $forcedEscape): DOMElement
     {
@@ -133,6 +135,8 @@ abstract class BaseNode implements Node
 
     /**
      * Create new DOM element with namespace if exists
+     *
+     * @throws \DOMException
      */
     private function createDOMElementNS(string $name, ?string $value = null): DOMElement
     {
@@ -158,7 +162,7 @@ abstract class BaseNode implements Node
         }
 
         try {
-            if (strpos($value, '&') !== false || $forcedEscape) {
+            if (str_contains($value, '&') || $forcedEscape) {
                 throw new DOMException('DOMDocument::createElement(): unterminated entity reference');
             }
 
@@ -220,6 +224,9 @@ abstract class BaseNode implements Node
         return $node->textContent;
     }
 
+    /**
+     * @throws \DOMException
+     */
     public function toString(bool $formatOutput = false): string
     {
         return Handler::withErrorHandlerForDOMDocument(function () use ($formatOutput): string {
@@ -238,6 +245,8 @@ abstract class BaseNode implements Node
      * Convert to string
      *
      * @return string
+     *
+     * @throws \DOMException
      */
     public function __toString(): string
     {

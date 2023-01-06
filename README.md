@@ -94,7 +94,7 @@ function generateFeed(DocumentFactory $factory): void
     $xml->save('/output/feeds/google.xml');
 }
 
-/*
+/**
 var_dump($xml->toString(true));
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -137,14 +137,14 @@ function calculateTotalPrice(ReaderFactory $factory): float
     
     $title = $reader->nextNode('title')->getTextContent();
     
-    /*
+    /**
     var_dump($title);
     'Google Merchant'
     */
     
     $lastBuildDate = $reader->nextNode('lastBuildDate')->getTextContent();
     
-    /*
+    /**
     var_dump($lastBuildDate);
     '2020-08-25T13:53:38+00:00'
     */
@@ -155,7 +155,7 @@ function calculateTotalPrice(ReaderFactory $factory): float
         $price += (float) $data['g:price'];
     }
     
-    /*
+    /**
     var_dump($price);
     501.98
     */
@@ -218,12 +218,12 @@ use Inspirum\XML\Builder\DefaultDocumentFactory;
 $factory = new DefaultDocumentFactory()
 
 $xml = $factory->create('1.0', 'WINDOWS-1250');
-/*
+/**
 <?xml version="1.0" encoding="WINDOWS-1250"?>
 */
 
 $xml = $factory->create();
-/*
+/**
 <?xml version="1.0" encoding="UTF-8"?>
 */
 ```
@@ -235,7 +235,7 @@ $a->addTextElement('b', 'BB', ['id' => 1]);
 $b = $a->addElement('b', ['id' => 2]);
 $b->addTextElement('c', 'CC');
 
-/*
+/**
 <?xml version="1.0" encoding="UTF-8"?>
 <a>
   <b id="1">BB</a>
@@ -250,7 +250,7 @@ Used as fluent builder
 ```php
 $xml->addElement('root')->addElement('a')->addElement('b', ['id' => 1])->addTextElement('c', 'CC');
 
-/*
+/**
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <a>
@@ -268,7 +268,7 @@ $a = $xml->addElement('a');
 $a->addTextElement('b', 'me & you');
 $a->addTextElement('b', '30&nbsp;km');
 
-/*
+/**
 <?xml version="1.0" encoding="UTF-8"?>
 <a>
   <b>
@@ -287,7 +287,7 @@ $a = $xml->addElement('a');
 $a->addTextElement('b', 'me');
 $a->addTextElement('b', 'you', forcedEscape: true);
 
-/*
+/**
 <?xml version="1.0" encoding="UTF-8"?>
 <a>
   <b>me</b>
@@ -304,7 +304,7 @@ $a = $xml->addElement('a');
 $a->addXMLData('<b><c>CC</c></b><b>0</b>');
 $a->addTextElement('b', '1');
 
-/*
+/**
 <?xml version="1.0" encoding="UTF-8"?>
 <a>
   <b>
@@ -326,7 +326,7 @@ $items->addTextElement('g:item', 1);
 $items->addTextElement('g:item', 2);
 $items->addTextElement('g:item', 3);
 
-/*
+/**
 <?xml version="1.0" encoding="UTF-8"?>
 <g:root xmlns:g="stock.xsd" g:version="2.0">
   <g:items>
@@ -380,12 +380,12 @@ Read next node with given name
 $node = $reader->nextNode('g:updated');
 
 $node->getTextContent();
-/*
+/**
 '2020-08-25T13:53:38+00:00'
 */
 
 $node->toString();
-/*
+/**
 <g:updated>2020-08-25T13:53:38+00:00</g:updated>
 */
 ```
@@ -394,37 +394,37 @@ Powerful cast to array method
 ```php
 $data = $reader->nextNode('g:items')->toArray();
 
-/*
+/**
 var_dump($ids);
 [
   'g:item' => [
     0 => [
       'g:id'        => '1'
-      'g:name'      => 'Test 1',
+      'g:name'      => 'Test 1'
       '@attributes' => [
-        'active' => 'true',
-        'price'  => '99.9',
-      ],
-    ],
+        'active' => 'true'
+        'price'  => '99.9'
+      ]
+    ]
     1 => [
       'g:id'        => '3'
-      'g:name'      => 'Test 3',
+      'g:name'      => 'Test 3'
       '@attributes' => [
-        'active' => 'false',
-        'price'  => '0',
-      ],
+        'active' => 'false'
+        'price'  => '0'
+      ]
     ]
-  ],
+  ]
   'item' => [
     0 => [
       'g:id'        => '2'
-      'g:name'      => 'Test 2',
+      'g:name'      => 'Test 2'
       '@attributes' => [
-        'active' => 'true',
-        'price'  => '19.9',
-      ],
-    ],
-  ],
+        'active' => 'true'
+        'price'  => '19.9'
+      ]
+    ]
+  ]
 ]
 */
 ```
@@ -447,119 +447,119 @@ $config = new Config(
 
 $data = $factory->createForFile('/sample.xml')->toArray($config);
 
-/*
+/**
 var_dump($ids);
 [
-  '@attr'  => [],
-  '@val'   => null,
+  '@attr'  => []
+  '@val'   => null
   '@nodes' => [
     'g:feed' => [
       0 => [
         '@attr'  => [
-          'g:version' => 2.0,
-        ],
-        '@val'   => null,
+          'g:version' => 2.0
+        ]
+        '@val'   => null
         '@nodes' => [
           'g:updated' => [
             0 => [
-              '@attr'  => [],
-              '@val'   => '2020-08-25T13:53:38+00:00',
-              '@nodes' => [],
-            ],
-          ],
+              '@attr'  => []
+              '@val'   => '2020-08-25T13:53:38+00:00'
+              '@nodes' => []
+            ]
+          ]
           'title' => [
             0 => [
-              '@attr'  => [],
-              '@val'   => null,
-              '@nodes' => [],
-            ],
-          ],
+              '@attr'  => []
+              '@val'   => null
+              '@nodes' => []
+            ]
+          ]
           'g:items' => [
             0 => [
-              '@attr'  => [],
-              '@val'   => null,
+              '@attr'  => []
+              '@val'   => null
               '@nodes' => [
                 'g:item' => [
                   0 => [
                     '@attr'  => [
-                      'active' => true,
-                      'price'  => 99.9,
-                    ],
-                    '@val'   => null,
+                      'active' => true
+                      'price'  => 99.9
+                    ]
+                    '@val'   => null
                     '@nodes' => [
                       'g:id' => [
                         0 => [
-                          '@attr'  => [],
-                          '@val'   => 1,
-                          '@nodes' => [],
-                        ],
-                      ],
+                          '@attr'  => []
+                          '@val'   => 1
+                          '@nodes' => []
+                        ]
+                      ]
                       'g:name' => [
                         0 => [
-                          '@attr'  => [],
-                          '@val'   => 'Test 1',
-                          '@nodes' => [],
-                        ],
-                      ],
-                    ],
-                  ],
+                          '@attr'  => []
+                          '@val'   => 'Test 1'
+                          '@nodes' => []
+                        ]
+                      ]
+                    ]
+                  ]
                   1 => [
                     '@attr'  => [
-                      'active' => false,
-                      'price'  => 0,
-                    ],
-                    '@val'   => null,
+                      'active' => false
+                      'price'  => 0
+                    ]
+                    '@val'   => null
                     '@nodes' => 
                     [
                       'g:id' => [
                         0 => [
-                          '@attr'  => [],
-                          '@val'   => 3,
-                          '@nodes' => [],
-                        ],
-                      ],
+                          '@attr'  => []
+                          '@val'   => 3
+                          '@nodes' => []
+                        ]
+                      ]
                       'g:name' => [
                         0 => [
-                          '@attr'  => [],
-                          '@val'   => 'Test 3',
-                          '@nodes' => [],
-                        ],
-                      ],
-                    ],
-                  ],
-                ],
+                          '@attr'  => []
+                          '@val'   => 'Test 3'
+                          '@nodes' => []
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
                 'item' => [
                   0 => [
                     '@attr'  => [
-                      'active' => true,
-                      'price'  => 19.9,
-                    ],
-                    '@val'   => null,
+                      'active' => true
+                      'price'  => 19.9
+                    ]
+                    '@val'   => null
                     '@nodes' => [
                       'g:id' => [
                         0 => [
-                          '@attr'  => [],
-                          '@val'   => 2,
-                          '@nodes' => [],
-                        ],
-                      ],
+                          '@attr'  => []
+                          '@val'   => 2
+                          '@nodes' => []
+                        ]
+                      ]
                       'g:name' => [
                         0 => [
-                          '@attr'  => [],
-                          '@val'   => 'Test 2',
-                          '@nodes' => [],
-                        ],
-                      ],
-                    ],
-                  ],
-                ],
-              ],
-            ],
-          ],
-        ],
-      ],
-    ],
-  ],
+                          '@attr'  => []
+                          '@val'   => 'Test 2'
+                          '@nodes' => []
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
 ]
 */
 ```
@@ -571,11 +571,11 @@ foreach ($reader->iterateNode('item') as $item) {
     $ids[] = $item->toArray()['id'];
 }
 
-/*
+/**
 var_dump($ids);
 [
-  0 => '1',
-  1 => '3',
+  0 => '1'
+  1 => '3'
 ]
 */
 ```
@@ -627,7 +627,7 @@ The MIT License (MIT). Please see [License File][link-licence] for more informat
 
 
 [ico-license]:              https://img.shields.io/github/license/inspirum/xml-php.svg?style=flat-square&colorB=blue
-[ico-workflow]:             https://img.shields.io/github/workflow/status/inspirum/xml-php/Test/master?style=flat-square
+[ico-workflow]:             https://img.shields.io/github/actions/workflow/status/inspirum/xml-php/master.yml?branch=master&style=flat-square
 [ico-scrutinizer]:          https://img.shields.io/scrutinizer/coverage/g/inspirum/xml-php/master.svg?style=flat-square
 [ico-code-quality]:         https://img.shields.io/scrutinizer/g/inspirum/xml-php.svg?style=flat-square
 [ico-packagist-stable]:     https://img.shields.io/packagist/v/inspirum/xml.svg?style=flat-square&colorB=blue

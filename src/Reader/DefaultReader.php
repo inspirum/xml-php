@@ -13,8 +13,8 @@ use XMLReader;
 final class DefaultReader implements Reader
 {
     public function __construct(
-        private XMLReader $reader,
-        private Document $document,
+        private readonly XMLReader $reader,
+        private readonly Document $document,
     ) {
     }
 
@@ -54,6 +54,9 @@ final class DefaultReader implements Reader
         return $this->readNode();
     }
 
+    /**
+     * @throws \Exception
+     */
     private function moveToNode(string $nodeName): bool
     {
         while ($this->read()) {
@@ -78,6 +81,9 @@ final class DefaultReader implements Reader
         return false;
     }
 
+    /**
+     * @throws \Exception
+     */
     private function readNode(): ?Node
     {
         $nodeName   = $this->getNodeName();
@@ -120,6 +126,9 @@ final class DefaultReader implements Reader
         return $node;
     }
 
+    /**
+     * @throws \Exception
+     */
     private function read(): bool
     {
         return Handler::withErrorHandlerForXMLReader(fn(): bool => $this->reader->read());

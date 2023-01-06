@@ -20,6 +20,8 @@ interface Node extends Arrayable, Stringable, JsonSerializable
      * Add element to XML node
      *
      * @param array<string,mixed> $attributes
+     *
+     * @throws \DOMException
      */
     public function addElement(string $name, array $attributes = []): Node;
 
@@ -27,6 +29,8 @@ interface Node extends Arrayable, Stringable, JsonSerializable
      * Add text element
      *
      * @param array<string,mixed> $attributes
+     *
+     * @throws \DOMException
      */
     public function addTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false): Node;
 
@@ -39,6 +43,8 @@ interface Node extends Arrayable, Stringable, JsonSerializable
      * Create new (unconnected) element
      *
      * @param array<string,mixed> $attributes
+     *
+     * @throws \DOMException
      */
     public function createElement(string $name, array $attributes = []): Node;
 
@@ -46,6 +52,8 @@ interface Node extends Arrayable, Stringable, JsonSerializable
      * Create new (unconnected) text element
      *
      * @param array<string,mixed> $attributes
+     *
+     * @throws \DOMException
      */
     public function createTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false): Node;
 

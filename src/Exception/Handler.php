@@ -8,7 +8,7 @@ use DOMException;
 use Exception;
 use function restore_error_handler;
 use function set_error_handler;
-use function strpos;
+use function str_contains;
 
 final class Handler
 {
@@ -24,7 +24,7 @@ final class Handler
     public static function withErrorHandlerForXMLReader(callable $callback): mixed
     {
         return self::withErrorHandler(static function (int $code, string $message): bool {
-            if (strpos($message, 'XMLReader::') !== false) {
+            if (str_contains($message, 'XMLReader::')) {
                 throw new Exception($message, $code);
             }
 
@@ -46,7 +46,7 @@ final class Handler
     public static function withErrorHandlerForDOMDocument(callable $callback): mixed
     {
         return self::withErrorHandler(static function (int $code, string $message): bool {
-            if (strpos($message, 'DOMDocument::') !== false) {
+            if (str_contains($message, 'DOMDocument::')) {
                 throw new DOMException($message, $code);
             }
 
@@ -56,8 +56,6 @@ final class Handler
 
     /**
      * Register custom error handler to throw \Exception on warning message
-     *
-     * @throws \Exception
      */
     private static function withErrorHandler(callable $errorCallback, callable $functionCallback): mixed
     {

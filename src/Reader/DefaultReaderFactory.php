@@ -11,11 +11,14 @@ use Inspirum\XML\Exception\Handler;
 final class DefaultReaderFactory implements ReaderFactory
 {
     public function __construct(
-        private XMLReaderFactory $readerFactory,
-        private DocumentFactory $documentFactory,
+        private readonly XMLReaderFactory $readerFactory,
+        private readonly DocumentFactory $documentFactory,
     ) {
     }
 
+    /**
+     * @throws \Exception
+     */
     public function create(string $filepath, ?string $version = null, ?string $encoding = null, ?int $flags = null): Reader
     {
         $xmlReader = $this->readerFactory->create();

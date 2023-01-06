@@ -15,7 +15,7 @@ use function sprintf;
 final class DefaultDocumentFactory implements DocumentFactory
 {
     public function __construct(
-        private DOMDocumentFactory $factory,
+        private readonly DOMDocumentFactory $factory,
     ) {
     }
 

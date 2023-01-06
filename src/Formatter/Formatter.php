@@ -29,7 +29,7 @@ final class Formatter
      */
     public static function parseQualifiedName(string $name): array
     {
-        static::validateElementName($name);
+        self::validateElementName($name);
 
         $parsed = explode(':', $name, 2);
 
@@ -44,7 +44,7 @@ final class Formatter
      */
     public static function getLocalName(string $name): string
     {
-        return static::parseQualifiedName($name)[1];
+        return self::parseQualifiedName($name)[1];
     }
 
     /**
@@ -52,7 +52,7 @@ final class Formatter
      */
     public static function getNamespacePrefix(string $name): ?string
     {
-        return static::parseQualifiedName($name)[0];
+        return self::parseQualifiedName($name)[0];
     }
 
     /**
