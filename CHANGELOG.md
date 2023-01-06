@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased](https://github.com/inspirum/xml-php/compare/v2.0.0...master)
+## [Unreleased](https://github.com/inspirum/xml-php/compare/v2.1.0...master)
+### Added
+- Added support for **PHP 8.2**
 
 
 ## [v2.1.0 (2022-07-04)](https://github.com/inspirum/xml-php/compare/v2.0.0...v2.1.0)
