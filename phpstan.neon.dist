@@ -14,3 +14,4 @@ parameters:
 			message: '#^Access to an undefined property XMLReader\:\:\$(name|nodeType|value|isEmptyElement|hasAttributes)\.$#'
 			path: src/Reader/DefaultReader.php
 			count: 5
+			reportUnmatched: false
