@@ -7,6 +7,10 @@ parameters:
 		- tests
 	ignoreErrors:
 		-
-			message: "#^If condition is always false\\.$#"
+			message: '#^If condition is always false\.$#'
 			path: src/Reader/DefaultReader.php
 			count: 1
+		-
+			message: '#^Access to an undefined property XMLReader\:\:\$(name|nodeType|value|isEmptyElement|hasAttributes)\.$#'
+			path: src/Reader/DefaultReader.php
+			count: 5
