@@ -646,5 +646,5 @@ The MIT License (MIT). Please see [License File][link-licence] for more informat
 [link-inspishop]:           https://www.inspishop.cz/
 [link-inspirum]:            https://www.inspirum.cz/
 [link-packagist-stable]:    https://packagist.org/packages/inspirum/xml
-[link-packagist-download]:  https://packagist.org/packages/inspirum/xml
+[link-packagist-download]:  https://packagist.org/packages/inspirum/xml/stats
 [link-phpstan]:             https://github.com/phpstan/phpstan
