@@ -199,6 +199,7 @@ final class DefaultDocumentTest extends BaseTestCase
             'xmlns:a' => 'a.xsd',
             'xmlns:b' => 'b.xsd',
             'xmlnse'  => 'e.xsd',
+            'xmlns'  => 'default.xsd',
             'a:test'  => '1',
         ]);
 
@@ -206,6 +207,7 @@ final class DefaultDocumentTest extends BaseTestCase
             [
                 'a' => 'a.xsd',
                 'b' => 'b.xsd',
+                '' => 'default.xsd',
             ],
             $xml->getNamespaces(),
         );
@@ -217,9 +219,11 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $xml->addElement('rss', [
             'xmlns:a' => 'a.xsd',
+            'xmlns'  => 'default.xsd',
         ]);
 
         $this->assertSame('a.xsd', $xml->getNamespace('a'));
+        $this->assertSame('default.xsd', $xml->getNamespace(''));
     }
 
     public function testGetUnregisteredNamespaceURI(): void
@@ -345,6 +349,33 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $this->assertSame(
             ['a' => 'http://base.google.com/ns/1.0'],
+            $xml->getNamespaces(),
+        );
+    }
+
+    public function testDefaultXmlnsAttributes(): void
+    {
+        $xml = $this->newDocument();
+
+        $rss = $xml->addElement('rss', [
+            'version' => '2.0',
+            'xmlns' => 'http://www.w3.org/2005/Atom',
+        ]);
+
+        $channel = $rss->addElement('channel');
+        $channel->addTextElement('title', 'Feed');
+
+        $item = $rss->addElement('item');
+        $item->addTextElement('id', '8765');
+        $item->addTextElement('price', 100.1);
+
+        $this->assertSame(
+            $this->getSampleXMLString('<rss xmlns="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Feed</title></channel><item><id>8765</id><price>100.1</price></item></rss>'),
+            $xml->toString(),
+        );
+
+        $this->assertSame(
+            ['' => 'http://www.w3.org/2005/Atom'],
             $xml->getNamespaces(),
         );
     }

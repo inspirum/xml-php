@@ -31,12 +31,17 @@ final class Formatter
     {
         self::validateElementName($name);
 
+        if ($name === 'xmlns') {
+            return [$name, ''];
+        }
+
         $parsed = explode(':', $name, 2);
 
-        return [
-            count($parsed) === 2 ? $parsed[0] : null,
-            count($parsed) === 2 ? $parsed[1] : $parsed[0],
-        ];
+        if (count($parsed) === 2) {
+            return $parsed;
+        }
+
+        return [null, $parsed[0]];
     }
 
     /**
