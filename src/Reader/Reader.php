@@ -15,12 +15,12 @@ interface Reader
      *
      * @throws \Exception
      */
-    public function iterateNode(string $nodeName): iterable;
+    public function iterateNode(string $nodeName, bool $withNamespaces = false): iterable;
 
     /**
      * Get next node
      *
      * @throws \Exception
      */
-    public function nextNode(string $nodeName): ?Node;
+    public function nextNode(string $nodeName, bool $withNamespaces = false): ?Node;
 }

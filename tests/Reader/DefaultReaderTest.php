@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Inspirum\XML\Tests\Reader;
 
-use Generator;
 use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocumentFactory;
-use Inspirum\XML\Builder\Node;
 use Inspirum\XML\Reader\DefaultReaderFactory;
 use Inspirum\XML\Reader\DefaultXMLReaderFactory;
 use Inspirum\XML\Reader\Reader;
@@ -95,7 +93,7 @@ class DefaultReaderTest extends BaseTestCase
         $node = $reader->nextNode('feed');
 
         $this->assertSame(
-            '<feed version="2.0"><updated>2020-08-25T13:53:38+00:00</updated><title>Test feed</title><errors id="1"/><errors2/><items><item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item><item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item><item i="2"><id>3</id><name price="500">Test 3</name></item><item i="3"><id uuid="894654">4</id><name>Test 4</name></item><item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item></items></feed>',
+            '<feed version="2.0"><updated>2020-08-25T13:53:38+00:00</updated><title>Test feed</title><errors id="1"/><errors2 id="2"/><items><item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item><item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item><item i="2"><id>3</id><name price="500">Test 3</name></item><item i="3"><id uuid="894654">4</id><name>Test 4</name></item><item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item></items></feed>',
             $node?->toString(),
         );
     }
@@ -126,8 +124,6 @@ class DefaultReaderTest extends BaseTestCase
 
         $items = $reader->iterateNode('item2');
 
-        $this->assertInstanceOf(Generator::class, $items);
-
         $output = [];
         foreach ($items as $item) {
             $output[] = $item->toString();
@@ -141,8 +137,6 @@ class DefaultReaderTest extends BaseTestCase
         $reader = $this->newReader($this->getTestFilePath('sample_04.xml'));
 
         $items = $reader->iterateNode('item');
-
-        $this->assertInstanceOf(Generator::class, $items);
 
         $output = [];
         foreach ($items as $item) {
@@ -165,13 +159,8 @@ class DefaultReaderTest extends BaseTestCase
     {
         $reader = $this->newReader($this->getTestFilePath('sample_05.xml'));
 
-        $items = $reader->iterateNode('g:item');
-
-        $this->assertInstanceOf(Generator::class, $items);
-
         $output = [];
         foreach ($reader->iterateNode('g:item') as $item) {
-            $this->assertInstanceOf(Node::class, $item);
             $output[] = $item->toString();
         }
 
@@ -194,7 +183,6 @@ class DefaultReaderTest extends BaseTestCase
 
         $output = [];
         foreach ($reader->iterateNode('g:item') as $item) {
-            $this->assertInstanceOf(Node::class, $item);
             $output[] = $item->toString();
         }
 
@@ -213,13 +201,43 @@ class DefaultReaderTest extends BaseTestCase
 
         $output = [];
         foreach ($reader->iterateNode('item') as $item) {
-            $this->assertInstanceOf(Node::class, $item);
             $output[] = $item->toString();
         }
 
         $this->assertSame(
             [
                 '<item><g:id>2</g:id><g:name>Test 2</g:name></item>',
+            ],
+            $output,
+        );
+    }
+
+    public function testMultipleNamespaces(): void
+    {
+        $reader = $this->newReader($this->getTestFilePath('sample_08.xml'));
+
+        $item = $reader->nextNode('item', true);
+
+        $this->assertSame(
+            '<item xmlns="http://www.w3.org/2005/Atom" xmlns:b="http://base.google.com/ns/1.0" xmlns:g="http://base.google.com/ns/1.0" attr="2"><id>1/L1</id><title>Title 1</title></item>',
+            $item?->toString(),
+        );
+    }
+
+    public function testIterateMultipleNamespaces(): void
+    {
+        $reader = $this->newReader($this->getTestFilePath('sample_08.xml'));
+
+        $output = [];
+        foreach ($reader->iterateNode('item', true) as $item) {
+            $output[] = $item->toString();
+        }
+
+        $this->assertSame(
+            [
+                '<item xmlns="http://www.w3.org/2005/Atom" xmlns:b="http://base.google.com/ns/1.0" xmlns:g="http://base.google.com/ns/1.0" attr="2"><id>1/L1</id><title>Title 1</title></item>',
+                '<item xmlns="http://www.w3.org/2005/Atom" xmlns:b="http://base.google.com/ns/1.0" xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/2.0" attr="1"><data><g:id h:test="asd">1/L2</g:id><g:title test="bb">Title 2</g:title><link>https://www.example.com/v/1</link></data></item>',
+                '<item xmlns="http://www.w3.org/2005/Atom" xmlns:b="http://base.google.com/ns/1.0" xmlns:g="http://base.google.com/ns/1.0"><g:id>1/L3</g:id><title>Title 3</title></item>',
             ],
             $output,
         );
@@ -236,7 +254,7 @@ class DefaultReaderTest extends BaseTestCase
         $this->assertSame('Test feed', $node?->getTextContent());
 
         $price = null;
-        /** @var \Inspirum\XML\Builder\Node $item */
+
         foreach ($reader->iterateNode('item') as $item) {
             $data = $item->toArray();
             if (

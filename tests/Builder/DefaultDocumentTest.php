@@ -17,6 +17,26 @@ use function tempnam;
 
 final class DefaultDocumentTest extends BaseTestCase
 {
+    public function testCreateElements(): void
+    {
+        $xml = $this->newDocument();
+
+        $aE = $xml->addElement('a');
+
+        $aE->addElement('b');
+        $cE = $aE->createElement('c');
+        $cE->addTextElement('d', 'text');
+        $eE = $cE->createTextElement('e', 'text');
+
+        $this->assertSame('<c><d>text</d></c>', $cE->toString());
+        $this->assertSame('<e>text</e>', $eE->toString());
+
+        $this->assertSame(
+            $this->getSampleXMLString('<a><b/></a>'),
+            $xml->toString(),
+        );
+    }
+
     public function testToString(): void
     {
         $xml = $this->newDocument();
@@ -182,11 +202,20 @@ final class DefaultDocumentTest extends BaseTestCase
     {
         $xml = $this->newDocument();
 
-        $aE = $xml->addElement('a', ['price' => 23.4, 'domain' => 2]);
-        $aE->addTextElement('b', 'Nazev', ['test' => true, 'locale' => 'cs']);
+        $aE = $xml->addElement('a', ['price' => 23.4, 'domain' => 2, 'wrong' => [1, 2, 3]]);
+
+        $this->assertSame('', $aE->getTextContent());
+        $this->assertSame(['price' => '23.4', 'domain' => '2', 'wrong' => ''], $aE->getAttributes());
+        $this->assertSame(['price' => 23.4, 'domain' => 2, 'wrong' => ''], $aE->getAttributes(true));
+
+        $bE = $aE->addTextElement('b', 'Nazev', ['test' => true, 'locale' => 'cs', 'disable' => null]);
+
+        $this->assertSame('Nazev', $bE->getTextContent());
+        $this->assertSame(['test' => 'true', 'locale' => 'cs', 'disable' => ''], $bE->getAttributes());
+        $this->assertSame(['test' => true, 'locale' => 'cs', 'disable' => ''], $bE->getAttributes(true));
 
         $this->assertSame(
-            $this->getSampleXMLString('<a price="23.4" domain="2"><b test="true" locale="cs">Nazev</b></a>'),
+            $this->getSampleXMLString('<a price="23.4" domain="2" wrong=""><b test="true" locale="cs" disable="">Nazev</b></a>'),
             $xml->toString(),
         );
     }
@@ -406,6 +435,8 @@ final class DefaultDocumentTest extends BaseTestCase
 
     public function testValidateXsdFromOutput(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $xml  = $this->newDocument();
         $feed = $xml->addElement('g:feed', [
             'g:version' => '2.0',
@@ -422,14 +453,14 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $xml = $this->newDocumentFactory()->createForContent($xml->toString());
         $xml->validate($this->getTestFilePath('example_03.xsd'));
-        $this->assertTrue(true);
     }
 
     public function testValidateXsdFromFile(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $xml = $this->newDocumentFactory()->createForFile($this->getTestFilePath('sample_03.xml'));
         $xml->validate($this->getTestFilePath('example_03.xsd'));
-        $this->assertTrue(true);
     }
 
     public function testValidateXsdFailed(): void

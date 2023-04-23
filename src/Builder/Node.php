@@ -23,7 +23,7 @@ interface Node extends Arrayable, Stringable, JsonSerializable
      *
      * @throws \DOMException
      */
-    public function addElement(string $name, array $attributes = []): Node;
+    public function addElement(string $name, array $attributes = [], bool $withNamespaces = true): Node;
 
     /**
      * Add text element
@@ -32,7 +32,7 @@ interface Node extends Arrayable, Stringable, JsonSerializable
      *
      * @throws \DOMException
      */
-    public function addTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false): Node;
+    public function addTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false, bool $withNamespaces = true): Node;
 
     /**
      * Append node to parent node.
@@ -46,7 +46,7 @@ interface Node extends Arrayable, Stringable, JsonSerializable
      *
      * @throws \DOMException
      */
-    public function createElement(string $name, array $attributes = []): Node;
+    public function createElement(string $name, array $attributes = [], bool $withNamespaces = true): Node;
 
     /**
      * Create new (unconnected) text element
@@ -55,12 +55,10 @@ interface Node extends Arrayable, Stringable, JsonSerializable
      *
      * @throws \DOMException
      */
-    public function createTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false): Node;
+    public function createTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false, bool $withNamespaces = true): Node;
 
     /**
      * Add XML data
-     *
-     * @param string $content
      */
     public function addXMLData(string $content): ?Node;
 
@@ -68,6 +66,13 @@ interface Node extends Arrayable, Stringable, JsonSerializable
      * Get node text content
      */
     public function getTextContent(): ?string;
+
+    /**
+     * Get node attributes
+     *
+     * @return ($autoCast is true ? array<string,mixed> : array<string,string>)
+     */
+    public function getAttributes(bool $autoCast = false): array;
 
     /**
      * Get connected \DOMDocument

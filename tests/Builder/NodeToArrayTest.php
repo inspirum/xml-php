@@ -25,21 +25,21 @@ class NodeToArrayTest extends BaseTestCase
         $c1E = $bE->addTextElement('c1', 0);
         $c2E = $bE->addElement('c2');
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 null,
             ],
             $c2E->toArray(),
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 '0',
             ],
             $c1E->toArray(),
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'c1' => '0',
                 'c2' => null,
@@ -47,7 +47,7 @@ class NodeToArrayTest extends BaseTestCase
             $bE->toArray(),
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'a' => [
                     'b' => [
@@ -65,6 +65,11 @@ class NodeToArrayTest extends BaseTestCase
             ],
             $xml->toArray(),
         );
+
+        $this->assertSame(
+            $xml->toArray(),
+            $xml->__toArray(),
+        );
     }
 
     public function testWithAttributes(): void
@@ -81,18 +86,15 @@ class NodeToArrayTest extends BaseTestCase
         $bE = $aE->addElement('b');
         $bE->addTextElement('c1', 2, ['test' => 'cc', 'b' => 2]);
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'a' => [
-                    '@attributes' => [
-                        'version' => '1.0',
-                    ],
                     'b'           => [
                         0 => [
                             'c1' => [
                                 '@attributes' => [
-                                    'a'    => '1',
                                     'test' => 'true',
+                                    'a'    => '1',
                                 ],
                                 '@value'      => '1',
                             ],
@@ -108,6 +110,9 @@ class NodeToArrayTest extends BaseTestCase
                                 '@value'      => '2',
                             ],
                         ],
+                    ],
+                    '@attributes' => [
+                        'version' => '1.0',
                     ],
                 ],
             ],
@@ -125,7 +130,7 @@ class NodeToArrayTest extends BaseTestCase
         ]);
         $aE   = $rssE->addTextElement('a', null, ['id' => 1]);
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 '@attributes' => [
                     'id' => '1',
@@ -145,7 +150,7 @@ class NodeToArrayTest extends BaseTestCase
         ]);
         $aE   = $rssE->addTextElement('a', '');
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 null,
             ],
@@ -165,16 +170,16 @@ class NodeToArrayTest extends BaseTestCase
         $rssE->addTextElement('s:item', 2);
         $rssE->addTextElement('s:item', 3);
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'rss' => [
-                    '@attributes' => [
-                        's:version' => '2.0',
-                    ],
                     's:item'      => [
                         0 => '1',
                         1 => '2',
                         2 => '3',
+                    ],
+                    '@attributes' => [
+                        's:version' => '2.0',
                     ],
                 ],
             ],
@@ -199,12 +204,9 @@ class NodeToArrayTest extends BaseTestCase
         $rssE->addTextElement('g:item', 2);
         $rssE->addTextElement('g:item', 3);
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'rss' => [
-                    '@attributes' => [
-                        'g:version' => '2.0',
-                    ],
                     's:item'      => [
                         0 => '1',
                         1 => '2',
@@ -215,6 +217,9 @@ class NodeToArrayTest extends BaseTestCase
                         0 => '1',
                         1 => '2',
                         2 => '3',
+                    ],
+                    '@attributes' => [
+                        'g:version' => '2.0',
                     ],
                 ],
             ],
@@ -234,7 +239,7 @@ class NodeToArrayTest extends BaseTestCase
         $xml->addTextElement('c', 1);
         $xml->addTextElement('d', 1);
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'a' => [
                     0 => '1',
@@ -248,7 +253,7 @@ class NodeToArrayTest extends BaseTestCase
                 'c' => [
                     0 => '1',
                 ],
-                'd' => 1,
+                'd' => '1',
             ],
             $xml->toArray(new Config(['c'])),
         );
@@ -267,7 +272,7 @@ class NodeToArrayTest extends BaseTestCase
         $cE = $xml->addElement('c');
         $cE->addTextElement('d', 1);
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'a' => [
                     'd' => [
@@ -282,7 +287,7 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
                 'c' => [
-                    'd' => 1,
+                    'd' => '1',
                 ],
             ],
             $xml->toArray(new Config(['b.d'])),
@@ -298,7 +303,7 @@ class NodeToArrayTest extends BaseTestCase
 
         $config = new Config(attributesName: '@attr', valueName: '@val');
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'a' => [
                     0 => [
@@ -330,7 +335,7 @@ class NodeToArrayTest extends BaseTestCase
 
         $config = new Config(fullResponse: true);
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 '@attributes' => [],
                 '@value'      => '3',
@@ -339,7 +344,7 @@ class NodeToArrayTest extends BaseTestCase
             $cE->toArray($config),
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 '@attributes' => [
                     'test' => 'true',
@@ -359,7 +364,7 @@ class NodeToArrayTest extends BaseTestCase
             $aE->toArray($config),
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 '@attributes' => [],
                 '@value'      => null,
@@ -416,18 +421,15 @@ class NodeToArrayTest extends BaseTestCase
 
         $config = new Config(autoCast: true);
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'a' => [
-                    '@attributes' => [
-                        'version' => 1.0,
-                    ],
                     'b'           => [
                         0 => [
                             'c1' => [
                                 '@attributes' => [
-                                    'a'    => 1.4,
                                     'test' => true,
+                                    'a'    => 1.4,
                                 ],
                                 '@value'      => 1,
                             ],
@@ -443,6 +445,9 @@ class NodeToArrayTest extends BaseTestCase
                                 '@value'      => 0,
                             ],
                         ],
+                    ],
+                    '@attributes' => [
+                        'version' => 1.0,
                     ],
                 ],
             ],
@@ -463,7 +468,7 @@ class NodeToArrayTest extends BaseTestCase
         $bE->addTextElement('c1', 0);
         $bE->addElement('c2');
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'a' => [
                     'b' => [
@@ -482,7 +487,7 @@ class NodeToArrayTest extends BaseTestCase
             $xml->jsonSerialize(),
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             '{"a":{"b":[{"c1":"1","c2":"true","c3":"test"},{"c1":"0","c2":null}]}}',
             json_encode($xml),
         );

@@ -7,11 +7,11 @@ parameters:
 		- tests
 	ignoreErrors:
 		-
-			message: '#^If condition is always false\.$#'
-			path: src/Reader/DefaultReader.php
-			count: 1
-		-
 			message: '#^Access to an undefined property XMLReader\:\:\$(name|nodeType|value|isEmptyElement|hasAttributes)\.$#'
 			path: src/Reader/DefaultReader.php
 			count: 5
 			reportUnmatched: false
+		-
+			message: '#^Method .+\:\:toArray\(\) should return array\<.+\> but returns array\.$#'
+			path: src/Builder/BaseNode.php
+			count: 1

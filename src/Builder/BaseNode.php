@@ -12,6 +12,7 @@ use DOMNode;
 use Inspirum\XML\Exception\Handler;
 use Inspirum\XML\Formatter\Config;
 use Inspirum\XML\Formatter\Formatter;
+use Inspirum\XML\Parser\Parser;
 use Throwable;
 use function is_array;
 use function is_string;
@@ -44,17 +45,17 @@ abstract class BaseNode implements Node
     /**
      * @inheritDoc
      */
-    public function addElement(string $name, array $attributes = []): Node
+    public function addElement(string $name, array $attributes = [], bool $withNamespaces = true): Node
     {
-        return $this->addTextElement($name, null, $attributes);
+        return $this->addTextElement($name, null, $attributes, withNamespaces: $withNamespaces);
     }
 
     /**
      * @inheritDoc
      */
-    public function addTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false): Node
+    public function addTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false, bool $withNamespaces = true): Node
     {
-        $element = $this->createFullDOMElement($name, $value, $attributes, $forcedEscape);
+        $element = $this->createFullDOMElement($name, $value, $attributes, $forcedEscape, $withNamespaces);
 
         $this->appendChild($element);
 
@@ -71,17 +72,17 @@ abstract class BaseNode implements Node
     /**
      * @inheritDoc
      */
-    public function createElement(string $name, array $attributes = []): Node
+    public function createElement(string $name, array $attributes = [], bool $withNamespaces = true): Node
     {
-        return $this->createTextElement($name, null, $attributes);
+        return $this->createTextElement($name, null, $attributes, withNamespaces: $withNamespaces);
     }
 
     /**
      * @inheritDoc
      */
-    public function createTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false): Node
+    public function createTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false, bool $withNamespaces = true): Node
     {
-        $element = $this->createFullDOMElement($name, $value, $attributes, $forcedEscape);
+        $element = $this->createFullDOMElement($name, $value, $attributes, $forcedEscape, $withNamespaces);
 
         return $this->createNode($element);
     }
@@ -106,16 +107,16 @@ abstract class BaseNode implements Node
      *
      * @throws \DOMException
      */
-    private function createFullDOMElement(string $name, mixed $value, array $attributes, bool $forcedEscape): DOMElement
+    private function createFullDOMElement(string $name, mixed $value, array $attributes, bool $forcedEscape, bool $withNamespaces): DOMElement
     {
         $this->registerNamespaces($attributes);
 
-        $element = $this->createDOMElementNS($name);
+        $element = $this->createDOMElementNS($name, null, $withNamespaces);
 
         $this->setDOMElementValue($element, $value, $forcedEscape);
 
         foreach ($attributes as $attributeName => $attributeValue) {
-            $this->setDOMAttributeNS($element, $attributeName, $attributeValue);
+            $this->setDOMAttributeNS($element, $attributeName, $attributeValue, $withNamespaces);
         }
 
         return $element;
@@ -138,12 +139,12 @@ abstract class BaseNode implements Node
      *
      * @throws \DOMException
      */
-    private function createDOMElementNS(string $name, ?string $value = null): DOMElement
+    private function createDOMElementNS(string $name, ?string $value, bool $withNamespaces): DOMElement
     {
-        $prefix = Formatter::getNamespacePrefix($name);
+        $prefix = Parser::getNamespacePrefix($name);
         $value  = Formatter::encodeValue($value);
 
-        if ($prefix !== null && $this->namespaceRegistry->hasNamespace($prefix)) {
+        if ($withNamespaces && $prefix !== null && $this->namespaceRegistry->hasNamespace($prefix)) {
             return $this->document->createElementNS($this->namespaceRegistry->getNamespace($prefix), $name, (string) $value);
         }
 
@@ -178,16 +179,16 @@ abstract class BaseNode implements Node
      *
      * @return void
      */
-    private function setDOMAttributeNS(DOMElement $element, string $name, mixed $value): void
+    private function setDOMAttributeNS(DOMElement $element, string $name, mixed $value, bool $withNamespaces): void
     {
-        $prefix = Formatter::getNamespacePrefix($name);
+        $prefix = Parser::getNamespacePrefix($name);
         $value  = Formatter::encodeValue($value);
 
-        if ($prefix === 'xmlns') {
+        if ($withNamespaces && $prefix === 'xmlns') {
             $element->setAttributeNS('http://www.w3.org/2000/xmlns/', $name, (string) $value);
-        } elseif ($prefix !== null && $this->namespaceRegistry->hasNamespace($prefix)) {
+        } elseif ($withNamespaces && $prefix !== null && $this->namespaceRegistry->hasNamespace($prefix)) {
             $element->setAttributeNS($this->namespaceRegistry->getNamespace($prefix), $name, (string) $value);
-        } else {
+        } elseif ($prefix !== 'xmlns') {
             $element->setAttribute($name, (string) $value);
         }
     }
@@ -209,9 +210,9 @@ abstract class BaseNode implements Node
     private function registerNamespaces(array $attributes): void
     {
         foreach ($attributes as $attributeName => $attributeValue) {
-            [$prefix, $namespaceLocalName] = Formatter::parseQualifiedName($attributeName);
+            [$prefix, $namespaceLocalName] = Parser::parseQualifiedName($attributeName);
 
-            if ($prefix === 'xmlns' && $namespaceLocalName !== null && is_string($attributeValue)) {
+            if ($prefix === 'xmlns' && is_string($attributeValue)) {
                 $this->namespaceRegistry->registerNamespace($namespaceLocalName, $attributeValue);
             }
         }
@@ -225,8 +226,24 @@ abstract class BaseNode implements Node
     }
 
     /**
-     * @throws \DOMException
+     * @inheritDoc
      */
+    public function getAttributes(bool $autoCast = false): array
+    {
+        $node       = $this->node ?? $this->document;
+        $attributes = [];
+
+        if ($node->hasAttributes()) {
+            /** @var \DOMAttr $attribute */
+            foreach ($node->attributes ?? [] as $attribute) {
+                $value                            = $attribute->nodeValue;
+                $attributes[$attribute->nodeName] = $autoCast ? Formatter::decodeValue($value) : $value;
+            }
+        }
+
+        return $attributes;
+    }
+
     public function toString(bool $formatOutput = false): string
     {
         return Handler::withErrorHandlerForDOMDocument(function () use ($formatOutput): string {
@@ -241,13 +258,6 @@ abstract class BaseNode implements Node
         });
     }
 
-    /**
-     * Convert to string
-     *
-     * @return string
-     *
-     * @throws \DOMException
-     */
     public function __toString(): string
     {
         return $this->toString();
@@ -268,9 +278,7 @@ abstract class BaseNode implements Node
     }
 
     /**
-     * Convert to array
-     *
-     * @return array<int|string,mixed>
+     * @inheritDoc
      */
     public function __toArray(): array
     {

@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace Inspirum\XML\Formatter;
 
 use DOMNode;
-use InvalidArgumentException;
 use Stringable;
 use function array_keys;
 use function count;
-use function explode;
 use function in_array;
 use function is_bool;
 use function is_numeric;
 use function is_scalar;
-use function preg_match;
+use function rtrim;
 use function sprintf;
+use function str_starts_with;
 use function trim;
 use const XML_CDATA_SECTION_NODE;
 use const XML_TEXT_NODE;
@@ -23,57 +22,25 @@ use const XML_TEXT_NODE;
 final class Formatter
 {
     /**
-     * Parse node name to namespace prefix and local name
+     * Prefix namespaces with xmlns
      *
-     * @return array{0: string|null, 1: string}
-     */
-    public static function parseQualifiedName(string $name): array
-    {
-        self::validateElementName($name);
-
-        if ($name === 'xmlns') {
-            return [$name, ''];
-        }
-
-        $parsed = explode(':', $name, 2);
-
-        if (count($parsed) === 2) {
-            return $parsed;
-        }
-
-        return [null, $parsed[0]];
-    }
-
-    /**
-     * Get local name from node name
-     */
-    public static function getLocalName(string $name): string
-    {
-        return self::parseQualifiedName($name)[1];
-    }
-
-    /**
-     * Get namespace prefix from node name
-     */
-    public static function getNamespacePrefix(string $name): ?string
-    {
-        return self::parseQualifiedName($name)[0];
-    }
-
-    /**
-     * Validate element name
+     * @param array<string,string> $namespaces
      *
-     * @throws \InvalidArgumentException
+     * @return array<string,string>
      */
-    protected static function validateElementName(string $value): void
+    public static function namespacesToAttributes(array $namespaces): array
     {
-        $regex = '/^[a-zA-Z][a-zA-Z0-9_]*(:[a-zA-Z][a-zA-Z0-9_]*)?$/';
+        $attributes = [];
 
-        if (preg_match($regex, $value) !== 1) {
-            throw new InvalidArgumentException(
-                sprintf('Element name or namespace prefix [%s] has invalid value', $value),
-            );
+        foreach ($namespaces as $namespaceLocalName => $namespaceValue) {
+            if (str_starts_with($namespaceLocalName, 'xmlns') === false) {
+                $namespaceLocalName = rtrim(sprintf('xmlns:%s', $namespaceLocalName), ':');
+            }
+
+            $attributes[$namespaceLocalName] = $namespaceValue;
         }
+
+        return $attributes;
     }
 
     /**
@@ -131,9 +98,9 @@ final class Formatter
     public static function nodeToArray(DOMNode $node, Config $config): mixed
     {
         $value = null;
-        /** @var array<string, mixed> $attributes */
+        /** @var array<string,mixed> $attributes */
         $attributes = [];
-        /** @var array<string, array<mixed>> $nodes */
+        /** @var array<string,array<mixed>> $nodes */
         $nodes = [];
 
         if ($node->hasAttributes()) {

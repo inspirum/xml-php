@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<g:rss xmlns="http://www.w3.org/2005/Atom" xmlns:g="http://base.google.com/ns/1.0" version="2.0">
+    <channel xmlns:b="http://base.google.com/ns/1.0">
+        <title>title</title>
+        <b:description>Online products</b:description>
+
+        <item attr="2">
+            <id>1/L1</id>
+            <title>Title 1</title>
+        </item>
+        <item attr="1">
+            <data>
+                <g:id xmlns:h="http://base.google.com/ns/2.0" h:test="asd">1/L2</g:id>
+                <g:title xmlns:g="http://base.google.com/ns/2.0" test="bb">Title 2</g:title>
+                <link>https://www.example.com/v/1</link>
+            </data>
+        </item>
+        <item>
+            <g:id>1/L3</g:id>
+            <title>Title 3</title>
+        </item>
+    </channel>
+</g:rss>

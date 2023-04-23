@@ -12,12 +12,14 @@
     </testsuite>
   </testsuites>
   <coverage>
-    <include>
-      <directory suffix=".php">src</directory>
-    </include>
     <report>
       <clover outputFile="var/phpunit/logs/clover.xml"/>
       <text outputFile="var/phpunit/coverage/coverage.txt"/>
     </report>
   </coverage>
+  <source>
+    <include>
+      <directory>src</directory>
+    </include>
+  </source>
 </phpunit>
