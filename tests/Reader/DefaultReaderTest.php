@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Inspirum\XML\Tests\Reader;
 
+use Exception;
 use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocumentFactory;
 use Inspirum\XML\Reader\DefaultReaderFactory;
@@ -11,10 +12,17 @@ use Inspirum\XML\Reader\DefaultXMLReaderFactory;
 use Inspirum\XML\Reader\Reader;
 use Inspirum\XML\Reader\XMLReaderFactory;
 use Inspirum\XML\Tests\BaseTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use SimpleXMLElement;
 use Throwable;
 use ValueError;
+use function array_map;
 use function is_array;
 use function is_numeric;
+use function is_string;
+use function preg_quote;
+use function simplexml_load_string;
+use function sprintf;
 
 class DefaultReaderTest extends BaseTestCase
 {
@@ -36,32 +44,32 @@ class DefaultReaderTest extends BaseTestCase
 
     public function testNextInvalidNode(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_04.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
 
         $node = $reader->nextNode('test');
 
-        $this->assertNull($node);
+        self::assertNull($node);
     }
 
     public function testNextNode(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_04.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
 
         $node = $reader->nextNode('updated');
 
-        $this->assertSame('2020-08-25T13:53:38+00:00', $node?->getTextContent());
+        self::assertSame('2020-08-25T13:53:38+00:00', $node?->getTextContent());
     }
 
     public function testPreviousNode(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_04.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
 
         $node = $reader->nextNode('title');
 
-        $this->assertSame('Test feed', $node?->getTextContent());
+        self::assertSame('Test feed', $node?->getTextContent());
 
         $node = $reader->nextNode('updated');
-        $this->assertNull($node);
+        self::assertNull($node);
     }
 
     public function testParseError(): void
@@ -69,7 +77,7 @@ class DefaultReaderTest extends BaseTestCase
         $this->expectException(Throwable::class);
         $this->expectExceptionMessage('XMLReader::read()');
 
-        $reader = $this->newReader($this->getTestFilePath('sample_06.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_06.xml'));
 
         $reader->nextNode('a');
     }
@@ -79,7 +87,7 @@ class DefaultReaderTest extends BaseTestCase
         $this->expectException(Throwable::class);
         $this->expectExceptionMessage('XMLReader::read()');
 
-        $reader = $this->newReader($this->getTestFilePath('sample_06.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_06.xml'));
 
         foreach ($reader->iterateNode('a') as $a) {
             $a->toString();
@@ -88,11 +96,11 @@ class DefaultReaderTest extends BaseTestCase
 
     public function testReadAllFile(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_04.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
 
         $node = $reader->nextNode('feed');
 
-        $this->assertSame(
+        self::assertSame(
             '<feed version="2.0"><updated>2020-08-25T13:53:38+00:00</updated><title>Test feed</title><errors id="1"/><errors2 id="2"/><items><item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item><item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item><item i="2"><id>3</id><name price="500">Test 3</name></item><item i="3"><id uuid="894654">4</id><name>Test 4</name></item><item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item></items></feed>',
             $node?->toString(),
         );
@@ -100,27 +108,27 @@ class DefaultReaderTest extends BaseTestCase
 
     public function testNextEmptyContentNode(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_04.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
 
         $node = $reader->nextNode('errors');
 
-        $this->assertSame('', $node?->getTextContent());
-        $this->assertSame('<errors id="1"/>', $node->toString());
+        self::assertSame('', $node?->getTextContent());
+        self::assertSame('<errors id="1"/>', $node->toString());
     }
 
     public function testNextEmptyNode(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_04.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
 
         $node = $reader->nextNode('errors2');
 
-        $this->assertSame('', $node?->getTextContent());
-        $this->assertSame('<errors2 id="2"/>', $node->toString());
+        self::assertSame('', $node?->getTextContent());
+        self::assertSame('<errors2 id="2"/>', $node->toString());
     }
 
     public function testIterateInvalidNodes(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_04.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
 
         $items = $reader->iterateNode('item2');
 
@@ -129,12 +137,12 @@ class DefaultReaderTest extends BaseTestCase
             $output[] = $item->toString();
         }
 
-        $this->assertSame([], $output);
+        self::assertSame([], $output);
     }
 
     public function testIterateNodes(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_04.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
 
         $items = $reader->iterateNode('item');
 
@@ -143,7 +151,7 @@ class DefaultReaderTest extends BaseTestCase
             $output[] = $item->toString();
         }
 
-        $this->assertSame(
+        self::assertSame(
             [
                 '<item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item>',
                 '<item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item>',
@@ -157,14 +165,14 @@ class DefaultReaderTest extends BaseTestCase
 
     public function testIterateNamespacedNodes(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_05.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_05.xml'));
 
         $output = [];
         foreach ($reader->iterateNode('g:item') as $item) {
             $output[] = $item->toString();
         }
 
-        $this->assertSame(
+        self::assertSame(
             [
                 '<g:item><g:id>1</g:id><g:name g:price="10.1">Test 1</g:name></g:item>',
                 '<g:item><g:id>2</g:id><g:name>Test 2</g:name></g:item>',
@@ -179,14 +187,14 @@ class DefaultReaderTest extends BaseTestCase
 
     public function testIterateMixedNamespacedAndLocalNodes(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_07.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_07.xml'));
 
         $output = [];
         foreach ($reader->iterateNode('g:item') as $item) {
             $output[] = $item->toString();
         }
 
-        $this->assertSame(
+        self::assertSame(
             [
                 '<g:item><g:id>1</g:id><g:name>Test 1</g:name></g:item>',
                 '<g:item><g:id>3</g:id><g:name>Test 3</g:name></g:item>',
@@ -197,14 +205,14 @@ class DefaultReaderTest extends BaseTestCase
 
     public function testIterateMixedLocalAndNamespacedNodes(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_07.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_07.xml'));
 
         $output = [];
         foreach ($reader->iterateNode('item') as $item) {
             $output[] = $item->toString();
         }
 
-        $this->assertSame(
+        self::assertSame(
             [
                 '<item><g:id>2</g:id><g:name>Test 2</g:name></item>',
             ],
@@ -212,46 +220,142 @@ class DefaultReaderTest extends BaseTestCase
         );
     }
 
-    public function testMultipleNamespaces(): void
-    {
-        $reader = $this->newReader($this->getTestFilePath('sample_08.xml'));
-
-        $item = $reader->nextNode('item', true);
-
-        $this->assertSame(
-            '<item xmlns="http://www.w3.org/2005/Atom" xmlns:b="http://base.google.com/ns/1.0" xmlns:g="http://base.google.com/ns/1.0" attr="2"><id>1/L1</id><title>Title 1</title></item>',
-            $item?->toString(),
-        );
-    }
-
     public function testIterateMultipleNamespaces(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_08.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_08.xml'));
 
         $output = [];
         foreach ($reader->iterateNode('item', true) as $item) {
             $output[] = $item->toString();
         }
 
-        $this->assertSame(
+        self::assertSame(
             [
-                '<item xmlns="http://www.w3.org/2005/Atom" xmlns:b="http://base.google.com/ns/1.0" xmlns:g="http://base.google.com/ns/1.0" attr="2"><id>1/L1</id><title>Title 1</title></item>',
-                '<item xmlns="http://www.w3.org/2005/Atom" xmlns:b="http://base.google.com/ns/1.0" xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/2.0" attr="1"><data><g:id h:test="asd">1/L2</g:id><g:title test="bb">Title 2</g:title><link>https://www.example.com/v/1</link></data></item>',
-                '<item xmlns="http://www.w3.org/2005/Atom" xmlns:b="http://base.google.com/ns/1.0" xmlns:g="http://base.google.com/ns/1.0"><g:id>1/L3</g:id><title>Title 3</title></item>',
+                '<item attr="2"><id>1/L1</id><title>Title 1</title></item>',
+                '<item xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/2.0" attr="1"><data><g:id h:test="asd">1/L2</g:id><g:title test="bb">Title 2</g:title><link>https://www.example.com/v/1</link></data></item>',
+                '<item xmlns:g="http://base.google.com/ns/1.0"><g:id>1/L3</g:id><title>Title 3</title></item>',
             ],
             $output,
         );
     }
 
+    /**
+     * @param array<array<string>|string> $expected
+     */
+    #[DataProvider('provideIterateWihSimpleLoadString')]
+    public function testIterateWihSimpleLoadString(string $file, bool $withNamespaces, string $path, array $expected): void
+    {
+        $reader = $this->newReader(self::getTestFilePath($file));
+
+        foreach ($reader->iterateNode('item', $withNamespaces) as $i => $item) {
+            try {
+                self::withErrorHandler(static function () use ($i, $item, $path, $expected): void {
+                    $xml = simplexml_load_string($item->toString());
+                    if ($xml === false) {
+                        throw new Exception('simplexml_load_string: error');
+                    }
+
+                    $elements = $xml->xpath($path);
+                    if ($elements === false || $elements === null) {
+                        throw new Exception('xpath: error');
+                    }
+
+                    self::assertSame($expected[$i], array_map(static fn(SimpleXMLElement $element): string => (string) $element, $elements));
+                });
+            } catch (Throwable $exception) {
+                $expectedMessage = $expected[$i];
+                if (is_string($expectedMessage)) {
+                    self::assertMatchesRegularExpression(sprintf('/%s/', preg_quote($expectedMessage)), $exception->getMessage());
+                } else {
+                    self::fail();
+                }
+            }
+        }
+    }
+
+    /**
+     * @return iterable<array<string,mixed>>
+     */
+    public static function provideIterateWihSimpleLoadString(): iterable
+    {
+        yield [
+            'file' => 'sample_04.xml',
+            'withNamespaces' => false,
+            'path'           => '/item/id',
+            'expected'       => [
+                ['1'],
+                ['2'],
+                ['3'],
+                ['4'],
+                ['5'],
+            ],
+        ];
+
+        yield [
+            'file' => 'sample_08.xml',
+            'withNamespaces' => false,
+            'path'           => '/item/id',
+            'expected'       => [
+                'simplexml_load_string(): namespace error',
+                'simplexml_load_string(): namespace error',
+                'simplexml_load_string(): namespace error',
+            ],
+        ];
+
+        yield [
+            'file' => 'sample_08.xml',
+            'withNamespaces' => false,
+            'path'           => '/item/g:id',
+            'expected'       => [
+                'SimpleXMLElement::xpath(): Undefined namespace prefix',
+                'simplexml_load_string(): namespace error',
+                'simplexml_load_string(): namespace error',
+            ],
+        ];
+
+        yield [
+            'file' => 'sample_08.xml',
+            'withNamespaces' => true,
+            'path'           => '/item/id',
+            'expected'       => [
+                ['1/L1'],
+                [],
+                [],
+            ],
+        ];
+
+        yield [
+            'file' => 'sample_08.xml',
+            'withNamespaces' => true,
+            'path'           => '/item/g:id',
+            'expected'       => [
+                'SimpleXMLElement::xpath(): Undefined namespace prefix',
+                [],
+                ['1/L3'],
+            ],
+        ];
+
+        yield [
+            'file' => 'sample_08.xml',
+            'withNamespaces' => true,
+            'path'           => '/item/data/g:title',
+            'expected'       => [
+                'SimpleXMLElement::xpath(): Undefined namespace prefix',
+                ['Title 2'],
+                [],
+            ],
+        ];
+    }
+
     public function testRealUsage(): void
     {
-        $reader = $this->newReader($this->getTestFilePath('sample_04.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
 
         $node = $reader->nextNode('updated');
-        $this->assertSame('2020-08-25T13:53:38+00:00', $node?->getTextContent());
+        self::assertSame('2020-08-25T13:53:38+00:00', $node?->getTextContent());
 
         $node = $reader->nextNode('title');
-        $this->assertSame('Test feed', $node?->getTextContent());
+        self::assertSame('Test feed', $node?->getTextContent());
 
         $price = null;
 
@@ -269,7 +373,7 @@ class DefaultReaderTest extends BaseTestCase
             }
         }
 
-        $this->assertSame(0.99, $price);
+        self::assertSame(0.99, $price);
     }
 
     private function newReader(

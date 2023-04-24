@@ -11,9 +11,13 @@ use Inspirum\XML\Exception\Handler;
 use Inspirum\XML\Formatter\Formatter;
 use Inspirum\XML\Parser\Parser;
 use XMLReader;
+use function array_filter;
+use function array_keys;
 use function array_map;
 use function array_merge;
+use function in_array;
 use function ksort;
+use const ARRAY_FILTER_USE_KEY;
 
 final class DefaultReader implements Reader
 {
@@ -44,7 +48,7 @@ final class DefaultReader implements Reader
         } while ($this->moveToNextNode($nodeName));
     }
 
-    public function nextNode(string $nodeName, bool $withNamespaces = false): ?Node
+    public function nextNode(string $nodeName): ?Node
     {
         $found = $this->moveToNode($nodeName);
 
@@ -52,7 +56,7 @@ final class DefaultReader implements Reader
             return null;
         }
 
-        return $this->readNode($withNamespaces ? $found->namespaces : null)->node;
+        return $this->readNode()->node;
     }
 
     /**
@@ -142,11 +146,18 @@ final class DefaultReader implements Reader
      */
     private function createNode(string $name, mixed $text, array $attributes, array $namespaces, ?array $rootNamespaces, array $elements): ReadResult
     {
-        $namespaces    = array_merge($namespaces, ...array_map(static fn(ReadResult $element) => $element->namespaces, $elements));
+        $usedNamespaces = $this->getUsedNamespaces($name, $attributes);
+
+        $namespaces     = array_merge($namespaces, ...array_map(static fn(ReadResult $element) => $element->namespaces, $elements));
+        $usedNamespaces = array_merge($usedNamespaces, ...array_map(static fn(ReadResult $element) => $element->usedNamespaces, $elements));
+
         $withNamespace = $rootNamespaces !== null;
 
         if ($withNamespace) {
-            $attributes = array_merge($this->namespacesToAttributes($namespaces, $rootNamespaces), $attributes);
+            $namespaceAttributes = $this->namespacesToAttributes($namespaces, $rootNamespaces);
+            $namespaceAttributes = array_filter($namespaceAttributes, static fn($namespaceLocalName) => in_array(Parser::getLocalName($namespaceLocalName), $usedNamespaces), ARRAY_FILTER_USE_KEY);
+
+            $attributes = array_merge($namespaceAttributes, $attributes);
         }
 
         $node = $this->document->createTextElement($name, $text, $attributes, withNamespaces: $withNamespace);
@@ -155,7 +166,21 @@ final class DefaultReader implements Reader
             $node->append($element->node);
         }
 
-        return ReadResult::create($node, $namespaces);
+        return ReadResult::create($node, $namespaces, $usedNamespaces);
+    }
+
+    /**
+     * @param string               $name
+     * @param array<string,string> $attributes
+     *
+     * @return array<string>
+     */
+    private function getUsedNamespaces(string $name, array $attributes): array
+    {
+        return array_filter([
+            Parser::getNamespacePrefix($name),
+            ...array_map(static fn($attributeName) => Parser::getNamespacePrefix($attributeName), array_keys($attributes)),
+        ], static fn($ns) => $ns !== null && $ns !== 'xmlns');
     }
 
     /**

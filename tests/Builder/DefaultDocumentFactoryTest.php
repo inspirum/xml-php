@@ -19,7 +19,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
         $factory = $this->newDocumentFactory();
         $xml     = $factory->create();
 
-        $this->assertSame(
+        self::assertSame(
             '<?xml version="1.0" encoding="UTF-8"?>' . "\n",
             $xml->toString(),
         );
@@ -30,7 +30,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
         $factory = $this->newDocumentFactory();
         $xml     = $factory->create('1.1', 'WINDOWS-1250');
 
-        $this->assertSame(
+        self::assertSame(
             '<?xml version="1.1" encoding="WINDOWS-1250"?>' . "\n",
             $xml->toString(),
         );
@@ -41,7 +41,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
         $factory = $this->newDocumentFactory();
         $xml     = $factory->createForContent('<?xml version="1.0" encoding="UTF-8"?><root><a><b1>1</b1><b2>test</b2></a></root>');
 
-        $this->assertSame(
+        self::assertSame(
             '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<root><a><b1>1</b1><b2>test</b2></a></root>' . "\n",
             $xml->toString(),
         );
@@ -75,10 +75,10 @@ class DefaultDocumentFactoryTest extends BaseTestCase
     public function testCreateForContentMethodFromFile(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->createForContent($this->loadSampleFilepath('sample_01.xml'));
+        $xml     = $factory->createForContent(self::loadSampleFilepath('sample_01.xml'));
 
-        $this->assertSame(
-            $this->getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
+        self::assertSame(
+            self::getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
             $xml->toString(),
         );
     }
@@ -86,10 +86,10 @@ class DefaultDocumentFactoryTest extends BaseTestCase
     public function testCreateForFileMethodFromFile(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->createForFile($this->getTestFilePath('sample_01.xml'));
+        $xml     = $factory->createForFile(self::getTestFilePath('sample_01.xml'));
 
-        $this->assertSame(
-            $this->getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
+        self::assertSame(
+            self::getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
             $xml->toString(),
         );
     }
@@ -108,7 +108,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
         $this->expectExceptionMessage('DOMDocument::loadXML()');
 
         $factory = $this->newDocumentFactory();
-        $factory->createForFile($this->getTestFilePath('sample_02.xml'));
+        $factory->createForFile(self::getTestFilePath('sample_02.xml'));
     }
 
     private function newDocumentFactory(?DOMDocumentFactory $factory = null): DefaultDocumentFactory

@@ -13,18 +13,21 @@ final class ReadResult
 {
     /**
      * @param array<string,string> $namespaces
+     * @param array<string>        $usedNamespaces
      */
     private function __construct(
         public readonly Node $node,
         public readonly array $namespaces,
+        public readonly array $usedNamespaces,
     ) {
     }
 
     /**
      * @param array<string,string> $namespaces
+     * @param array<string>        $usedNamespaces
      */
-    public static function create(Node $node, array $namespaces = []): self
+    public static function create(Node $node, array $namespaces = [], array $usedNamespaces = []): self
     {
-        return new self($node, $namespaces);
+        return new self($node, $namespaces, $usedNamespaces);
     }
 }

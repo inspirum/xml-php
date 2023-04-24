@@ -28,11 +28,11 @@ final class DefaultDocumentTest extends BaseTestCase
         $cE->addTextElement('d', 'text');
         $eE = $cE->createTextElement('e', 'text');
 
-        $this->assertSame('<c><d>text</d></c>', $cE->toString());
-        $this->assertSame('<e>text</e>', $eE->toString());
+        self::assertSame('<c><d>text</d></c>', $cE->toString());
+        self::assertSame('<e>text</e>', $eE->toString());
 
-        $this->assertSame(
-            $this->getSampleXMLString('<a><b/></a>'),
+        self::assertSame(
+            self::getSampleXMLString('<a><b/></a>'),
             $xml->toString(),
         );
     }
@@ -48,8 +48,8 @@ final class DefaultDocumentTest extends BaseTestCase
         $bE->addTextElement('c3', 'test');
         $aE->addTextElement('b', '2');
 
-        $this->assertSame(
-            $this->getSampleXMLString('<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>'),
+        self::assertSame(
+            self::getSampleXMLString('<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>'),
             $xml->toString(),
         );
     }
@@ -65,8 +65,8 @@ final class DefaultDocumentTest extends BaseTestCase
         $bE->addTextElement('c3', 'test');
         $aE->addTextElement('b', '2');
 
-        $this->assertSame(
-            $this->getSampleXMLString('<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>'),
+        self::assertSame(
+            self::getSampleXMLString('<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>'),
             (string) $xml,
         );
     }
@@ -91,9 +91,9 @@ final class DefaultDocumentTest extends BaseTestCase
         $aE = $xml->addTextElement('a', 'Test');
         $bE = $aE->addTextElement('b', '1');
 
-        $this->assertSame('1', $bE->getTextContent());
+        self::assertSame('1', $bE->getTextContent());
 
-        $this->assertSame('Test1', $aE->getTextContent());
+        self::assertSame('Test1', $aE->getTextContent());
     }
 
     public function testDocumentTextContent(): void
@@ -102,11 +102,11 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $aE = $xml->addTextElement('a', 'Test');
 
-        $this->assertSame('Test', $xml->getTextContent());
+        self::assertSame('Test', $xml->getTextContent());
 
         $aE->addTextElement('b', '1');
 
-        $this->assertSame('Test1', $xml->getTextContent());
+        self::assertSame('Test1', $xml->getTextContent());
     }
 
     public function testEncoding(): void
@@ -120,8 +120,8 @@ final class DefaultDocumentTest extends BaseTestCase
         $bE->addTextElement('c3', 'test');
         $aE->addTextElement('b', '2');
 
-        $this->assertSame(
-            $this->getSampleXMLString('<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>', '1.0', 'WINDOWS-1250'),
+        self::assertSame(
+            self::getSampleXMLString('<a><b><c1>1</c1><c2>true</c2><c3>test</c3></b><b>2</b></a>', '1.0', 'WINDOWS-1250'),
             $xml->toString(),
         );
     }
@@ -136,8 +136,8 @@ final class DefaultDocumentTest extends BaseTestCase
         $aE->addTextElement('d', '2 > 1');
         $aE->addTextElement('e', '<3', [], true);
 
-        $this->assertSame(
-            $this->getSampleXMLString('<a><b><![CDATA[30&nbsp;km]]></b><c><![CDATA[me & you]]></c><d>2 &gt; 1</d><e><![CDATA[<3]]></e></a>'),
+        self::assertSame(
+            self::getSampleXMLString('<a><b><![CDATA[30&nbsp;km]]></b><c><![CDATA[me & you]]></c><d>2 &gt; 1</d><e><![CDATA[<3]]></e></a>'),
             $xml->toString(),
         );
     }
@@ -150,8 +150,8 @@ final class DefaultDocumentTest extends BaseTestCase
         $bE = $aE->addElement('b');
         $bE->addXMLData('<c a="1">2</c><d>test2</d>');
 
-        $this->assertSame(
-            $this->getSampleXMLString('<a><b><c a="1">2</c><d>test2</d></b></a>'),
+        self::assertSame(
+            self::getSampleXMLString('<a><b><c a="1">2</c><d>test2</d></b></a>'),
             $xml->toString(),
         );
     }
@@ -164,8 +164,8 @@ final class DefaultDocumentTest extends BaseTestCase
         $bE = $aE->addElement('b');
         $bE->addXMLData('');
 
-        $this->assertSame(
-            $this->getSampleXMLString('<a><b/></a>'),
+        self::assertSame(
+            self::getSampleXMLString('<a><b/></a>'),
             $xml->toString(),
         );
     }
@@ -178,8 +178,8 @@ final class DefaultDocumentTest extends BaseTestCase
         $bE = $aE->addElement('b');
         $bE->addXMLData('0');
 
-        $this->assertSame(
-            $this->getSampleXMLString('<a><b>0</b></a>'),
+        self::assertSame(
+            self::getSampleXMLString('<a><b>0</b></a>'),
             $xml->toString(),
         );
     }
@@ -192,8 +192,8 @@ final class DefaultDocumentTest extends BaseTestCase
         $bE = $aE->addElement('b');
         $bE->addXMLData('  ');
 
-        $this->assertSame(
-            $this->getSampleXMLString('<a><b>  </b></a>'),
+        self::assertSame(
+            self::getSampleXMLString('<a><b>  </b></a>'),
             $xml->toString(),
         );
     }
@@ -204,18 +204,18 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $aE = $xml->addElement('a', ['price' => 23.4, 'domain' => 2, 'wrong' => [1, 2, 3]]);
 
-        $this->assertSame('', $aE->getTextContent());
-        $this->assertSame(['price' => '23.4', 'domain' => '2', 'wrong' => ''], $aE->getAttributes());
-        $this->assertSame(['price' => 23.4, 'domain' => 2, 'wrong' => ''], $aE->getAttributes(true));
+        self::assertSame('', $aE->getTextContent());
+        self::assertSame(['price' => '23.4', 'domain' => '2', 'wrong' => ''], $aE->getAttributes());
+        self::assertSame(['price' => 23.4, 'domain' => 2, 'wrong' => ''], $aE->getAttributes(true));
 
         $bE = $aE->addTextElement('b', 'Nazev', ['test' => true, 'locale' => 'cs', 'disable' => null]);
 
-        $this->assertSame('Nazev', $bE->getTextContent());
-        $this->assertSame(['test' => 'true', 'locale' => 'cs', 'disable' => ''], $bE->getAttributes());
-        $this->assertSame(['test' => true, 'locale' => 'cs', 'disable' => ''], $bE->getAttributes(true));
+        self::assertSame('Nazev', $bE->getTextContent());
+        self::assertSame(['test' => 'true', 'locale' => 'cs', 'disable' => ''], $bE->getAttributes());
+        self::assertSame(['test' => true, 'locale' => 'cs', 'disable' => ''], $bE->getAttributes(true));
 
-        $this->assertSame(
-            $this->getSampleXMLString('<a price="23.4" domain="2" wrong=""><b test="true" locale="cs" disable="">Nazev</b></a>'),
+        self::assertSame(
+            self::getSampleXMLString('<a price="23.4" domain="2" wrong=""><b test="true" locale="cs" disable="">Nazev</b></a>'),
             $xml->toString(),
         );
     }
@@ -232,7 +232,7 @@ final class DefaultDocumentTest extends BaseTestCase
             'a:test'  => '1',
         ]);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'a' => 'a.xsd',
                 'b' => 'b.xsd',
@@ -251,8 +251,8 @@ final class DefaultDocumentTest extends BaseTestCase
             'xmlns'  => 'default.xsd',
         ]);
 
-        $this->assertSame('a.xsd', $xml->getNamespace('a'));
-        $this->assertSame('default.xsd', $xml->getNamespace(''));
+        self::assertSame('a.xsd', $xml->getNamespace('a'));
+        self::assertSame('default.xsd', $xml->getNamespace(''));
     }
 
     public function testGetUnregisteredNamespaceURI(): void
@@ -282,8 +282,8 @@ final class DefaultDocumentTest extends BaseTestCase
             'xmlns:b' => 'b.xsd',
         ]);
 
-        $this->assertSame(['a' => 'a.xsd'], $xml1->getNamespaces());
-        $this->assertSame(['b' => 'b.xsd'], $xml2->getNamespaces());
+        self::assertSame(['a' => 'a.xsd'], $xml1->getNamespaces());
+        self::assertSame(['b' => 'b.xsd'], $xml2->getNamespaces());
     }
 
     public function testAttributeNumericName(): void
@@ -371,12 +371,12 @@ final class DefaultDocumentTest extends BaseTestCase
         $item->addTextElement('a:id', '8765');
         $item->addTextElement('a:price', 100.1);
 
-        $this->assertSame(
-            $this->getSampleXMLString('<rss xmlns:a="http://base.google.com/ns/1.0" version="2.0"><channel><title>Feed</title></channel><item><a:id>8765</a:id><a:price>100.1</a:price></item></rss>'),
+        self::assertSame(
+            self::getSampleXMLString('<rss xmlns:a="http://base.google.com/ns/1.0" version="2.0"><channel><title>Feed</title></channel><item><a:id>8765</a:id><a:price>100.1</a:price></item></rss>'),
             $xml->toString(),
         );
 
-        $this->assertSame(
+        self::assertSame(
             ['a' => 'http://base.google.com/ns/1.0'],
             $xml->getNamespaces(),
         );
@@ -398,12 +398,12 @@ final class DefaultDocumentTest extends BaseTestCase
         $item->addTextElement('id', '8765');
         $item->addTextElement('price', 100.1);
 
-        $this->assertSame(
-            $this->getSampleXMLString('<rss xmlns="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Feed</title></channel><item><id>8765</id><price>100.1</price></item></rss>'),
+        self::assertSame(
+            self::getSampleXMLString('<rss xmlns="http://www.w3.org/2005/Atom" version="2.0"><channel><title>Feed</title></channel><item><id>8765</id><price>100.1</price></item></rss>'),
             $xml->toString(),
         );
 
-        $this->assertSame(
+        self::assertSame(
             ['' => 'http://www.w3.org/2005/Atom'],
             $xml->getNamespaces(),
         );
@@ -425,10 +425,10 @@ final class DefaultDocumentTest extends BaseTestCase
         $item->addTextElement('g:name', 'Test');
         $item->addTextElement('g:price', 100.1);
 
-        $xml->validate($this->getTestFilePath('example_03.xsd'));
-        $this->assertSame(['g' => 'stock.xsd'], $xml->getNamespaces());
-        $this->assertSame(
-            $this->getSampleXMLString('<g:feed xmlns:g="stock.xsd" g:version="2.0"><g:updated>2020-08-25T13:53:38+00:00</g:updated><g:items><g:item><g:id>8765</g:id><g:name>Test</g:name><g:price>100.1</g:price></g:item></g:items></g:feed>'),
+        $xml->validate(self::getTestFilePath('example_03.xsd'));
+        self::assertSame(['g' => 'stock.xsd'], $xml->getNamespaces());
+        self::assertSame(
+            self::getSampleXMLString('<g:feed xmlns:g="stock.xsd" g:version="2.0"><g:updated>2020-08-25T13:53:38+00:00</g:updated><g:items><g:item><g:id>8765</g:id><g:name>Test</g:name><g:price>100.1</g:price></g:item></g:items></g:feed>'),
             $xml->toString(),
         );
     }
@@ -452,15 +452,15 @@ final class DefaultDocumentTest extends BaseTestCase
         $item->addTextElement('g:price', 100.1);
 
         $xml = $this->newDocumentFactory()->createForContent($xml->toString());
-        $xml->validate($this->getTestFilePath('example_03.xsd'));
+        $xml->validate(self::getTestFilePath('example_03.xsd'));
     }
 
     public function testValidateXsdFromFile(): void
     {
         $this->expectNotToPerformAssertions();
 
-        $xml = $this->newDocumentFactory()->createForFile($this->getTestFilePath('sample_03.xml'));
-        $xml->validate($this->getTestFilePath('example_03.xsd'));
+        $xml = $this->newDocumentFactory()->createForFile(self::getTestFilePath('sample_03.xml'));
+        $xml->validate(self::getTestFilePath('example_03.xsd'));
     }
 
     public function testValidateXsdFailed(): void
@@ -473,7 +473,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $xml = new DefaultDocument($document);
 
-        $xml->validate($this->getTestFilePath('example_03.xsd'));
+        $xml->validate(self::getTestFilePath('example_03.xsd'));
     }
 
     public function testValidateWithoutXmlns(): void
@@ -493,7 +493,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $item->addTextElement('g:name', 'Test');
         $item->addTextElement('g:price', 100.1);
 
-        $xml->validate($this->getTestFilePath('example_03.xsd'));
+        $xml->validate(self::getTestFilePath('example_03.xsd'));
     }
 
     public function testValidateWithoutAttributePrefix(): void
@@ -514,7 +514,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $item->addTextElement('g:name', 'Test');
         $item->addTextElement('g:price', 100.1);
 
-        $xml->validate($this->getTestFilePath('example_03.xsd'));
+        $xml->validate(self::getTestFilePath('example_03.xsd'));
     }
 
     public function testValidateWithoutElementPrefix(): void
@@ -535,7 +535,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $item->addTextElement('g:name', 'Test');
         $item->addTextElement('g:price', 100.1);
 
-        $xml->validate($this->getTestFilePath('example_03.xsd'));
+        $xml->validate(self::getTestFilePath('example_03.xsd'));
     }
 
     public function testValidateInvalidXml(): void
@@ -555,7 +555,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $item->addTextElement('g:name', 'Test');
         $item->addTextElement('g:price', 100.1);
 
-        $xml->validate($this->getTestFilePath('example_03.xsd'));
+        $xml->validate(self::getTestFilePath('example_03.xsd'));
     }
 
     public function testFormattedOutput(): void
@@ -563,8 +563,8 @@ final class DefaultDocumentTest extends BaseTestCase
         $factory = $this->newDocumentFactory();
         $xml     = $factory->createForContent('<?xml version="1.0" encoding="UTF-8"?><root><a><b1>1</b1><b2>test</b2></a></root>');
 
-        $this->assertSame(
-            $this->getSampleXMLString(
+        self::assertSame(
+            self::getSampleXMLString(
                 <<<'XML'
                 <root>
                   <a>
@@ -581,15 +581,15 @@ final class DefaultDocumentTest extends BaseTestCase
     public function testSaveMethod(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->createForFile($this->getTestFilePath('sample_01.xml'));
+        $xml     = $factory->createForFile(self::getTestFilePath('sample_01.xml'));
 
         $name = (string) tempnam(sys_get_temp_dir(), 'xml_tests_');
-        $this->assertSame('', file_get_contents($name));
+        self::assertSame('', file_get_contents($name));
         $xml->save($name);
 
-        $this->assertFileExists($name);
-        $this->assertSame(
-            $this->getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
+        self::assertFileExists($name);
+        self::assertSame(
+            self::getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
             file_get_contents($name),
         );
     }
@@ -597,15 +597,15 @@ final class DefaultDocumentTest extends BaseTestCase
     public function testSaveMethodWithFormatOutput(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->createForFile($this->getTestFilePath('sample_01.xml'));
+        $xml     = $factory->createForFile(self::getTestFilePath('sample_01.xml'));
 
         $name = (string) tempnam(sys_get_temp_dir(), 'xml_tests_');
-        $this->assertSame('', file_get_contents($name));
+        self::assertSame('', file_get_contents($name));
         $xml->save($name, true);
 
-        $this->assertFileExists($name);
-        $this->assertSame(
-            $this->getSampleXMLString(
+        self::assertFileExists($name);
+        self::assertSame(
+            self::getSampleXMLString(
                 <<<'XML'
                 <root>
                   <a>

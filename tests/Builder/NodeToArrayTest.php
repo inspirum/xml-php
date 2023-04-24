@@ -25,21 +25,21 @@ class NodeToArrayTest extends BaseTestCase
         $c1E = $bE->addTextElement('c1', 0);
         $c2E = $bE->addElement('c2');
 
-        $this->assertSame(
+        self::assertSame(
             [
                 null,
             ],
             $c2E->toArray(),
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 '0',
             ],
             $c1E->toArray(),
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'c1' => '0',
                 'c2' => null,
@@ -47,7 +47,7 @@ class NodeToArrayTest extends BaseTestCase
             $bE->toArray(),
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'a' => [
                     'b' => [
@@ -66,7 +66,7 @@ class NodeToArrayTest extends BaseTestCase
             $xml->toArray(),
         );
 
-        $this->assertSame(
+        self::assertSame(
             $xml->toArray(),
             $xml->__toArray(),
         );
@@ -86,7 +86,7 @@ class NodeToArrayTest extends BaseTestCase
         $bE = $aE->addElement('b');
         $bE->addTextElement('c1', 2, ['test' => 'cc', 'b' => 2]);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'a' => [
                     'b'           => [
@@ -130,7 +130,7 @@ class NodeToArrayTest extends BaseTestCase
         ]);
         $aE   = $rssE->addTextElement('a', null, ['id' => 1]);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 '@attributes' => [
                     'id' => '1',
@@ -150,7 +150,7 @@ class NodeToArrayTest extends BaseTestCase
         ]);
         $aE   = $rssE->addTextElement('a', '');
 
-        $this->assertSame(
+        self::assertSame(
             [
                 null,
             ],
@@ -170,7 +170,7 @@ class NodeToArrayTest extends BaseTestCase
         $rssE->addTextElement('s:item', 2);
         $rssE->addTextElement('s:item', 3);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'rss' => [
                     's:item'      => [
@@ -204,7 +204,7 @@ class NodeToArrayTest extends BaseTestCase
         $rssE->addTextElement('g:item', 2);
         $rssE->addTextElement('g:item', 3);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'rss' => [
                     's:item'      => [
@@ -239,7 +239,7 @@ class NodeToArrayTest extends BaseTestCase
         $xml->addTextElement('c', 1);
         $xml->addTextElement('d', 1);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'a' => [
                     0 => '1',
@@ -272,7 +272,7 @@ class NodeToArrayTest extends BaseTestCase
         $cE = $xml->addElement('c');
         $cE->addTextElement('d', 1);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'a' => [
                     'd' => [
@@ -303,7 +303,7 @@ class NodeToArrayTest extends BaseTestCase
 
         $config = new Config(attributesName: '@attr', valueName: '@val');
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'a' => [
                     0 => [
@@ -335,7 +335,7 @@ class NodeToArrayTest extends BaseTestCase
 
         $config = new Config(fullResponse: true);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 '@attributes' => [],
                 '@value'      => '3',
@@ -344,7 +344,7 @@ class NodeToArrayTest extends BaseTestCase
             $cE->toArray($config),
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 '@attributes' => [
                     'test' => 'true',
@@ -364,7 +364,7 @@ class NodeToArrayTest extends BaseTestCase
             $aE->toArray($config),
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 '@attributes' => [],
                 '@value'      => null,
@@ -421,7 +421,7 @@ class NodeToArrayTest extends BaseTestCase
 
         $config = new Config(autoCast: true);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'a' => [
                     'b'           => [
@@ -468,7 +468,7 @@ class NodeToArrayTest extends BaseTestCase
         $bE->addTextElement('c1', 0);
         $bE->addElement('c2');
 
-        $this->assertSame(
+        self::assertSame(
             [
                 'a' => [
                     'b' => [
@@ -487,7 +487,7 @@ class NodeToArrayTest extends BaseTestCase
             $xml->jsonSerialize(),
         );
 
-        $this->assertSame(
+        self::assertSame(
             '{"a":{"b":[{"c1":"1","c2":"true","c3":"test"},{"c1":"0","c2":null}]}}',
             json_encode($xml),
         );

@@ -22,5 +22,5 @@ interface Reader
      *
      * @throws \Exception
      */
-    public function nextNode(string $nodeName, bool $withNamespaces = false): ?Node;
+    public function nextNode(string $nodeName): ?Node;
 }
