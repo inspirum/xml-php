@@ -15,12 +15,18 @@ use function array_filter;
 use function array_keys;
 use function array_map;
 use function array_merge;
+use function count;
+use function explode;
 use function in_array;
 use function ksort;
+use function ltrim;
+use function str_starts_with;
 use const ARRAY_FILTER_USE_KEY;
 
 final class DefaultReader implements Reader
 {
+    private int $depth = 0;
+
     public function __construct(
         private readonly XMLReader $reader,
         private readonly Document $document,
@@ -29,7 +35,7 @@ final class DefaultReader implements Reader
 
     public function __destruct()
     {
-        $this->reader->close();
+        $this->close();
     }
 
     /**
@@ -43,9 +49,13 @@ final class DefaultReader implements Reader
             return yield from [];
         }
 
-        do {
-            yield $this->readNode($withNamespaces ? $found->namespaces : null)->node;
-        } while ($this->moveToNextNode($nodeName));
+        $rootNamespaces = $withNamespaces ? $found->namespaces : null;
+
+        while ($found->found) {
+            yield $this->readNode($rootNamespaces)->node;
+
+            $found = $this->moveToNode($nodeName);
+        }
     }
 
     public function nextNode(string $nodeName): ?Node
@@ -59,35 +69,50 @@ final class DefaultReader implements Reader
         return $this->readNode()->node;
     }
 
+    public function close(): void
+    {
+        $this->reader->close();
+    }
+
     /**
      * @throws \Exception
      */
     private function moveToNode(string $nodeName): MoveResult
     {
+        $usePath  = str_starts_with($nodeName, '/');
+        $paths    = explode('/', ltrim($nodeName, '/'));
+        $maxDepth = count($paths) - 1;
+
         $namespaces = [];
 
         while ($this->read()) {
-            if ($this->isNodeElementType() && $this->getNodeName() === $nodeName) {
-                return MoveResult::found($namespaces);
+            if ($this->isNodeElementType()) {
+                if ($usePath && $this->getNodeName() !== $paths[$this->depth]) {
+                    $this->next();
+                    continue;
+                }
+
+                if ($usePath && $this->depth === $maxDepth && $this->getNodeName() === $paths[$this->depth]) {
+                    return MoveResult::found($namespaces);
+                }
+
+                if (!$usePath && $this->getNodeName() === $nodeName) {
+                    return MoveResult::found($namespaces);
+                }
+
+                if (!$this->isNodeEmptyElementType()) {
+                    $this->depth++;
+                }
+            }
+
+            if ($this->isNodeElementEndType()) {
+                $this->depth--;
             }
 
             $namespaces = array_merge($namespaces, $this->getNodeNamespaces());
         }
 
         return MoveResult::notFound();
-    }
-
-    private function moveToNextNode(string $nodeName): bool
-    {
-        $localName = Parser::getLocalName($nodeName);
-
-        while ($this->reader->next($localName)) {
-            if ($this->getNodeName() === $nodeName) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -155,7 +180,11 @@ final class DefaultReader implements Reader
 
         if ($withNamespace) {
             $namespaceAttributes = $this->namespacesToAttributes($namespaces, $rootNamespaces);
-            $namespaceAttributes = array_filter($namespaceAttributes, static fn($namespaceLocalName) => in_array(Parser::getLocalName($namespaceLocalName), $usedNamespaces), ARRAY_FILTER_USE_KEY);
+            $namespaceAttributes = array_filter(
+                $namespaceAttributes,
+                static fn($namespaceLocalName) => in_array(Parser::getLocalName($namespaceLocalName), $usedNamespaces),
+                ARRAY_FILTER_USE_KEY,
+            );
 
             $attributes = array_merge($namespaceAttributes, $attributes);
         }
@@ -203,6 +232,11 @@ final class DefaultReader implements Reader
     private function read(): bool
     {
         return Handler::withErrorHandlerForXMLReader(fn(): bool => $this->reader->read());
+    }
+
+    private function next(?string $name = null): bool
+    {
+        return $this->reader->next($name);
     }
 
     private function getNodeName(): string

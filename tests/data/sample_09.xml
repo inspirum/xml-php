@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<g:root xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/1.0">
+    <data>
+        <h:a>1</h:a>
+        <a>
+            <id>2</id>
+            <prices>
+                <price>1</price>
+                <priceWithVat>1.21</priceWithVat>
+            </prices>
+        </a>
+        <b>
+            <id>3</id>
+        </b>
+        <a>data1</a>
+    </data>
+    <data>
+        <a>4</a>
+        <c>5</c>
+    </data>
+    <a>6</a>
+    <d>data2</d>
+    <h:data>
+        <a>7</a>
+    </h:data>
+    <data>
+        <a>7</a>
+    </data>
+</g:root>

@@ -163,7 +163,7 @@ $items = function(): iterable {
     /** @var \Inspirum\XML\Reader\ReaderFactory $factory */
     $reader = $factory->create('/output/feeds/google.xml');
 
-    foreach ($reader->iterateNode('item', true) as $item) {
+    foreach ($reader->iterateNode('/rss/channel/item', true) as $item) {
         yield $item->toString();
     }
 } 

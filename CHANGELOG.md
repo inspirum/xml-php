@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased](https://github.com/inspirum/xml-php/compare/v2.2.0...master)
+## [Unreleased](https://github.com/inspirum/xml-php/compare/v2.3.0...master)
+
+
+## [v2.3.0 (2023-04-27)](https://github.com/inspirum/xml-php/compare/v2.2.0...v2.3.0)
+### Added
+- Added option for [**Reader**](./src/Reader/Reader.php) to get/iterate nodes by its xpath.
+
 
 
 ## [v2.2.0 (2023-04-24)](https://github.com/inspirum/xml-php/compare/v2.1.0...v2.2.0)

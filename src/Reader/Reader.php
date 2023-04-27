@@ -9,7 +9,7 @@ use Inspirum\XML\Builder\Node;
 interface Reader
 {
     /**
-     * Parse file and yield next node
+     * Parse file by node name or node xpath and yield next node
      *
      * @return iterable<\Inspirum\XML\Builder\Node>
      *
@@ -18,9 +18,14 @@ interface Reader
     public function iterateNode(string $nodeName, bool $withNamespaces = false): iterable;
 
     /**
-     * Get next node
+     * Get next node by node name or node xpath
      *
      * @throws \Exception
      */
     public function nextNode(string $nodeName): ?Node;
+
+    /**
+     * Close the input
+     */
+    public function close(): void;
 }
