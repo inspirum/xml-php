@@ -1,7 +1,5 @@
 # XML reader / writer
 
-**Created as part of [inspishop][link-inspishop] e-commerce platform by [inspirum][link-inspirum] team.**
-
 [![Latest Stable Version][ico-packagist-stable]][link-packagist-stable]
 [![Build Status][ico-workflow]][link-workflow]
 [![Coverage Status][ico-scrutinizer]][link-scrutinizer]
@@ -38,11 +36,11 @@ $rss = $xml->addElement('rss', [
 
 $channel = $rss->addElement('channel');
 $channel->addTextElement('title', 'Google Merchant');
-$channel->addTextElement('link', 'https://www.inspishop.cz');
+$channel->addTextElement('link', 'https://www.exampl.com');
 $channel->addTextElement('description', 'Google Merchant products feed');
 $channel->addTextElement('language', $locale);
 $channel->addTextElement('lastBuildDate', (new \DateTime())->format('D, d M y H:i:s O'));
-$channel->addTextElement('generator', 'Inspishop');
+$channel->addTextElement('generator', 'Eshop');
 
 foreach ($products as $product) {
     $item = $xml->createElement('item');
@@ -98,11 +96,11 @@ var_dump($xml->toString(true));
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
     <title>Google Merchant</title>
-    <link>https://www.inspishop.cz</link>
+    <link>https://www.example.com</link>
     <description>Google Merchant products feed</description>
     <language>cs</language>
     <lastBuildDate>Sat, 14 Nov 20 08:00:00 +0200</lastBuildDate>
-    <generator>Inspishop</generator>
+    <generator>Eshop</generator>
     <item>
       <g:id>0001</g:id>
       <title><![CDATA[Sample products #1 A&B]]></title>
@@ -673,8 +671,6 @@ The MIT License (MIT). Please see [License File][link-licence] for more informat
 [link-workflow]:            https://github.com/inspirum/xml-php/actions
 [link-scrutinizer]:         https://scrutinizer-ci.com/g/inspirum/xml-php/code-structure
 [link-code-quality]:        https://scrutinizer-ci.com/g/inspirum/xml-php
-[link-inspishop]:           https://www.inspishop.cz/
-[link-inspirum]:            https://www.inspirum.cz/
 [link-packagist-stable]:    https://packagist.org/packages/inspirum/xml
 [link-packagist-download]:  https://packagist.org/packages/inspirum/xml/stats
 [link-phpstan]:             https://github.com/phpstan/phpstan

@@ -2,10 +2,10 @@
   "name": "inspirum/xml",
   "description": "Simple XML writer and memory efficient XML reader with powerful xml-to-array cast",
   "keywords": [
-    "inspirum",
     "xml",
     "xml-reader",
     "xml-parser",
+    "xml-splitter",
     "xml-writer",
     "xml-builder",
     "xml-to-array"
