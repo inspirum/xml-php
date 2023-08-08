@@ -36,7 +36,7 @@ $rss = $xml->addElement('rss', [
 
 $channel = $rss->addElement('channel');
 $channel->addTextElement('title', 'Google Merchant');
-$channel->addTextElement('link', 'https://www.exampl.com');
+$channel->addTextElement('link', 'https://www.example.com');
 $channel->addTextElement('description', 'Google Merchant products feed');
 $channel->addTextElement('language', $locale);
 $channel->addTextElement('lastBuildDate', (new \DateTime())->format('D, d M y H:i:s O'));
