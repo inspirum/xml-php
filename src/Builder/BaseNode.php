@@ -11,6 +11,7 @@ use DOMException;
 use DOMNode;
 use Inspirum\XML\Exception\Handler;
 use Inspirum\XML\Formatter\Config;
+use Inspirum\XML\Formatter\DefaultConfig;
 use Inspirum\XML\Formatter\Formatter;
 use Inspirum\XML\Parser\Parser;
 use Throwable;
@@ -268,7 +269,7 @@ abstract class BaseNode implements Node
      */
     public function toArray(?Config $config = null): array
     {
-        $result = Formatter::nodeToArray($this->node ?? $this->document, $config ?? new Config());
+        $result = Formatter::nodeToArray($this->node ?? $this->document, $config ?? new DefaultConfig());
 
         if (is_array($result) === false) {
             $result = [$result];

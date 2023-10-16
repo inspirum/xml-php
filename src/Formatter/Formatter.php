@@ -7,8 +7,10 @@ namespace Inspirum\XML\Formatter;
 use DOMNode;
 use Stringable;
 use function array_keys;
+use function array_merge;
 use function count;
 use function in_array;
+use function is_array;
 use function is_bool;
 use function is_numeric;
 use function is_scalar;
@@ -90,7 +92,7 @@ final class Formatter
     /**
      * Convert DOM node to array
      *
-     * @param \DOMNode                       $node
+     * @param \DOMNode $node
      * @param \Inspirum\XML\Formatter\Config $config
      *
      * @return mixed
@@ -106,7 +108,7 @@ final class Formatter
         if ($node->hasAttributes()) {
             /** @var \DOMAttr $attribute */
             foreach ($node->attributes ?? [] as $attribute) {
-                $attributes[$attribute->nodeName] = $config->autoCast
+                $attributes[$attribute->nodeName] = $config->isAutoCast()
                     ? self::decodeValue($attribute->nodeValue)
                     : $attribute->nodeValue;
             }
@@ -117,7 +119,7 @@ final class Formatter
             foreach ($node->childNodes ?? [] as $child) {
                 if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
                     if (trim((string) $child->nodeValue) !== '') {
-                        $value = $config->autoCast
+                        $value = $config->isAutoCast()
                             ? self::decodeValue($child->nodeValue)
                             : $child->nodeValue;
                     }
@@ -125,15 +127,20 @@ final class Formatter
                     continue;
                 }
 
-                $nodes[$child->nodeName][] = self::nodeToArray($child, $config);
+                $childNodes = self::nodeToArray($child, $config);
+                if ($config->isFlatten()) {
+                    self::flattenArray($nodes, $child->nodeName, $childNodes, $config);
+                } else {
+                    $nodes[$child->nodeName][] = $childNodes;
+                }
             }
         }
 
-        if ($config->fullResponse) {
+        if ($config->isFullResponse()) {
             return [
-                $config->attributesName => $attributes,
-                $config->valueName      => $value,
-                $config->nodesName      => $nodes,
+                $config->getAttributesName() => $attributes,
+                $config->getValueName()      => $value,
+                $config->getNodesName()      => $nodes,
             ];
         }
 
@@ -145,9 +152,41 @@ final class Formatter
     }
 
     /**
+     * Flatten node to one-dimensional array
+     *
+     * @param array<string,array<mixed>> $nodes
+     */
+    private static function flattenArray(array &$nodes, string $nodeNames, mixed $childNodes, Config $config): void
+    {
+        if (!is_array($childNodes)) {
+            $nodes[$nodeNames][] = $childNodes;
+
+            return;
+        }
+
+        foreach ($childNodes as $childNodeName => $childNodeValues) {
+            if ($childNodeName === $config->getAttributesName() && is_array($childNodeValues)) {
+                foreach ($childNodeValues as $attributeName => $attributeValue) {
+                    $nodeKey           = sprintf('%s%s%s', $nodeNames, $config->getFlattenAttributes(), $attributeName);
+                    $nodes[$nodeKey][] = $attributeValue;
+                }
+            } elseif ($childNodeName === $config->getValueName()) {
+                $nodes[$nodeNames][] = $childNodeValues;
+            } else {
+                $nodeKey = sprintf('%s%s%s', $nodeNames, $config->getFlattenNodes(), $childNodeName);
+                if (is_array($childNodeValues)) {
+                    $nodes[$nodeKey] = array_merge($nodes[$nodeKey] ?? [], $childNodeValues);
+                } else {
+                    $nodes[$nodeKey][] = $childNodeValues;
+                }
+            }
+        }
+    }
+
+    /**
      * Remove unnecessary data
      *
-     * @param array<string,mixed>        $attributes
+     * @param array<string,mixed> $attributes
      * @param array<string,array<mixed>> $nodes
      *
      * @return array<int|string,mixed>
@@ -157,8 +196,9 @@ final class Formatter
         $simpleResult = $nodes;
         foreach ($nodes as $nodeName => $values) {
             if (
-                in_array($nodeName, $config->alwaysArray, true) === false
-                && in_array($node->nodeName . '.' . $nodeName, $config->alwaysArray, true) === false
+                !$config->isAlwaysArray()
+                && in_array($nodeName, $config->getAlwaysArrayNodeNames(), true) === false
+                && in_array($node->nodeName . '.' . $nodeName, $config->getAlwaysArrayNodeNames(), true) === false
                 && array_keys($values) === [0]
             ) {
                 $simpleResult[$nodeName] = $values[0];
@@ -166,11 +206,11 @@ final class Formatter
         }
 
         if (count($attributes) > 0) {
-            $simpleResult[$config->attributesName] = $attributes;
+            $simpleResult[$config->getAttributesName()] = $attributes;
         }
 
         if ($value !== null) {
-            $simpleResult[$config->valueName] = $value;
+            $simpleResult[$config->getValueName()] = $value;
         }
 
         return $simpleResult;

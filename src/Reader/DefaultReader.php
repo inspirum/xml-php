@@ -15,6 +15,7 @@ use function array_filter;
 use function array_keys;
 use function array_map;
 use function array_merge;
+use function array_values;
 use function count;
 use function explode;
 use function in_array;
@@ -130,7 +131,7 @@ final class DefaultReader implements Reader
             return $this->createEmptyNode($name, $attributes, $namespaces, $rootNamespaces);
         }
 
-        /** @var array<\Inspirum\XML\Reader\ReadResult> $elements */
+        /** @var list<\Inspirum\XML\Reader\ReadResult> $elements */
         $elements = [];
         $text     = null;
 
@@ -165,7 +166,7 @@ final class DefaultReader implements Reader
      * @param array<string,string>                   $attributes
      * @param array<string,string>                   $namespaces
      * @param array<string,string>|null              $rootNamespaces
-     * @param array<\Inspirum\XML\Reader\ReadResult> $elements
+     * @param list<\Inspirum\XML\Reader\ReadResult>  $elements
      *
      * @throws \DOMException
      */
@@ -202,14 +203,14 @@ final class DefaultReader implements Reader
      * @param string               $name
      * @param array<string,string> $attributes
      *
-     * @return array<string>
+     * @return list<string>
      */
     private function getUsedNamespaces(string $name, array $attributes): array
     {
-        return array_filter([
+        return array_values(array_filter([
             Parser::getNamespacePrefix($name),
             ...array_map(static fn($attributeName) => Parser::getNamespacePrefix($attributeName), array_keys($attributes)),
-        ], static fn($ns) => $ns !== null && $ns !== 'xmlns');
+        ], static fn($ns) => $ns !== null && $ns !== 'xmlns'));
     }
 
     /**

@@ -4,22 +4,28 @@ declare(strict_types=1);
 
 namespace Inspirum\XML\Formatter;
 
-final class Config
+interface Config
 {
-    private const ATTRIBUTES = '@attributes';
-    private const NODES      = '@nodes';
-    private const VALUE      = '@value';
+    public function isAlwaysArray(): bool;
 
     /**
-     * @param array<string> $alwaysArray
+     * @return list<string>
      */
-    public function __construct(
-        public readonly array $alwaysArray = [],
-        public readonly bool $fullResponse = false,
-        public readonly bool $autoCast = false,
-        public readonly string $attributesName = self::ATTRIBUTES,
-        public readonly string $valueName = self::VALUE,
-        public readonly string $nodesName = self::NODES,
-    ) {
-    }
+    public function getAlwaysArrayNodeNames(): array;
+
+    public function isAutoCast(): bool;
+
+    public function isFullResponse(): bool;
+
+    public function getAttributesName(): string;
+
+    public function getValueName(): string;
+
+    public function getNodesName(): string;
+
+    public function isFlatten(): bool;
+
+    public function getFlattenNodes(): string;
+
+    public function getFlattenAttributes(): string;
 }

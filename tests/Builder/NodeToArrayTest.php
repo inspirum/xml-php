@@ -6,7 +6,9 @@ namespace Inspirum\XML\Tests\Builder;
 
 use DOMDocument;
 use Inspirum\XML\Builder\DefaultDocument;
-use Inspirum\XML\Formatter\Config;
+use Inspirum\XML\Formatter\DefaultConfig;
+use Inspirum\XML\Formatter\FlattenConfig;
+use Inspirum\XML\Formatter\FullResponseConfig;
 use Inspirum\XML\Tests\BaseTestCase;
 use function json_encode;
 
@@ -223,7 +225,27 @@ class NodeToArrayTest extends BaseTestCase
                     ],
                 ],
             ],
-            $xml->toArray(new Config()),
+            $xml->toArray(new DefaultConfig()),
+        );
+    }
+
+    public function testWithAlwaysArrayConfigSimple(): void
+    {
+        $xml = $this->newDocument();
+
+        $xml->addTextElement('a', 1);
+        $xml->addTextElement('b', 2);
+        $xml->addTextElement('c', 3);
+        $xml->addTextElement('d', 4);
+
+        self::assertSame(
+            [
+                'a' => '1',
+                'b' =>  '2',
+                'c' => ['3'],
+                'd' => '4',
+            ],
+            $xml->toArray(new DefaultConfig(alwaysArray:['c'])),
         );
     }
 
@@ -255,7 +277,28 @@ class NodeToArrayTest extends BaseTestCase
                 ],
                 'd' => '1',
             ],
-            $xml->toArray(new Config(['c'])),
+            $xml->toArray(new DefaultConfig(alwaysArray:['c'])),
+        );
+    }
+
+    public function testWithAlwaysArrayConfigAll(): void
+    {
+        $xml = $this->newDocument();
+
+        $xml->addTextElement('a', 1);
+        $xml->addTextElement('a', 2);
+        $xml->addTextElement('b', 2);
+        $xml->addTextElement('c', 3);
+        $xml->addTextElement('d', 4);
+
+        self::assertSame(
+            [
+                'a' => ['1', '2'],
+                'b' => ['2'],
+                'c' => ['3'],
+                'd' => ['4'],
+            ],
+            $xml->toArray(new DefaultConfig(alwaysArray: true)),
         );
     }
 
@@ -290,7 +333,7 @@ class NodeToArrayTest extends BaseTestCase
                     'd' => '1',
                 ],
             ],
-            $xml->toArray(new Config(['b.d'])),
+            $xml->toArray(new DefaultConfig(alwaysArray:['b.d'])),
         );
     }
 
@@ -301,7 +344,7 @@ class NodeToArrayTest extends BaseTestCase
         $xml->addTextElement('a', 1, ['test' => true]);
         $xml->addTextElement('a', 2, ['test' => true]);
 
-        $config = new Config(attributesName: '@attr', valueName: '@val');
+        $config = new DefaultConfig(attributesName: '@attr', valueName: '@val');
 
         self::assertSame(
             [
@@ -333,7 +376,7 @@ class NodeToArrayTest extends BaseTestCase
         $xml->addTextElement('a', 2);
         $cE = $xml->addTextElement('c', 3);
 
-        $config = new Config(fullResponse: true);
+        $config = new FullResponseConfig();
 
         self::assertSame(
             [
@@ -419,7 +462,7 @@ class NodeToArrayTest extends BaseTestCase
         $bE = $aE->addElement('b');
         $bE->addTextElement('c1', 0, ['test' => 'cc', 'b' => 2]);
 
-        $config = new Config(autoCast: true);
+        $config = new DefaultConfig(autoCast: true);
 
         self::assertSame(
             [
@@ -450,6 +493,126 @@ class NodeToArrayTest extends BaseTestCase
                         'version' => 1.0,
                     ],
                 ],
+            ],
+            $xml->toArray($config),
+        );
+    }
+
+    public function testWithFlattenConfig(): void
+    {
+        $xml = $this->newDocument();
+
+        $aE = $xml->addElement('a', [
+            'version' => '1.0',
+        ]);
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 1, ['test' => true, 'a' => 1.4]);
+        $bE->addTextElement('c2', false);
+        $bE->addTextElement('c3', 'test');
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 0, ['test' => 'cc', 'b' => 2]);
+
+        $config = new FlattenConfig();
+
+        self::assertSame(
+            [
+                'a/b/c1#test' => ['true', 'cc'],
+                'a/b/c1#a' => '1.4',
+                'a/b/c1' => ['1', '0'],
+                'a/b/c2' => 'false',
+                'a/b/c3' => 'test',
+                'a/b/c1#b' => '2',
+                'a#version' => '1.0',
+            ],
+            $xml->toArray($config),
+        );
+    }
+
+    public function testWithFlattenAutocastConfig(): void
+    {
+        $xml = $this->newDocument();
+
+        $aE = $xml->addElement('a', [
+            'version' => '1.0',
+        ]);
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 1, ['test' => true, 'a' => 1.4]);
+        $bE->addTextElement('c2', false);
+        $bE->addTextElement('c3', 'test');
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 0, ['test' => 'cc', 'b' => 2]);
+
+        $config = new FlattenConfig(autoCast: true);
+
+        self::assertSame(
+            [
+                'a/b/c1#test' => [true, 'cc'],
+                'a/b/c1#a' => 1.4,
+                'a/b/c1' => [1, 0],
+                'a/b/c2' => false,
+                'a/b/c3' => 'test',
+                'a/b/c1#b' => 2,
+                'a#version' => 1.0,
+            ],
+            $xml->toArray($config),
+        );
+    }
+
+    public function testWithFlattenAlwaysArrayConfig(): void
+    {
+        $xml = $this->newDocument();
+
+        $aE = $xml->addElement('a', [
+            'version' => '1.0',
+        ]);
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 1, ['test' => true, 'a' => 1.4]);
+        $bE->addTextElement('c2', false);
+        $bE->addTextElement('c3', 'test');
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 0, ['test' => 'cc', 'b' => 2]);
+
+        $config = new FlattenConfig(alwaysArray: true);
+
+        self::assertSame(
+            [
+                'a/b/c1#test' => ['true', 'cc'],
+                'a/b/c1#a' => ['1.4'],
+                'a/b/c1' => ['1', '0'],
+                'a/b/c2' => ['false'],
+                'a/b/c3' => ['test'],
+                'a/b/c1#b' => ['2'],
+                'a#version' => ['1.0'],
+            ],
+            $xml->toArray($config),
+        );
+    }
+
+    public function testWithFlattenCustomConfig(): void
+    {
+        $xml = $this->newDocument();
+
+        $aE = $xml->addElement('a', [
+            'version' => '1.0',
+        ]);
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 1, ['test' => true, 'a' => 1.4]);
+        $bE->addTextElement('c2', false);
+        $bE->addTextElement('c3', 'test');
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 0, ['test' => 'cc', 'b' => 2]);
+
+        $config = new FlattenConfig(flattenNodes: '|', flattenAttributes: '@');
+
+        self::assertSame(
+            [
+                'a|b|c1@test' => ['true', 'cc'],
+                'a|b|c1@a' => '1.4',
+                'a|b|c1' => ['1', '0'],
+                'a|b|c2' => 'false',
+                'a|b|c3' => 'test',
+                'a|b|c1@b' => '2',
+                'a@version' => '1.0',
             ],
             $xml->toArray($config),
         );

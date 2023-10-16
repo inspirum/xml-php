@@ -190,7 +190,7 @@ $ composer require inspirum/xml
 ```
 or add requirement to your `composer.json`
 ```json
-"inspirum/xml": "^2.0"
+"inspirum/xml": "^3.0"
 ```
 
 ## Usage
@@ -443,14 +443,13 @@ Optional config supported for `toArray` method
 
 ```php
 use Inspirum\XML\Builder\DefaultDocumentFactory;
-use Inspirum\XML\Formatter\Config;
+use Inspirum\XML\Formatter\FullResponseConfig;
 
 $factory = new DefaultDocumentFactory()
 
-$config = new Config(
+$config = new FullResponseConfig(
     attributesName: '@attr', 
     valueName: '@val',
-    fullResponse: true, 
     autoCast: true,
 );
 

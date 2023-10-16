@@ -359,7 +359,7 @@ class DefaultReaderTest extends BaseTestCase
     }
 
     /**
-     * @param array<array<string>|string> $expected
+     * @param array<list<string>|string> $expected
      */
     #[DataProvider('provideIterateWihSimpleLoadString')]
     public function testIterateWihSimpleLoadString(string $file, bool $withNamespaces, string $path, array $expected): void

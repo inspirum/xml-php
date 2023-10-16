@@ -6,15 +6,13 @@ namespace Inspirum\XML\Builder;
 
 use DOMDocument;
 use DOMNode;
-use Inspirum\Arrayable\Arrayable;
+use Inspirum\Arrayable\Model;
 use Inspirum\XML\Formatter\Config;
-use JsonSerializable;
-use Stringable;
 
 /**
- * @extends \Inspirum\Arrayable\Arrayable<int|string,mixed>
+ * @extends \Inspirum\Arrayable\Model<int|string,mixed>
  */
-interface Node extends Arrayable, Stringable, JsonSerializable
+interface Node extends Model
 {
     /**
      * Add element to XML node
