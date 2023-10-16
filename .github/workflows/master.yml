@@ -11,7 +11,6 @@ jobs:
     strategy:
       matrix:
         php:
-          - '8.1'
           - '8.2'
     steps:
       - uses: actions/checkout@v2
@@ -40,7 +39,7 @@ jobs:
       - name: Run tests
         run: |
           vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
-          if [[ "${{ matrix.php }}" == '8.1' ]]; then
+          if [[ "${{ matrix.php }}" == '8.2' ]]; then
             composer require --dev --no-interaction --no-progress --quiet scrutinizer/ocular
             vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
           fi
