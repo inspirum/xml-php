@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Added [`DefaultConfig`](./src/Formatter/DefaultConfig.php) config class
   - Added [`FullResponseConfig`](./src/Formatter/FullResponseConfig.php) config class
   - Added [`FlattenConfig`](./src/Formatter/FlattenConfig.php) config class
+- Added option to create or add node from `\DOMNode`
 
 
 ## [v2.3.1 (2023-08-08)](https://github.com/inspirum/xml-php/compare/v2.3.0...v2.3.1)
