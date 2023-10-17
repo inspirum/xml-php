@@ -154,29 +154,23 @@ var_dump($price);
 */
 ```
 
-Splitting data to XML fragments (with valid namespaces)
+Splitting data to XML fragments by xpath (with valid namespaces)
 
 ```php
-$items = function(): iterable {
-    /** @var \Inspirum\XML\Reader\ReaderFactory $factory */
-    $reader = $factory->create('/output/feeds/google.xml');
+/** @var \Inspirum\XML\Reader\ReaderFactory $factory */
+$reader = $factory->create('/output/feeds/google.xml');
 
-    foreach ($reader->iterateNode('/rss/channel/item', true) as $item) {
-        yield $item->toString();
-    }
-} 
-
-foreach ($items as $item) {
-     $xml = \simplexml_load_string($item);
-     $id  = $xml->xpath('/item/g:id')[0] ?? null
-     // ...
+foreach ($reader->iterateNode('/rss/channel/item', true) as $item) {
+    $data = $item->toString();
+    $id = ($item->xpath('/item/g:id')[0] ?? null)?->getTextContent()
+    // ...
 }
 ```
 
 
 ## System requirements
 
-* [PHP 8.1+](http://php.net/releases/8_1_0.php)
+* [PHP 8.2+](http://php.net/releases/8_2_0.php)
 * [ext-dom](http://php.net/dom)
 * [ext-json](http://php.net/json)
 * [ext-xmlreader](http://php.net/xmlreader)
