@@ -10,7 +10,7 @@ abstract readonly class BaseConfig implements Config
     private const NODES              = '@nodes';
     private const VALUE              = '@value';
     private const FLATTEN_NODES      = '/';
-    private const FLATTEN_ATTRIBUTES = '#';
+    private const FLATTEN_ATTRIBUTES = '@';
 
     /**
      * @param list<string>|true $alwaysArray

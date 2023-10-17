@@ -7,6 +7,7 @@ namespace Inspirum\XML\Tests\Reader;
 use Exception;
 use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocumentFactory;
+use Inspirum\XML\Builder\Node;
 use Inspirum\XML\Reader\DefaultReaderFactory;
 use Inspirum\XML\Reader\DefaultXMLReaderFactory;
 use Inspirum\XML\Reader\Reader;
@@ -20,9 +21,7 @@ use function array_map;
 use function is_array;
 use function is_numeric;
 use function is_string;
-use function preg_quote;
 use function simplexml_load_string;
-use function sprintf;
 
 class DefaultReaderTest extends BaseTestCase
 {
@@ -361,41 +360,77 @@ class DefaultReaderTest extends BaseTestCase
     /**
      * @param array<list<string>|string> $expected
      */
-    #[DataProvider('provideIterateWihSimpleLoadString')]
-    public function testIterateWihSimpleLoadString(string $file, bool $withNamespaces, string $path, array $expected): void
+    #[DataProvider('provideIterateXpath')]
+    public function testIterateWithSimpleLoadString(string $file, bool $withNamespaces, string $path, array $expected): void
     {
         $reader = $this->newReader(self::getTestFilePath($file));
 
         foreach ($reader->iterateNode('item', $withNamespaces) as $i => $item) {
+            $elements = [];
+
             try {
-                self::withErrorHandler(static function () use ($i, $item, $path, $expected): void {
+                self::withErrorHandler(static function () use ($item, $path, &$elements): void {
                     $xml = simplexml_load_string($item->toString());
                     if ($xml === false) {
                         throw new Exception('simplexml_load_string: error');
                     }
 
                     $elements = $xml->xpath($path);
-                    if ($elements === false || $elements === null) {
-                        throw new Exception('xpath: error');
-                    }
-
-                    self::assertSame($expected[$i], array_map(static fn(SimpleXMLElement $element): string => (string) $element, $elements));
                 });
+
+                if ($elements === false || $elements === null) {
+                    throw new Exception('xpath: error');
+                }
             } catch (Throwable $exception) {
                 $expectedMessage = $expected[$i];
                 if (is_string($expectedMessage)) {
-                    self::assertMatchesRegularExpression(sprintf('/%s/', preg_quote($expectedMessage)), $exception->getMessage());
-                } else {
-                    self::fail();
+                    self::assertMatchesRegularExpression($expectedMessage, $exception->getMessage());
+                    continue;
                 }
+
+                throw $exception;
             }
+
+            self::assertSame($expected[$i], array_map(static fn(SimpleXMLElement $element): string => (string) $element, $elements));
+        }
+    }
+
+    /**
+     * @param array<list<string>|string> $expected
+     */
+    #[DataProvider('provideIterateXpath')]
+    public function testIterateWithXpath(string $file, bool $withNamespaces, string $path, array $expected): void
+    {
+        $reader = $this->newReader(self::getTestFilePath($file));
+
+        foreach ($reader->iterateNode('item', $withNamespaces) as $i => $item) {
+            $elements = [];
+            try {
+                self::withErrorHandler(static function () use ($item, $path, &$elements): void {
+                    $elements = $item->xpath($path);
+                });
+
+                if ($elements === null) {
+                    throw new Exception('xpath: error');
+                }
+            } catch (Throwable $exception) {
+                $expectedMessage = $expected[$i];
+                if (is_string($expectedMessage)) {
+                    self::assertMatchesRegularExpression($expectedMessage, $exception->getMessage());
+                    continue;
+                }
+
+                throw $exception;
+            }
+
+            self::assertSame($expected[$i], array_map(static fn(Node $element): ?string => $element->getTextContent(), $elements));
         }
     }
 
     /**
      * @return iterable<array<string,mixed>>
      */
-    public static function provideIterateWihSimpleLoadString(): iterable
+    public static function provideIterateXpath(): iterable
     {
         yield [
             'file'           => 'sample_04.xml',
@@ -411,24 +446,26 @@ class DefaultReaderTest extends BaseTestCase
         ];
 
         yield [
-            'file'           => 'sample_08.xml',
+            'file'           => 'sample_04.xml',
             'withNamespaces' => false,
-            'path'           => '/item/id',
+            'path'           => '/item/name[@price>10]',
             'expected'       => [
-                'simplexml_load_string(): namespace error',
-                'simplexml_load_string(): namespace error',
-                'simplexml_load_string(): namespace error',
+                ['Test 1'],
+                [],
+                ['Test 3'],
+                [],
+                [],
             ],
         ];
 
         yield [
             'file'           => 'sample_08.xml',
             'withNamespaces' => false,
-            'path'           => '/item/g:id',
+            'path'           => '/item/id',
             'expected'       => [
-                'SimpleXMLElement::xpath(): Undefined namespace prefix',
-                'simplexml_load_string(): namespace error',
-                'simplexml_load_string(): namespace error',
+                ['1/L1'],
+                '/(simplexml_load_string\(\): namespace error |DOMDocument::loadXML\(\)): Namespace prefix h for test on id is not defined( in Entity)?/',
+                '/(simplexml_load_string\(\): namespace error |DOMDocument::loadXML\(\)): Namespace prefix g on id is not defined/',
             ],
         ];
 
@@ -445,10 +482,21 @@ class DefaultReaderTest extends BaseTestCase
 
         yield [
             'file'           => 'sample_08.xml',
+            'withNamespaces' => false,
+            'path'           => '/item/g:id',
+            'expected'       => [
+                '/(SimpleXMLElement::xpath\(\)|DOMXPath::query\(\))\: Undefined namespace prefix/',
+                '/(simplexml_load_string\(\): namespace error |DOMDocument::loadXML\(\)): Namespace prefix h for test on id is not defined( in Entity)?/',
+                '/(simplexml_load_string\(\): namespace error |DOMDocument::loadXML\(\)): Namespace prefix g on id is not defined/',
+            ],
+        ];
+
+        yield [
+            'file'           => 'sample_08.xml',
             'withNamespaces' => true,
             'path'           => '/item/g:id',
             'expected'       => [
-                'SimpleXMLElement::xpath(): Undefined namespace prefix',
+                '/(SimpleXMLElement::xpath\(\)|DOMXPath::query\(\))\: Undefined namespace prefix/',
                 [],
                 ['1/L3'],
             ],
@@ -459,7 +507,7 @@ class DefaultReaderTest extends BaseTestCase
             'withNamespaces' => true,
             'path'           => '/item/data/g:title',
             'expected'       => [
-                'SimpleXMLElement::xpath(): Undefined namespace prefix',
+                '/(SimpleXMLElement::xpath\(\)|DOMXPath::query\(\))\: Undefined namespace prefix/',
                 ['Title 2'],
                 [],
             ],

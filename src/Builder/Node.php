@@ -33,6 +33,13 @@ interface Node extends Model
     public function addTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false, bool $withNamespaces = true): Node;
 
     /**
+     * Add element from \DOMNode
+     *
+     * @throws \DOMException
+     */
+    public function addElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): Node;
+
+    /**
      * Append node to parent node.
      */
     public function append(Node $element): void;
@@ -56,6 +63,13 @@ interface Node extends Model
     public function createTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false, bool $withNamespaces = true): Node;
 
     /**
+     * Create new (unconnected) element from \DOMNode
+     *
+     * @throws \DOMException
+     */
+    public function createElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): Node;
+
+    /**
      * Add XML data
      */
     public function addXMLData(string $content): ?Node;
@@ -71,6 +85,11 @@ interface Node extends Model
      * @return ($autoCast is true ? array<string,mixed> : array<string,string>)
      */
     public function getAttributes(bool $autoCast = false): array;
+
+    /**
+     * @return list<\Inspirum\XML\Builder\Node>|null
+     */
+    public function xpath(string $expression): ?array;
 
     /**
      * Get connected \DOMDocument

@@ -9,17 +9,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.0.0...master)
 
 
-## [v3.0.0 (2023-10-16)](https://github.com/inspirum/xml-php/compare/v2.3.1...v3.0.0)
+## [v3.0.0 (2023-10-17)](https://github.com/inspirum/xml-php/compare/v2.3.1...v3.0.0)
 ### Changed
 - Support only **PHP 8.2+**
 - Make [`Config`](./src/Formatter/Config.php) interface instead of readonly class
 
 ### Added
-- [`Node`](./src/Builder/Node.php) implements `\Inspirum\Arrayable\Model` interface
+- Added [`Node::xpath`](./src/Builder/Node.php) method using internally [`DOMXPath`](https://www.php.net/manual/en/class.domxpath.php)
 - Added option cast node to flatten (one-dimensional) array
-- Added [`DefaultConfig`](./src/Formatter/DefaultConfig.php) config class
-- Added [`FullResponseConfig`](./src/Formatter/FullResponseConfig.php) config class
-- Added [`FlattenConfig`](./src/Formatter/FlattenConfig.php) config class
+  - Added [`DefaultConfig`](./src/Formatter/DefaultConfig.php) config class
+  - Added [`FullResponseConfig`](./src/Formatter/FullResponseConfig.php) config class
+  - Added [`FlattenConfig`](./src/Formatter/FlattenConfig.php) config class
 
 
 ## [v2.3.1 (2023-08-08)](https://github.com/inspirum/xml-php/compare/v2.3.0...v2.3.1)
@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - [`Inspirum\XML\Builder\Node`](./src/Builder/Node.php)
   - [`Inspirum\XML\Reader\ReaderFactory`](./src/Reader/ReaderFactory.php)
   - [`Inspirum\XML\Reader\Reader`](./src/Reader/Reader.php)
-- Factories for [XML builder](./src/Builder/Document.php) and [XML Reader](./src/Reader/Reader.php)
+- Factories for [**XML builder**](./src/Builder/Document.php) and [**XML Reader**](./src/Reader/Reader.php)
 - Publicly available [`Formatter::nodeToArray`](./src/Formatter/Formatter.php) method
 
 

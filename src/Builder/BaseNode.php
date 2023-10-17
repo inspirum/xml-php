@@ -9,6 +9,7 @@ use DOMDocumentFragment;
 use DOMElement;
 use DOMException;
 use DOMNode;
+use DOMXpath;
 use Inspirum\XML\Exception\Handler;
 use Inspirum\XML\Formatter\Config;
 use Inspirum\XML\Formatter\DefaultConfig;
@@ -63,6 +64,11 @@ abstract class BaseNode implements Node
         return $this->createNode($element);
     }
 
+    public function addElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): Node
+    {
+        return $this->addTextElement($node->nodeName, $node->textContent, $this->getAttributesFromNode($node), $forcedEscape, $withNamespaces);
+    }
+
     public function append(Node $element): void
     {
         if ($element->getNode() !== null) {
@@ -86,6 +92,11 @@ abstract class BaseNode implements Node
         $element = $this->createFullDOMElement($name, $value, $attributes, $forcedEscape, $withNamespaces);
 
         return $this->createNode($element);
+    }
+
+    public function createElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): Node
+    {
+        return $this->createTextElement($node->nodeName, $node->textContent, $this->getAttributesFromNode($node), $forcedEscape, $withNamespaces);
     }
 
     public function addXMLData(string $content): ?Node
@@ -177,8 +188,6 @@ abstract class BaseNode implements Node
 
     /**
      * Create new DOM attribute with namespace if exists
-     *
-     * @return void
      */
     private function setDOMAttributeNS(DOMElement $element, string $name, mixed $value, bool $withNamespaces): void
     {
@@ -199,7 +208,7 @@ abstract class BaseNode implements Node
      */
     private function appendChild(DOMNode $element): void
     {
-        $node = $this->node ?? $this->document;
+        $node = $this->resolveNode();
         $node->appendChild($element);
     }
 
@@ -221,7 +230,7 @@ abstract class BaseNode implements Node
 
     public function getTextContent(): ?string
     {
-        $node = $this->node ?? $this->document;
+        $node = $this->resolveNode();
 
         return $node->textContent;
     }
@@ -231,7 +240,18 @@ abstract class BaseNode implements Node
      */
     public function getAttributes(bool $autoCast = false): array
     {
-        $node       = $this->node ?? $this->document;
+        $node = $this->resolveNode();
+
+        return $this->getAttributesFromNode($node, $autoCast);
+    }
+
+    /**
+     * Get attributes from \DOMNode
+     *
+     * @return ($autoCast is true ? array<string,mixed> : array<string,string>)
+     */
+    private function getAttributesFromNode(DOMNode $node, bool $autoCast = false): array
+    {
         $attributes = [];
 
         if ($node->hasAttributes()) {
@@ -243,6 +263,45 @@ abstract class BaseNode implements Node
         }
 
         return $attributes;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function xpath(string $expression): ?array
+    {
+        $xpath = new DOMXpath($this->toDOMDocument());
+
+        $nodes = $xpath->query($expression);
+        if ($nodes === false) {
+            return null;
+        }
+
+        $results = [];
+        foreach ($nodes as $node) {
+            $results[] = $this->createElementFromNode($node);
+        }
+
+        return $results;
+    }
+
+    /**
+     * Copy current node to new \DOMDocument
+     */
+    private function toDOMDocument(): DOMDocument
+    {
+        $doc = new DOMDocument($this->document->xmlVersion ?? '1.0', $this->document->encoding ?? 'UTF-8');
+        $doc->loadXML($this->toString());
+
+        return $doc;
+    }
+
+    /**
+     * Resolve current node
+     */
+    private function resolveNode(): DOMNode
+    {
+        return $this->node ?? $this->document;
     }
 
     public function toString(bool $formatOutput = false): string
@@ -269,7 +328,7 @@ abstract class BaseNode implements Node
      */
     public function toArray(?Config $config = null): array
     {
-        $result = Formatter::nodeToArray($this->node ?? $this->document, $config ?? new DefaultConfig());
+        $result = Formatter::nodeToArray($this->resolveNode(), $config ?? new DefaultConfig());
 
         if (is_array($result) === false) {
             $result = [$result];

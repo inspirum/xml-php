@@ -516,13 +516,13 @@ class NodeToArrayTest extends BaseTestCase
 
         self::assertSame(
             [
-                'a/b/c1#test' => ['true', 'cc'],
-                'a/b/c1#a' => '1.4',
+                'a/b/c1@test' => ['true', 'cc'],
+                'a/b/c1@a' => '1.4',
                 'a/b/c1' => ['1', '0'],
                 'a/b/c2' => 'false',
                 'a/b/c3' => 'test',
-                'a/b/c1#b' => '2',
-                'a#version' => '1.0',
+                'a/b/c1@b' => '2',
+                'a@version' => '1.0',
             ],
             $xml->toArray($config),
         );
@@ -546,13 +546,13 @@ class NodeToArrayTest extends BaseTestCase
 
         self::assertSame(
             [
-                'a/b/c1#test' => [true, 'cc'],
-                'a/b/c1#a' => 1.4,
+                'a/b/c1@test' => [true, 'cc'],
+                'a/b/c1@a' => 1.4,
                 'a/b/c1' => [1, 0],
                 'a/b/c2' => false,
                 'a/b/c3' => 'test',
-                'a/b/c1#b' => 2,
-                'a#version' => 1.0,
+                'a/b/c1@b' => 2,
+                'a@version' => 1.0,
             ],
             $xml->toArray($config),
         );
@@ -576,13 +576,13 @@ class NodeToArrayTest extends BaseTestCase
 
         self::assertSame(
             [
-                'a/b/c1#test' => ['true', 'cc'],
-                'a/b/c1#a' => ['1.4'],
+                'a/b/c1@test' => ['true', 'cc'],
+                'a/b/c1@a' => ['1.4'],
                 'a/b/c1' => ['1', '0'],
                 'a/b/c2' => ['false'],
                 'a/b/c3' => ['test'],
-                'a/b/c1#b' => ['2'],
-                'a#version' => ['1.0'],
+                'a/b/c1@b' => ['2'],
+                'a@version' => ['1.0'],
             ],
             $xml->toArray($config),
         );
@@ -602,17 +602,17 @@ class NodeToArrayTest extends BaseTestCase
         $bE = $aE->addElement('b');
         $bE->addTextElement('c1', 0, ['test' => 'cc', 'b' => 2]);
 
-        $config = new FlattenConfig(flattenNodes: '|', flattenAttributes: '@');
+        $config = new FlattenConfig(flattenNodes: '.', flattenAttributes: '#');
 
         self::assertSame(
             [
-                'a|b|c1@test' => ['true', 'cc'],
-                'a|b|c1@a' => '1.4',
-                'a|b|c1' => ['1', '0'],
-                'a|b|c2' => 'false',
-                'a|b|c3' => 'test',
-                'a|b|c1@b' => '2',
-                'a@version' => '1.0',
+                'a.b.c1#test' => ['true', 'cc'],
+                'a.b.c1#a' => '1.4',
+                'a.b.c1' => ['1', '0'],
+                'a.b.c2' => 'false',
+                'a.b.c3' => 'test',
+                'a.b.c1#b' => '2',
+                'a#version' => '1.0',
             ],
             $xml->toArray($config),
         );
