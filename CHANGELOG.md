@@ -6,7 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.0.0...master)
+## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.1.0...master)
+
+
+## [v3.1.0 (2023-11-05)](https://github.com/inspirum/xml-php/compare/v3.0.0...v3.1.0)
+### Fixed
+- Fixed [`Node::xpath`](./src/Builder/Node.php) method for node with child nodes
+
+### Added
+- Added optional parameter **withoutRoot** to [`FlattenConfig`](./src/Formatter/FlattenConfig.php) to cast node to flatten (one-dimensional) array without root element node name
 
 
 ## [v3.0.0 (2023-10-17)](https://github.com/inspirum/xml-php/compare/v2.3.1...v3.0.0)
@@ -15,8 +23,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Make [`Config`](./src/Formatter/Config.php) interface instead of readonly class
 
 ### Added
-- Added [`Node::xpath`](./src/Builder/Node.php) method using internally [`DOMXPath`](https://www.php.net/manual/en/class.domxpath.php)
-- Added option cast node to flatten (one-dimensional) array
+- Added [`Node::xpath`](./src/Builder/Node.php) method using internally [`\DOMXPath`](https://www.php.net/manual/en/class.domxpath.php)
+- Added option to cast node to flatten (one-dimensional) array
   - Added [`DefaultConfig`](./src/Formatter/DefaultConfig.php) config class
   - Added [`FullResponseConfig`](./src/Formatter/FullResponseConfig.php) config class
   - Added [`FlattenConfig`](./src/Formatter/FlattenConfig.php) config class
@@ -30,13 +38,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [v2.3.0 (2023-04-27)](https://github.com/inspirum/xml-php/compare/v2.2.0...v2.3.0)
 ### Added
-- Added option for [**Reader**](./src/Reader/Reader.php) to get/iterate nodes by its xpath.
+- Added option for [`Reader`](./src/Reader/Reader.php) to get/iterate nodes by its xpath.
 
 
 ## [v2.2.0 (2023-04-24)](https://github.com/inspirum/xml-php/compare/v2.1.0...v2.2.0)
 ### Added
 - Added support for **PHP 8.2**
-- Added optional parameter **withNamespaces** to [**Reader**](./src/Reader/Reader.php) `iterateNode()` to split into XML fragments with valid namespaces
+- Added optional parameter **withNamespaces** to [`Reader::iterateNode()`](./src/Reader/Reader.php) to split into XML fragments with valid namespaces
 
 
 ## [v2.1.0 (2022-07-04)](https://github.com/inspirum/xml-php/compare/v2.0.0...v2.1.0)
