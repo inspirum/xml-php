@@ -7,7 +7,7 @@
     <items>
         <item i="0">
             <id uuid="12345">1</id>
-            <name price="10.1">Test 1</name>
+            <name price="10.1"><![CDATA[Test 1]]></name>
         </item>
         <item i="1">
             <id uuid="61648">2</id>
@@ -15,7 +15,7 @@
         </item>
         <item i="2">
             <id>3</id>
-            <name price="500">Test 3</name>
+            <name price="500"><![CDATA[Test 3 & 9]]></name>
         </item>
         <item i="3">
             <id uuid="894654">4</id>

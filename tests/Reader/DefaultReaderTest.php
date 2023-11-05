@@ -21,7 +21,9 @@ use function array_map;
 use function is_array;
 use function is_numeric;
 use function is_string;
+use function preg_replace;
 use function simplexml_load_string;
+use function trim;
 
 class DefaultReaderTest extends BaseTestCase
 {
@@ -132,7 +134,7 @@ class DefaultReaderTest extends BaseTestCase
         $node = $reader->nextNode('feed');
 
         self::assertSame(
-            '<feed version="2.0"><updated>2020-08-25T13:53:38+00:00</updated><title>Test feed</title><errors id="1"/><errors2 id="2"/><items><item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item><item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item><item i="2"><id>3</id><name price="500">Test 3</name></item><item i="3"><id uuid="894654">4</id><name>Test 4</name></item><item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item></items></feed>',
+            '<feed version="2.0"><updated>2020-08-25T13:53:38+00:00</updated><title>Test feed</title><errors id="1"/><errors2 id="2"/><items><item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item><item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item><item i="2"><id>3</id><name price="500"><![CDATA[Test 3 & 9]]></name></item><item i="3"><id uuid="894654">4</id><name>Test 4</name></item><item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item></items></feed>',
             $node?->toString(),
         );
     }
@@ -172,7 +174,7 @@ class DefaultReaderTest extends BaseTestCase
             [
                 '<item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item>',
                 '<item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item>',
-                '<item i="2"><id>3</id><name price="500">Test 3</name></item>',
+                '<item i="2"><id>3</id><name price="500"><![CDATA[Test 3 & 9]]></name></item>',
                 '<item i="3"><id uuid="894654">4</id><name>Test 4</name></item>',
             ],
             $output,
@@ -234,7 +236,7 @@ class DefaultReaderTest extends BaseTestCase
             [
                 '<item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item>',
                 '<item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item>',
-                '<item i="2"><id>3</id><name price="500">Test 3</name></item>',
+                '<item i="2"><id>3</id><name price="500"><![CDATA[Test 3 & 9]]></name></item>',
                 '<item i="3"><id uuid="894654">4</id><name>Test 4</name></item>',
                 '<item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item>',
             ],
@@ -359,14 +361,16 @@ class DefaultReaderTest extends BaseTestCase
 
     /**
      * @param array<list<string>|string> $expected
+     * @param array<list<string>|string>|null $expectedOverride
      */
     #[DataProvider('provideIterateXpath')]
-    public function testIterateWithSimpleLoadString(string $file, bool $withNamespaces, string $path, array $expected): void
+    public function testIterateWithSimpleLoadString(string $file, bool $withNamespaces, string $path, array $expected, ?array $expectedOverride = null): void
     {
         $reader = $this->newReader(self::getTestFilePath($file));
 
         foreach ($reader->iterateNode('item', $withNamespaces) as $i => $item) {
-            $elements = [];
+            $elements     = [];
+            $expectedItem = $expectedOverride[$i] ?? $expected[$i];
 
             try {
                 self::withErrorHandler(static function () use ($item, $path, &$elements): void {
@@ -382,16 +386,16 @@ class DefaultReaderTest extends BaseTestCase
                     throw new Exception('xpath: error');
                 }
             } catch (Throwable $exception) {
-                $expectedMessage = $expected[$i];
+                $expectedMessage = $expectedItem;
                 if (is_string($expectedMessage)) {
-                    self::assertMatchesRegularExpression($expectedMessage, $exception->getMessage());
+                    self::assertSame($expectedMessage, $exception->getMessage());
                     continue;
                 }
 
                 throw $exception;
             }
 
-            self::assertSame($expected[$i], array_map(static fn(SimpleXMLElement $element): string => (string) $element, $elements));
+            self::assertSame($expectedItem, array_map(static fn(SimpleXMLElement $element): string => trim((string) preg_replace('/<\?xml[^>]*\?>/', '', (string) $element->asXML(), 1)), $elements));
         }
     }
 
@@ -416,14 +420,14 @@ class DefaultReaderTest extends BaseTestCase
             } catch (Throwable $exception) {
                 $expectedMessage = $expected[$i];
                 if (is_string($expectedMessage)) {
-                    self::assertMatchesRegularExpression($expectedMessage, $exception->getMessage());
+                    self::assertSame($expectedMessage, $exception->getMessage());
                     continue;
                 }
 
                 throw $exception;
             }
 
-            self::assertSame($expected[$i], array_map(static fn(Node $element): ?string => $element->getTextContent(), $elements));
+            self::assertSame($expected[$i], array_map(static fn(Node $element): string => $element->toString(), $elements));
         }
     }
 
@@ -437,11 +441,24 @@ class DefaultReaderTest extends BaseTestCase
             'withNamespaces' => false,
             'path'           => '/item/id',
             'expected'       => [
-                ['1'],
-                ['2'],
-                ['3'],
-                ['4'],
-                ['5'],
+                ['<id uuid="12345">1</id>'],
+                ['<id uuid="61648">2</id>'],
+                ['<id>3</id>'],
+                ['<id uuid="894654">4</id>'],
+                ['<id uuid="78954">5</id>'],
+            ],
+        ];
+
+        yield [
+            'file'           => 'sample_04.xml',
+            'withNamespaces' => false,
+            'path'           => '/item',
+            'expected'       => [
+                ['<item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item>'],
+                ['<item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item>'],
+                ['<item i="2"><id>3</id><name price="500"><![CDATA[Test 3 & 9]]></name></item>'],
+                ['<item i="3"><id uuid="894654">4</id><name>Test 4</name></item>'],
+                ['<item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item>'],
             ],
         ];
 
@@ -450,9 +467,9 @@ class DefaultReaderTest extends BaseTestCase
             'withNamespaces' => false,
             'path'           => '/item/name[@price>10]',
             'expected'       => [
-                ['Test 1'],
+                ['<name price="10.1">Test 1</name>'],
                 [],
-                ['Test 3'],
+                ['<name price="500"><![CDATA[Test 3 & 9]]></name>'],
                 [],
                 [],
             ],
@@ -463,9 +480,14 @@ class DefaultReaderTest extends BaseTestCase
             'withNamespaces' => false,
             'path'           => '/item/id',
             'expected'       => [
-                ['1/L1'],
-                '/(simplexml_load_string\(\): namespace error |DOMDocument::loadXML\(\)): Namespace prefix h for test on id is not defined( in Entity)?/',
-                '/(simplexml_load_string\(\): namespace error |DOMDocument::loadXML\(\)): Namespace prefix g on id is not defined/',
+                ['<id>1/L1</id>'],
+                'DOMDocument::loadXML(): Namespace prefix h for test on id is not defined in Entity, line: 1',
+                'DOMDocument::loadXML(): Namespace prefix g on id is not defined in Entity, line: 1',
+            ],
+            'expectedOverride'       => [
+                ['<id>1/L1</id>'],
+                'simplexml_load_string(): namespace error : Namespace prefix h for test on id is not defined',
+                'simplexml_load_string(): namespace error : Namespace prefix g on id is not defined',
             ],
         ];
 
@@ -474,7 +496,7 @@ class DefaultReaderTest extends BaseTestCase
             'withNamespaces' => true,
             'path'           => '/item/id',
             'expected'       => [
-                ['1/L1'],
+                ['<id>1/L1</id>'],
                 [],
                 [],
             ],
@@ -485,9 +507,14 @@ class DefaultReaderTest extends BaseTestCase
             'withNamespaces' => false,
             'path'           => '/item/g:id',
             'expected'       => [
-                '/(SimpleXMLElement::xpath\(\)|DOMXPath::query\(\))\: Undefined namespace prefix/',
-                '/(simplexml_load_string\(\): namespace error |DOMDocument::loadXML\(\)): Namespace prefix h for test on id is not defined( in Entity)?/',
-                '/(simplexml_load_string\(\): namespace error |DOMDocument::loadXML\(\)): Namespace prefix g on id is not defined/',
+                'DOMXPath::query(): Undefined namespace prefix',
+                'DOMDocument::loadXML(): Namespace prefix h for test on id is not defined in Entity, line: 1',
+                'DOMDocument::loadXML(): Namespace prefix g on id is not defined in Entity, line: 1',
+            ],
+            'expectedOverride'       => [
+                'SimpleXMLElement::xpath(): Undefined namespace prefix',
+                'simplexml_load_string(): namespace error : Namespace prefix h for test on id is not defined',
+                'simplexml_load_string(): namespace error : Namespace prefix g on id is not defined',
             ],
         ];
 
@@ -496,9 +523,14 @@ class DefaultReaderTest extends BaseTestCase
             'withNamespaces' => true,
             'path'           => '/item/g:id',
             'expected'       => [
-                '/(SimpleXMLElement::xpath\(\)|DOMXPath::query\(\))\: Undefined namespace prefix/',
+                'DOMXPath::query(): Undefined namespace prefix',
                 [],
-                ['1/L3'],
+                ['<g:id xmlns:g="http://base.google.com/ns/1.0">1/L3</g:id>'],
+            ],
+            'expectedOverride'       => [
+                'SimpleXMLElement::xpath(): Undefined namespace prefix',
+                [],
+                ['<g:id>1/L3</g:id>'],
             ],
         ];
 
@@ -507,8 +539,13 @@ class DefaultReaderTest extends BaseTestCase
             'withNamespaces' => true,
             'path'           => '/item/data/g:title',
             'expected'       => [
-                '/(SimpleXMLElement::xpath\(\)|DOMXPath::query\(\))\: Undefined namespace prefix/',
-                ['Title 2'],
+                'DOMXPath::query(): Undefined namespace prefix',
+                ['<g:title xmlns:g="http://base.google.com/ns/1.0" test="bb">Title 2</g:title>'],
+                [],
+            ],
+            'expectedOverride'       => [
+                'SimpleXMLElement::xpath(): Undefined namespace prefix',
+                ['<g:title test="bb">Title 2</g:title>'],
                 [],
             ],
         ];

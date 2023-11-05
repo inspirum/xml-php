@@ -9,6 +9,7 @@ use DOMDocumentFragment;
 use DOMElement;
 use DOMException;
 use DOMNode;
+use DOMText;
 use DOMXpath;
 use Inspirum\XML\Exception\Handler;
 use Inspirum\XML\Formatter\Config;
@@ -66,7 +67,11 @@ abstract class BaseNode implements Node
 
     public function addElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): Node
     {
-        return $this->addTextElement($node->nodeName, $node->textContent, $this->getAttributesFromNode($node), $forcedEscape, $withNamespaces);
+        $element = $this->createFullDOMElementFromNode($node, $forcedEscape, $withNamespaces);
+
+        $this->appendChild($element);
+
+        return $this->createNode($element);
     }
 
     public function append(Node $element): void
@@ -96,7 +101,9 @@ abstract class BaseNode implements Node
 
     public function createElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): Node
     {
-        return $this->createTextElement($node->nodeName, $node->textContent, $this->getAttributesFromNode($node), $forcedEscape, $withNamespaces);
+        $element = $this->createFullDOMElementFromNode($node, $forcedEscape, $withNamespaces);
+
+        return $this->createNode($element);
     }
 
     public function addXMLData(string $content): ?Node
@@ -129,6 +136,30 @@ abstract class BaseNode implements Node
 
         foreach ($attributes as $attributeName => $attributeValue) {
             $this->setDOMAttributeNS($element, $attributeName, $attributeValue, $withNamespaces);
+        }
+
+        return $element;
+    }
+
+    private function createFullDOMElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): DOMElement
+    {
+        $value         = null;
+        $childElements = [];
+
+        /** @var \DOMNode $child */
+        foreach ($node->childNodes as $child) {
+            if ($child instanceof DOMText) {
+                $value = $child->textContent;
+                continue;
+            }
+
+            $childElements[] = $this->createFullDOMElementFromNode($child, $forcedEscape, $withNamespaces);
+        }
+
+        $element = $this->createFullDOMElement($node->nodeName, $value, $this->getAttributesFromNode($node), $forcedEscape, $withNamespaces);
+
+        foreach ($childElements as $childElement) {
+            $element->appendChild($childElement);
         }
 
         return $element;

@@ -93,7 +93,7 @@
     "phpstan": "./vendor/bin/phpstan analyse -c phpstan.neon",
     "phpcbf": "./vendor/bin/phpcbf -p --extensions=php",
     "infection": "./tools/infection",
-    "composerRequireChecker": "./tools/composer-require-checker check",
+    "composerRequireChecker": "./tools/composer-require-checker check --config-file=$PWD/composer-require-checker.json",
     "composerUnused": "./tools/composer-unused"
   }
 }
