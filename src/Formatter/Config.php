@@ -28,4 +28,6 @@ interface Config
     public function getFlattenNodes(): string;
 
     public function getFlattenAttributes(): string;
+
+    public function isWithoutRoot(): bool;
 }

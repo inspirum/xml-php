@@ -14,6 +14,7 @@ use function is_array;
 use function is_bool;
 use function is_numeric;
 use function is_scalar;
+use function ltrim;
 use function rtrim;
 use function sprintf;
 use function str_starts_with;
@@ -99,6 +100,11 @@ final class Formatter
      */
     public static function nodeToArray(DOMNode $node, Config $config): mixed
     {
+        return self::nodeToArrayRecursive($node, $config, 1);
+    }
+
+    private static function nodeToArrayRecursive(DOMNode $node, Config $config, int $depth): mixed
+    {
         $value = null;
         /** @var array<string,mixed> $attributes */
         $attributes = [];
@@ -127,9 +133,9 @@ final class Formatter
                     continue;
                 }
 
-                $childNodes = self::nodeToArray($child, $config);
+                $childNodes = self::nodeToArrayRecursive($child, $config, $depth + 1);
                 if ($config->isFlatten()) {
-                    self::flattenArray($nodes, $child->nodeName, $childNodes, $config);
+                    self::flattenArray($nodes, $config->isWithoutRoot() && $depth === 1 ? '' : $child->nodeName, $childNodes, $config);
                 } else {
                     $nodes[$child->nodeName][] = $childNodes;
                 }
@@ -173,7 +179,7 @@ final class Formatter
             } elseif ($childNodeName === $config->getValueName()) {
                 $nodes[$nodeNames][] = $childNodeValues;
             } else {
-                $nodeKey = sprintf('%s%s%s', $nodeNames, $config->getFlattenNodes(), $childNodeName);
+                $nodeKey = ltrim(sprintf('%s%s%s', $nodeNames, $config->getFlattenNodes(), $childNodeName), $config->getFlattenNodes());
                 if (is_array($childNodeValues)) {
                     $nodes[$nodeKey] = array_merge($nodes[$nodeKey] ?? [], $childNodeValues);
                 } else {

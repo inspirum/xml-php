@@ -79,4 +79,9 @@ abstract readonly class BaseConfig implements Config
     {
         return self::FLATTEN_ATTRIBUTES;
     }
+
+    public function isWithoutRoot(): bool
+    {
+        return false;
+    }
 }

@@ -14,6 +14,7 @@ final readonly class FlattenConfig extends BaseConfig
         bool $autoCast = false,
         private ?string $flattenNodes = null,
         private ?string $flattenAttributes = null,
+        private bool $withoutRoot = false,
     ) {
         parent::__construct($alwaysArray, $autoCast);
     }
@@ -36,5 +37,10 @@ final readonly class FlattenConfig extends BaseConfig
     public function getFlattenAttributes(): string
     {
         return $this->flattenAttributes ?? parent::getFlattenAttributes();
+    }
+
+    public function isWithoutRoot(): bool
+    {
+        return $this->withoutRoot;
     }
 }

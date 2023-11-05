@@ -528,6 +528,36 @@ class NodeToArrayTest extends BaseTestCase
         );
     }
 
+    public function testWithFlattenWithoutRootConfig(): void
+    {
+        $xml = $this->newDocument();
+
+        $aE = $xml->addElement('a', [
+            'version' => '1.0',
+        ]);
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 1, ['test' => true, 'a' => 1.4]);
+        $bE->addTextElement('c2', false);
+        $bE->addTextElement('c3', 'test');
+        $bE = $aE->addElement('b');
+        $bE->addTextElement('c1', 0, ['test' => 'cc', 'b' => 2]);
+
+        $config = new FlattenConfig(withoutRoot: true);
+
+        self::assertSame(
+            [
+                'b/c1@test' => ['true', 'cc'],
+                'b/c1@a' => '1.4',
+                'b/c1' => ['1', '0'],
+                'b/c2' => 'false',
+                'b/c3' => 'test',
+                'b/c1@b' => '2',
+                '@version' => '1.0',
+            ],
+            $xml->toArray($config),
+        );
+    }
+
     public function testWithFlattenAutocastConfig(): void
     {
         $xml = $this->newDocument();
