@@ -10,7 +10,7 @@ use DOMElement;
 use DOMException;
 use DOMNode;
 use DOMText;
-use DOMXpath;
+use DOMXPath;
 use Inspirum\XML\Exception\Handler;
 use Inspirum\XML\Formatter\Config;
 use Inspirum\XML\Formatter\DefaultConfig;
@@ -301,7 +301,7 @@ abstract class BaseNode implements Node
      */
     public function xpath(string $expression): ?array
     {
-        $xpath = new DOMXpath($this->toDOMDocument());
+        $xpath = new DOMXPath($this->toDOMDocument());
 
         $nodes = $xpath->query($expression);
         if ($nodes === false) {

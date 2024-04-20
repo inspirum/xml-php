@@ -401,9 +401,10 @@ class DefaultReaderTest extends BaseTestCase
 
     /**
      * @param array<list<string>|string> $expected
+     * @param array<list<string>|string>|null $expectedOverride
      */
     #[DataProvider('provideIterateXpath')]
-    public function testIterateWithXpath(string $file, bool $withNamespaces, string $path, array $expected): void
+    public function testIterateWithXpath(string $file, bool $withNamespaces, string $path, array $expected, ?array $expectedOverride = null): void
     {
         $reader = $this->newReader(self::getTestFilePath($file));
 

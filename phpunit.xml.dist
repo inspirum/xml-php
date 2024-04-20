@@ -3,8 +3,6 @@
   <php>
     <ini name="display_errors" value="1"/>
     <ini name="error_reporting" value="-1"/>
-    <env name="BALIKOBOT_API_USER" value="testUser"/>
-    <env name="BALIKOBOT_API_KEY" value="testKey1"/>
   </php>
   <testsuites>
     <testsuite name="Unit">

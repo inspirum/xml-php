@@ -28,10 +28,11 @@
     "inspirum/arrayable": "^1.2"
   },
   "require-dev": {
-    "inspirum/coding-standard": "^1.3",
+    "inspirum/coding-standard": "^1.4",
     "phpstan/phpstan": "^1.10",
-    "phpunit/phpunit": "^10.1",
-    "squizlabs/php_codesniffer": "^3.7"
+    "phpunit/phpunit": "^10.3",
+    "shipmonk/composer-dependency-analyser": "^1.5",
+    "squizlabs/php_codesniffer": "^3.9"
   },
   "autoload": {
     "psr-4": {
@@ -54,8 +55,7 @@
       "@style:phpcs",
       "@test:unit",
       "@style:phpstan",
-      "@check:requirement",
-      "@check:unused"
+      "@check:dependency"
     ],
     "test:test": [
       "@test:unit"
@@ -65,9 +65,6 @@
     ],
     "test:coverage": [
       "@phpunit --coverage-text --coverage-html=var/phpunit/coverage"
-    ],
-    "test:infection": [
-      "@infection"
     ],
     "style:phpcs": [
       "@phpcs"
@@ -82,18 +79,13 @@
     "style:fix": [
       "@phpcbf src tests"
     ],
-    "check:requirement": [
-      "@composerRequireChecker"
-    ],
-    "check:unused": [
-      "@composerUnused"
+    "check:dependency": [
+      "@composer-dependency-analyser"
     ],
     "phpunit": "./vendor/bin/phpunit",
     "phpcs": "./vendor/bin/phpcs -p -s --extensions=php --colors --report-width=140 || true",
     "phpstan": "./vendor/bin/phpstan analyse -c phpstan.neon",
     "phpcbf": "./vendor/bin/phpcbf -p --extensions=php",
-    "infection": "./tools/infection",
-    "composerRequireChecker": "./tools/composer-require-checker check --config-file=$PWD/composer-require-checker.json",
-    "composerUnused": "./tools/composer-unused"
+    "composer-dependency-analyser": "./vendor/bin/composer-dependency-analyser"
   }
 }

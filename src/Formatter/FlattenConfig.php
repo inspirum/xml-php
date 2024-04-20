@@ -10,7 +10,7 @@ final readonly class FlattenConfig extends BaseConfig
      * @param list<string>|true $alwaysArray
      */
     public function __construct(
-        array | true $alwaysArray = [],
+        array|true $alwaysArray = [],
         bool $autoCast = false,
         private ?string $flattenNodes = null,
         private ?string $flattenAttributes = null,

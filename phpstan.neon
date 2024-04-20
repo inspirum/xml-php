@@ -11,7 +11,3 @@ parameters:
 			path: src/Reader/DefaultReader.php
 			count: 5
 			reportUnmatched: false
-		-
-			message: '#^Method .+\:\:toArray\(\) should return array\<.+\> but returns array\.$#'
-			path: src/Builder/BaseNode.php
-			count: 1

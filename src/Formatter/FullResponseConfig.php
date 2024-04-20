@@ -10,7 +10,7 @@ final readonly class FullResponseConfig extends BaseConfig
      * @param list<string>|true $alwaysArray
      */
     public function __construct(
-        array | true $alwaysArray = [],
+        array|true $alwaysArray = [],
         bool $autoCast = false,
         ?string $attributesName = null,
         ?string $valueName = null,

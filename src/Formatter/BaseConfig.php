@@ -16,7 +16,7 @@ abstract readonly class BaseConfig implements Config
      * @param list<string>|true $alwaysArray
      */
     public function __construct(
-        private array | true $alwaysArray = [],
+        private array|true $alwaysArray = [],
         private bool $autoCast = false,
         private ?string $attributesName = null,
         private ?string $valueName = null,

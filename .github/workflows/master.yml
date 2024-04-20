@@ -12,6 +12,7 @@ jobs:
       matrix:
         php:
           - '8.2'
+          - '8.3'
     steps:
       - uses: actions/checkout@v2
         with:
@@ -36,6 +37,7 @@ jobs:
         run: |
           vendor/bin/phpcs src tests
           vendor/bin/phpstan analyse -c phpstan.neon
+          vendor/bin/composer-dependency-analyser
       - name: Run tests
         run: |
           vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
