@@ -6,10 +6,10 @@ namespace Inspirum\XML\Formatter;
 
 abstract readonly class BaseConfig implements Config
 {
-    private const ATTRIBUTES         = '@attributes';
-    private const NODES              = '@nodes';
-    private const VALUE              = '@value';
-    private const FLATTEN_NODES      = '/';
+    private const ATTRIBUTES = '@attributes';
+    private const NODES = '@nodes';
+    private const VALUE = '@value';
+    private const FLATTEN_NODES = '/';
     private const FLATTEN_ATTRIBUTES = '@';
 
     /**

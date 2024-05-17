@@ -80,8 +80,8 @@ final class DefaultReader implements Reader
      */
     private function moveToNode(string $nodeName): MoveResult
     {
-        $usePath  = str_starts_with($nodeName, '/');
-        $paths    = explode('/', ltrim($nodeName, '/'));
+        $usePath = str_starts_with($nodeName, '/');
+        $paths = explode('/', ltrim($nodeName, '/'));
         $maxDepth = count($paths) - 1;
 
         $namespaces = [];
@@ -123,7 +123,7 @@ final class DefaultReader implements Reader
      */
     private function readNode(?array $rootNamespaces = null): ReadResult
     {
-        $name       = $this->getNodeName();
+        $name = $this->getNodeName();
         $attributes = $this->getNodeAttributes();
         $namespaces = Parser::parseNamespaces($attributes);
 
@@ -133,7 +133,7 @@ final class DefaultReader implements Reader
 
         /** @var list<\Inspirum\XML\Reader\ReadResult> $elements */
         $elements = [];
-        $text     = null;
+        $text = null;
 
         while ($this->read()) {
             if ($this->isNodeElementEndType() && $this->getNodeName() === $name) {
@@ -153,8 +153,8 @@ final class DefaultReader implements Reader
     }
 
     /**
-     * @param array<string,string>      $attributes
-     * @param array<string,string>      $namespaces
+     * @param array<string,string> $attributes
+     * @param array<string,string> $namespaces
      * @param array<string,string>|null $rootNamespaces
      */
     private function createEmptyNode(string $name, array $attributes, array $namespaces, ?array $rootNamespaces): ReadResult
@@ -163,10 +163,10 @@ final class DefaultReader implements Reader
     }
 
     /**
-     * @param array<string,string>                   $attributes
-     * @param array<string,string>                   $namespaces
-     * @param array<string,string>|null              $rootNamespaces
-     * @param list<\Inspirum\XML\Reader\ReadResult>  $elements
+     * @param array<string,string> $attributes
+     * @param array<string,string> $namespaces
+     * @param array<string,string>|null $rootNamespaces
+     * @param list<\Inspirum\XML\Reader\ReadResult> $elements
      *
      * @throws \DOMException
      */
@@ -174,7 +174,7 @@ final class DefaultReader implements Reader
     {
         $usedNamespaces = $this->getUsedNamespaces($name, $attributes);
 
-        $namespaces     = array_merge($namespaces, ...array_map(static fn(ReadResult $element) => $element->namespaces, $elements));
+        $namespaces = array_merge($namespaces, ...array_map(static fn(ReadResult $element) => $element->namespaces, $elements));
         $usedNamespaces = array_merge($usedNamespaces, ...array_map(static fn(ReadResult $element) => $element->usedNamespaces, $elements));
 
         $withNamespace = $rootNamespaces !== null;
@@ -200,7 +200,6 @@ final class DefaultReader implements Reader
     }
 
     /**
-     * @param string               $name
      * @param array<string,string> $attributes
      *
      * @return list<string>

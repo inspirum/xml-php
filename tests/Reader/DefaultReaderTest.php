@@ -369,7 +369,7 @@ class DefaultReaderTest extends BaseTestCase
         $reader = $this->newReader(self::getTestFilePath($file));
 
         foreach ($reader->iterateNode('item', $withNamespaces) as $i => $item) {
-            $elements     = [];
+            $elements = [];
             $expectedItem = $expectedOverride[$i] ?? $expected[$i];
 
             try {
@@ -438,10 +438,10 @@ class DefaultReaderTest extends BaseTestCase
     public static function provideIterateXpath(): iterable
     {
         yield [
-            'file'           => 'sample_04.xml',
+            'file' => 'sample_04.xml',
             'withNamespaces' => false,
-            'path'           => '/item/id',
-            'expected'       => [
+            'path' => '/item/id',
+            'expected' => [
                 ['<id uuid="12345">1</id>'],
                 ['<id uuid="61648">2</id>'],
                 ['<id>3</id>'],
@@ -451,10 +451,10 @@ class DefaultReaderTest extends BaseTestCase
         ];
 
         yield [
-            'file'           => 'sample_04.xml',
+            'file' => 'sample_04.xml',
             'withNamespaces' => false,
-            'path'           => '/item',
-            'expected'       => [
+            'path' => '/item',
+            'expected' => [
                 ['<item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item>'],
                 ['<item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item>'],
                 ['<item i="2"><id>3</id><name price="500"><![CDATA[Test 3 & 9]]></name></item>'],
@@ -464,10 +464,10 @@ class DefaultReaderTest extends BaseTestCase
         ];
 
         yield [
-            'file'           => 'sample_04.xml',
+            'file' => 'sample_04.xml',
             'withNamespaces' => false,
-            'path'           => '/item/name[@price>10]',
-            'expected'       => [
+            'path' => '/item/name[@price>10]',
+            'expected' => [
                 ['<name price="10.1">Test 1</name>'],
                 [],
                 ['<name price="500"><![CDATA[Test 3 & 9]]></name>'],
@@ -477,15 +477,15 @@ class DefaultReaderTest extends BaseTestCase
         ];
 
         yield [
-            'file'           => 'sample_08.xml',
+            'file' => 'sample_08.xml',
             'withNamespaces' => false,
-            'path'           => '/item/id',
-            'expected'       => [
+            'path' => '/item/id',
+            'expected' => [
                 ['<id>1/L1</id>'],
                 'DOMDocument::loadXML(): Namespace prefix h for test on id is not defined in Entity, line: 1',
                 'DOMDocument::loadXML(): Namespace prefix g on id is not defined in Entity, line: 1',
             ],
-            'expectedOverride'       => [
+            'expectedOverride' => [
                 ['<id>1/L1</id>'],
                 'simplexml_load_string(): namespace error : Namespace prefix h for test on id is not defined',
                 'simplexml_load_string(): namespace error : Namespace prefix g on id is not defined',
@@ -493,10 +493,10 @@ class DefaultReaderTest extends BaseTestCase
         ];
 
         yield [
-            'file'           => 'sample_08.xml',
+            'file' => 'sample_08.xml',
             'withNamespaces' => true,
-            'path'           => '/item/id',
-            'expected'       => [
+            'path' => '/item/id',
+            'expected' => [
                 ['<id>1/L1</id>'],
                 [],
                 [],
@@ -504,15 +504,15 @@ class DefaultReaderTest extends BaseTestCase
         ];
 
         yield [
-            'file'           => 'sample_08.xml',
+            'file' => 'sample_08.xml',
             'withNamespaces' => false,
-            'path'           => '/item/g:id',
-            'expected'       => [
+            'path' => '/item/g:id',
+            'expected' => [
                 'DOMXPath::query(): Undefined namespace prefix',
                 'DOMDocument::loadXML(): Namespace prefix h for test on id is not defined in Entity, line: 1',
                 'DOMDocument::loadXML(): Namespace prefix g on id is not defined in Entity, line: 1',
             ],
-            'expectedOverride'       => [
+            'expectedOverride' => [
                 'SimpleXMLElement::xpath(): Undefined namespace prefix',
                 'simplexml_load_string(): namespace error : Namespace prefix h for test on id is not defined',
                 'simplexml_load_string(): namespace error : Namespace prefix g on id is not defined',
@@ -520,15 +520,15 @@ class DefaultReaderTest extends BaseTestCase
         ];
 
         yield [
-            'file'           => 'sample_08.xml',
+            'file' => 'sample_08.xml',
             'withNamespaces' => true,
-            'path'           => '/item/g:id',
-            'expected'       => [
+            'path' => '/item/g:id',
+            'expected' => [
                 'DOMXPath::query(): Undefined namespace prefix',
                 [],
                 ['<g:id xmlns:g="http://base.google.com/ns/1.0">1/L3</g:id>'],
             ],
-            'expectedOverride'       => [
+            'expectedOverride' => [
                 'SimpleXMLElement::xpath(): Undefined namespace prefix',
                 [],
                 ['<g:id>1/L3</g:id>'],
@@ -536,15 +536,15 @@ class DefaultReaderTest extends BaseTestCase
         ];
 
         yield [
-            'file'           => 'sample_08.xml',
+            'file' => 'sample_08.xml',
             'withNamespaces' => true,
-            'path'           => '/item/data/g:title',
-            'expected'       => [
+            'path' => '/item/data/g:title',
+            'expected' => [
                 'DOMXPath::query(): Undefined namespace prefix',
                 ['<g:title xmlns:g="http://base.google.com/ns/1.0" test="bb">Title 2</g:title>'],
                 [],
             ],
-            'expectedOverride'       => [
+            'expectedOverride' => [
                 'SimpleXMLElement::xpath(): Undefined namespace prefix',
                 ['<g:title test="bb">Title 2</g:title>'],
                 [],

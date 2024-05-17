@@ -22,7 +22,7 @@ final class DefaultReaderFactory implements ReaderFactory
     public function create(string $filepath, ?string $version = null, ?string $encoding = null, ?int $flags = null): Reader
     {
         $xmlReader = $this->readerFactory->create();
-        $document  = $this->documentFactory->create($version, $encoding);
+        $document = $this->documentFactory->create($version, $encoding);
 
         Handler::withErrorHandlerForXMLReader(static function () use ($xmlReader, $filepath, $encoding, $flags): void {
             $opened = $xmlReader->open($filepath, $encoding, $flags ?? 0);

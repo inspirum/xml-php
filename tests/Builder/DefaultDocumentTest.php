@@ -227,9 +227,9 @@ final class DefaultDocumentTest extends BaseTestCase
         $xml->addElement('rss', [
             'xmlns:a' => 'a.xsd',
             'xmlns:b' => 'b.xsd',
-            'xmlnse'  => 'e.xsd',
-            'xmlns'  => 'default.xsd',
-            'a:test'  => '1',
+            'xmlnse' => 'e.xsd',
+            'xmlns' => 'default.xsd',
+            'a:test' => '1',
         ]);
 
         self::assertSame(
@@ -248,7 +248,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $xml->addElement('rss', [
             'xmlns:a' => 'a.xsd',
-            'xmlns'  => 'default.xsd',
+            'xmlns' => 'default.xsd',
         ]);
 
         self::assertSame('a.xsd', $xml->getNamespace('a'));
@@ -308,7 +308,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $xml->addElement('rss', [
             'a:a' => '1',
-            'a:'  => '2',
+            'a:' => '2',
         ]);
     }
 
@@ -321,7 +321,7 @@ final class DefaultDocumentTest extends BaseTestCase
 
         $xml->addElement('rss', [
             'a:a' => '1',
-            ':a'  => '2',
+            ':a' => '2',
         ]);
     }
 
@@ -411,10 +411,10 @@ final class DefaultDocumentTest extends BaseTestCase
 
     public function testValidateXsd(): void
     {
-        $xml  = $this->newDocument();
+        $xml = $this->newDocument();
         $feed = $xml->addElement('g:feed', [
             'g:version' => '2.0',
-            'xmlns:g'   => 'stock.xsd',
+            'xmlns:g' => 'stock.xsd',
         ]);
 
         $feed->addTextElement('g:updated', '2020-08-25T13:53:38+00:00');
@@ -437,10 +437,10 @@ final class DefaultDocumentTest extends BaseTestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $xml  = $this->newDocument();
+        $xml = $this->newDocument();
         $feed = $xml->addElement('g:feed', [
             'g:version' => '2.0',
-            'xmlns:g'   => 'stock.xsd',
+            'xmlns:g' => 'stock.xsd',
         ]);
 
         $feed->addTextElement('g:updated', '2020-08-25T13:53:38+00:00');
@@ -480,7 +480,7 @@ final class DefaultDocumentTest extends BaseTestCase
     {
         $this->expectException(DOMException::class);
 
-        $xml  = $this->newDocument();
+        $xml = $this->newDocument();
         $feed = $xml->addElement('g:feed', [
             'g:version' => '2.0',
         ]);
@@ -500,7 +500,7 @@ final class DefaultDocumentTest extends BaseTestCase
     {
         $this->expectException(DOMException::class);
 
-        $xml  = $this->newDocument();
+        $xml = $this->newDocument();
         $feed = $xml->addElement('g:feed', [
             'version' => '2.0',
             'xmlns:g' => 'stock.xsd',
@@ -521,7 +521,7 @@ final class DefaultDocumentTest extends BaseTestCase
     {
         $this->expectException(DOMException::class);
 
-        $xml  = $this->newDocument();
+        $xml = $this->newDocument();
         $feed = $xml->addElement('feed', [
             'version' => '2.0',
             'xmlns:g' => 'stock.xsd',
@@ -542,10 +542,10 @@ final class DefaultDocumentTest extends BaseTestCase
     {
         $this->expectException(DOMException::class);
 
-        $xml  = $this->newDocument();
+        $xml = $this->newDocument();
         $feed = $xml->addElement('g:feed', [
             'g:version' => '2.0',
-            'xmlns:g'   => 'stock.xsd',
+            'xmlns:g' => 'stock.xsd',
         ]);
 
         $items = $feed->addElement('g:items');
@@ -561,7 +561,7 @@ final class DefaultDocumentTest extends BaseTestCase
     public function testFormattedOutput(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->createForContent('<?xml version="1.0" encoding="UTF-8"?><root><a><b1>1</b1><b2>test</b2></a></root>');
+        $xml = $factory->createForContent('<?xml version="1.0" encoding="UTF-8"?><root><a><b1>1</b1><b2>test</b2></a></root>');
 
         self::assertSame(
             self::getSampleXMLString(
@@ -581,7 +581,7 @@ final class DefaultDocumentTest extends BaseTestCase
     public function testSaveMethod(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->createForFile(self::getTestFilePath('sample_01.xml'));
+        $xml = $factory->createForFile(self::getTestFilePath('sample_01.xml'));
 
         $name = (string) tempnam(sys_get_temp_dir(), 'xml_tests_');
         self::assertSame('', file_get_contents($name));
@@ -597,7 +597,7 @@ final class DefaultDocumentTest extends BaseTestCase
     public function testSaveMethodWithFormatOutput(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->createForFile(self::getTestFilePath('sample_01.xml'));
+        $xml = $factory->createForFile(self::getTestFilePath('sample_01.xml'));
 
         $name = (string) tempnam(sys_get_temp_dir(), 'xml_tests_');
         self::assertSame('', file_get_contents($name));

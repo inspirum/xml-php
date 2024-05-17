@@ -68,10 +68,6 @@ final class Formatter
 
     /**
      * Normalize value.
-     *
-     * @param mixed $value
-     *
-     * @return mixed
      */
     public static function decodeValue(mixed $value): mixed
     {
@@ -92,11 +88,6 @@ final class Formatter
 
     /**
      * Convert DOM node to array
-     *
-     * @param \DOMNode $node
-     * @param \Inspirum\XML\Formatter\Config $config
-     *
-     * @return mixed
      */
     public static function nodeToArray(DOMNode $node, Config $config): mixed
     {
@@ -145,8 +136,8 @@ final class Formatter
         if ($config->isFullResponse()) {
             return [
                 $config->getAttributesName() => $attributes,
-                $config->getValueName()      => $value,
-                $config->getNodesName()      => $nodes,
+                $config->getValueName() => $value,
+                $config->getNodesName() => $nodes,
             ];
         }
 
@@ -173,7 +164,7 @@ final class Formatter
         foreach ($childNodes as $childNodeName => $childNodeValues) {
             if ($childNodeName === $config->getAttributesName() && is_array($childNodeValues)) {
                 foreach ($childNodeValues as $attributeName => $attributeValue) {
-                    $nodeKey           = sprintf('%s%s%s', $nodeNames, $config->getFlattenAttributes(), $attributeName);
+                    $nodeKey = sprintf('%s%s%s', $nodeNames, $config->getFlattenAttributes(), $attributeName);
                     $nodes[$nodeKey][] = $attributeValue;
                 }
             } elseif ($childNodeName === $config->getValueName()) {

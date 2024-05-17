@@ -28,7 +28,7 @@
     "inspirum/arrayable": "^1.2"
   },
   "require-dev": {
-    "inspirum/coding-standard": "^1.4",
+    "inspirum/coding-standard": "^1.5",
     "phpstan/phpstan": "^1.10",
     "phpunit/phpunit": "^10.5",
     "shipmonk/composer-dependency-analyser": "^1.5",

@@ -143,7 +143,7 @@ abstract class BaseNode implements Node
 
     private function createFullDOMElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): DOMElement
     {
-        $value         = null;
+        $value = null;
         $childElements = [];
 
         /** @var \DOMNode $child */
@@ -185,7 +185,7 @@ abstract class BaseNode implements Node
     private function createDOMElementNS(string $name, ?string $value, bool $withNamespaces): DOMElement
     {
         $prefix = Parser::getNamespacePrefix($name);
-        $value  = Formatter::encodeValue($value);
+        $value = Formatter::encodeValue($value);
 
         if ($withNamespaces && $prefix !== null && $this->namespaceRegistry->hasNamespace($prefix)) {
             return $this->document->createElementNS($this->namespaceRegistry->getNamespace($prefix), $name, (string) $value);
@@ -223,7 +223,7 @@ abstract class BaseNode implements Node
     private function setDOMAttributeNS(DOMElement $element, string $name, mixed $value, bool $withNamespaces): void
     {
         $prefix = Parser::getNamespacePrefix($name);
-        $value  = Formatter::encodeValue($value);
+        $value = Formatter::encodeValue($value);
 
         if ($withNamespaces && $prefix === 'xmlns') {
             $element->setAttributeNS('http://www.w3.org/2000/xmlns/', $name, (string) $value);
@@ -288,7 +288,7 @@ abstract class BaseNode implements Node
         if ($node->hasAttributes()) {
             /** @var \DOMAttr $attribute */
             foreach ($node->attributes ?? [] as $attribute) {
-                $value                            = $attribute->nodeValue;
+                $value = $attribute->nodeValue;
                 $attributes[$attribute->nodeName] = $autoCast ? Formatter::decodeValue($value) : $value;
             }
         }

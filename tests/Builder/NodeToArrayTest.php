@@ -23,7 +23,7 @@ class NodeToArrayTest extends BaseTestCase
         $bE->addTextElement('c1', 1);
         $bE->addTextElement('c2', true);
         $bE->addTextElement('c3', 'test');
-        $bE  = $aE->addElement('b');
+        $bE = $aE->addElement('b');
         $c1E = $bE->addTextElement('c1', 0);
         $c2E = $bE->addElement('c2');
 
@@ -91,14 +91,14 @@ class NodeToArrayTest extends BaseTestCase
         self::assertSame(
             [
                 'a' => [
-                    'b'           => [
+                    'b' => [
                         0 => [
                             'c1' => [
                                 '@attributes' => [
                                     'test' => 'true',
-                                    'a'    => '1',
+                                    'a' => '1',
                                 ],
-                                '@value'      => '1',
+                                '@value' => '1',
                             ],
                             'c2' => 'true',
                             'c3' => 'test',
@@ -107,9 +107,9 @@ class NodeToArrayTest extends BaseTestCase
                             'c1' => [
                                 '@attributes' => [
                                     'test' => 'cc',
-                                    'b'    => '2',
+                                    'b' => '2',
                                 ],
-                                '@value'      => '2',
+                                '@value' => '2',
                             ],
                         ],
                     ],
@@ -128,9 +128,9 @@ class NodeToArrayTest extends BaseTestCase
 
         $rssE = $xml->addElement('rss', [
             's:version' => '2.0',
-            'xmlns:s'   => 'stock.xsd',
+            'xmlns:s' => 'stock.xsd',
         ]);
-        $aE   = $rssE->addTextElement('a', null, ['id' => 1]);
+        $aE = $rssE->addTextElement('a', null, ['id' => 1]);
 
         self::assertSame(
             [
@@ -148,9 +148,9 @@ class NodeToArrayTest extends BaseTestCase
 
         $rssE = $xml->addElement('rss', [
             's:version' => '2.0',
-            'xmlns:s'   => 'stock.xsd',
+            'xmlns:s' => 'stock.xsd',
         ]);
-        $aE   = $rssE->addTextElement('a', '');
+        $aE = $rssE->addTextElement('a', '');
 
         self::assertSame(
             [
@@ -166,7 +166,7 @@ class NodeToArrayTest extends BaseTestCase
 
         $rssE = $xml->addElement('rss', [
             's:version' => '2.0',
-            'xmlns:s'   => 'stock.xsd',
+            'xmlns:s' => 'stock.xsd',
         ]);
         $rssE->addTextElement('s:item', 1);
         $rssE->addTextElement('s:item', 2);
@@ -175,7 +175,7 @@ class NodeToArrayTest extends BaseTestCase
         self::assertSame(
             [
                 'rss' => [
-                    's:item'      => [
+                    's:item' => [
                         0 => '1',
                         1 => '2',
                         2 => '3',
@@ -195,8 +195,8 @@ class NodeToArrayTest extends BaseTestCase
 
         $rssE = $xml->addElement('rss', [
             'g:version' => '2.0',
-            'xmlns:s'   => 'stock.xsd',
-            'xmlns:g'   => 'global.xsd',
+            'xmlns:s' => 'stock.xsd',
+            'xmlns:g' => 'global.xsd',
         ]);
         $rssE->addTextElement('s:item', 1);
         $rssE->addTextElement('s:item', 2);
@@ -209,13 +209,13 @@ class NodeToArrayTest extends BaseTestCase
         self::assertSame(
             [
                 'rss' => [
-                    's:item'      => [
+                    's:item' => [
                         0 => '1',
                         1 => '2',
                         2 => '3',
                         3 => '4',
                     ],
-                    'g:item'      => [
+                    'g:item' => [
                         0 => '1',
                         1 => '2',
                         2 => '3',
@@ -241,11 +241,11 @@ class NodeToArrayTest extends BaseTestCase
         self::assertSame(
             [
                 'a' => '1',
-                'b' =>  '2',
+                'b' => '2',
                 'c' => ['3'],
                 'd' => '4',
             ],
-            $xml->toArray(new DefaultConfig(alwaysArray:['c'])),
+            $xml->toArray(new DefaultConfig(alwaysArray: ['c'])),
         );
     }
 
@@ -277,7 +277,7 @@ class NodeToArrayTest extends BaseTestCase
                 ],
                 'd' => '1',
             ],
-            $xml->toArray(new DefaultConfig(alwaysArray:['c'])),
+            $xml->toArray(new DefaultConfig(alwaysArray: ['c'])),
         );
     }
 
@@ -333,7 +333,7 @@ class NodeToArrayTest extends BaseTestCase
                     'd' => '1',
                 ],
             ],
-            $xml->toArray(new DefaultConfig(alwaysArray:['b.d'])),
+            $xml->toArray(new DefaultConfig(alwaysArray: ['b.d'])),
         );
     }
 
@@ -353,13 +353,13 @@ class NodeToArrayTest extends BaseTestCase
                         '@attr' => [
                             'test' => 'true',
                         ],
-                        '@val'  => '1',
+                        '@val' => '1',
                     ],
                     1 => [
                         '@attr' => [
                             'test' => 'true',
                         ],
-                        '@val'  => '2',
+                        '@val' => '2',
                     ],
                 ],
             ],
@@ -381,8 +381,8 @@ class NodeToArrayTest extends BaseTestCase
         self::assertSame(
             [
                 '@attributes' => [],
-                '@value'      => '3',
-                '@nodes'      => [],
+                '@value' => '3',
+                '@nodes' => [],
             ],
             $cE->toArray($config),
         );
@@ -391,15 +391,15 @@ class NodeToArrayTest extends BaseTestCase
             [
                 '@attributes' => [
                     'test' => 'true',
-                    'a'    => 'b',
+                    'a' => 'b',
                 ],
-                '@value'      => null,
-                '@nodes'      => [
+                '@value' => null,
+                '@nodes' => [
                     'b' => [
                         0 => [
                             '@attributes' => [],
-                            '@value'      => 'test',
-                            '@nodes'      => [],
+                            '@value' => 'test',
+                            '@nodes' => [],
                         ],
                     ],
                 ],
@@ -410,36 +410,36 @@ class NodeToArrayTest extends BaseTestCase
         self::assertSame(
             [
                 '@attributes' => [],
-                '@value'      => null,
-                '@nodes'      => [
+                '@value' => null,
+                '@nodes' => [
                     'a' => [
                         0 => [
                             '@attributes' => [
                                 'test' => 'true',
-                                'a'    => 'b',
+                                'a' => 'b',
                             ],
-                            '@value'      => null,
-                            '@nodes'      => [
+                            '@value' => null,
+                            '@nodes' => [
                                 'b' => [
                                     0 => [
                                         '@attributes' => [],
-                                        '@value'      => 'test',
-                                        '@nodes'      => [],
+                                        '@value' => 'test',
+                                        '@nodes' => [],
                                     ],
                                 ],
                             ],
                         ],
                         1 => [
                             '@attributes' => [],
-                            '@value'      => '2',
-                            '@nodes'      => [],
+                            '@value' => '2',
+                            '@nodes' => [],
                         ],
                     ],
                     'c' => [
                         0 => [
                             '@attributes' => [],
-                            '@value'      => '3',
-                            '@nodes'      => [],
+                            '@value' => '3',
+                            '@nodes' => [],
                         ],
                     ],
                 ],
@@ -467,14 +467,14 @@ class NodeToArrayTest extends BaseTestCase
         self::assertSame(
             [
                 'a' => [
-                    'b'           => [
+                    'b' => [
                         0 => [
                             'c1' => [
                                 '@attributes' => [
                                     'test' => true,
-                                    'a'    => 1.4,
+                                    'a' => 1.4,
                                 ],
-                                '@value'      => 1,
+                                '@value' => 1,
                             ],
                             'c2' => false,
                             'c3' => 'test',
@@ -483,9 +483,9 @@ class NodeToArrayTest extends BaseTestCase
                             'c1' => [
                                 '@attributes' => [
                                     'test' => 'cc',
-                                    'b'    => 2,
+                                    'b' => 2,
                                 ],
-                                '@value'      => 0,
+                                '@value' => 0,
                             ],
                         ],
                     ],

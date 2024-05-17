@@ -17,7 +17,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
     public function testDefaultVersionAndEncoding(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->create();
+        $xml = $factory->create();
 
         self::assertSame(
             '<?xml version="1.0" encoding="UTF-8"?>' . "\n",
@@ -28,7 +28,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
     public function testVersionAndEncoding(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->create('1.1', 'WINDOWS-1250');
+        $xml = $factory->create('1.1', 'WINDOWS-1250');
 
         self::assertSame(
             '<?xml version="1.1" encoding="WINDOWS-1250"?>' . "\n",
@@ -39,7 +39,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
     public function testCreateForContentMethod(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->createForContent('<?xml version="1.0" encoding="UTF-8"?><root><a><b1>1</b1><b2>test</b2></a></root>');
+        $xml = $factory->createForContent('<?xml version="1.0" encoding="UTF-8"?><root><a><b1>1</b1><b2>test</b2></a></root>');
 
         self::assertSame(
             '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<root><a><b1>1</b1><b2>test</b2></a></root>' . "\n",
@@ -75,7 +75,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
     public function testCreateForContentMethodFromFile(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->createForContent(self::loadSampleFilepath('sample_01.xml'));
+        $xml = $factory->createForContent(self::loadSampleFilepath('sample_01.xml'));
 
         self::assertSame(
             self::getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
@@ -86,7 +86,7 @@ class DefaultDocumentFactoryTest extends BaseTestCase
     public function testCreateForFileMethodFromFile(): void
     {
         $factory = $this->newDocumentFactory();
-        $xml     = $factory->createForFile(self::getTestFilePath('sample_01.xml'));
+        $xml = $factory->createForFile(self::getTestFilePath('sample_01.xml'));
 
         self::assertSame(
             self::getSampleXMLString('<root><a><b1>1</b1><b2>test</b2></a><a><b1>2</b1><b2>test2</b2><b3>true</b3></a><b><a><b1>3</b1><b3>false</b3></a></b></root>'),
