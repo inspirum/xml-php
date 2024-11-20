@@ -395,7 +395,7 @@ class DefaultReaderTest extends BaseTestCase
                 throw $exception;
             }
 
-            self::assertSame($expectedItem, array_map(static fn(SimpleXMLElement $element): string => trim((string) preg_replace('/<\?xml[^>]*\?>/', '', (string) $element->asXML(), 1)), $elements));
+            self::assertSame($expectedItem, array_map(static fn (SimpleXMLElement $element): string => trim((string) preg_replace('/<\?xml[^>]*\?>/', '', (string) $element->asXML(), 1)), $elements));
         }
     }
 
@@ -428,7 +428,7 @@ class DefaultReaderTest extends BaseTestCase
                 throw $exception;
             }
 
-            self::assertSame($expected[$i], array_map(static fn(Node $element): string => $element->toString(), $elements));
+            self::assertSame($expected[$i], array_map(static fn (Node $element): string => $element->toString(), $elements));
         }
     }
 

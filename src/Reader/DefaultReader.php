@@ -174,8 +174,8 @@ final class DefaultReader implements Reader
     {
         $usedNamespaces = $this->getUsedNamespaces($name, $attributes);
 
-        $namespaces = array_merge($namespaces, ...array_map(static fn(ReadResult $element) => $element->namespaces, $elements));
-        $usedNamespaces = array_merge($usedNamespaces, ...array_map(static fn(ReadResult $element) => $element->usedNamespaces, $elements));
+        $namespaces = array_merge($namespaces, ...array_map(static fn (ReadResult $element) => $element->namespaces, $elements));
+        $usedNamespaces = array_merge($usedNamespaces, ...array_map(static fn (ReadResult $element) => $element->usedNamespaces, $elements));
 
         $withNamespace = $rootNamespaces !== null;
 
@@ -183,7 +183,7 @@ final class DefaultReader implements Reader
             $namespaceAttributes = $this->namespacesToAttributes($namespaces, $rootNamespaces);
             $namespaceAttributes = array_filter(
                 $namespaceAttributes,
-                static fn($namespaceLocalName) => in_array(Parser::getLocalName($namespaceLocalName), $usedNamespaces),
+                static fn ($namespaceLocalName) => in_array(Parser::getLocalName($namespaceLocalName), $usedNamespaces),
                 ARRAY_FILTER_USE_KEY,
             );
 
@@ -208,8 +208,8 @@ final class DefaultReader implements Reader
     {
         return array_values(array_filter([
             Parser::getNamespacePrefix($name),
-            ...array_map(static fn($attributeName) => Parser::getNamespacePrefix($attributeName), array_keys($attributes)),
-        ], static fn($ns) => $ns !== null && $ns !== 'xmlns'));
+            ...array_map(static fn ($attributeName) => Parser::getNamespacePrefix($attributeName), array_keys($attributes)),
+        ], static fn ($ns) => $ns !== null && $ns !== 'xmlns'));
     }
 
     /**
@@ -231,7 +231,7 @@ final class DefaultReader implements Reader
      */
     private function read(): bool
     {
-        return Handler::withErrorHandlerForXMLReader(fn(): bool => $this->reader->read());
+        return Handler::withErrorHandlerForXMLReader(fn (): bool => $this->reader->read());
     }
 
     private function next(?string $name = null): bool
