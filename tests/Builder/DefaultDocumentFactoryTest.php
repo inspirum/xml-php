@@ -62,10 +62,10 @@ class DefaultDocumentFactoryTest extends BaseTestCase
         $this->expectExceptionMessage('DOMDocument::loadXML()');
 
         $document = $this->createMock(DOMDocument::class);
-        $document->expects(self::once())->method('loadXML')->willReturn(false);
+        $document->expects($this->once())->method('loadXML')->willReturn(false);
 
         $factory = $this->createMock(DOMDocumentFactory::class);
-        $factory->expects(self::once())->method('create')->willReturn($document);
+        $factory->expects($this->once())->method('create')->willReturn($document);
 
         $factory = $this->newDocumentFactory($factory);
 

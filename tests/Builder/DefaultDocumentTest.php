@@ -77,7 +77,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $this->expectExceptionMessage('DOMDocument::saveXML() method failed');
 
         $document = $this->createMock(DOMDocument::class);
-        $document->expects(self::once())->method('saveXML')->willReturn(false);
+        $document->expects($this->once())->method('saveXML')->willReturn(false);
 
         $xml = new DefaultDocument($document);
 
@@ -469,7 +469,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $this->expectExceptionMessage('DOMDocument::schemaValidate() method failed');
 
         $document = $this->createMock(DOMDocument::class);
-        $document->expects(self::once())->method('schemaValidate')->willReturn(false);
+        $document->expects($this->once())->method('schemaValidate')->willReturn(false);
 
         $xml = new DefaultDocument($document);
 
@@ -636,7 +636,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $this->expectExceptionMessage('DOMDocument::save() method failed');
 
         $document = $this->createMock(DOMDocument::class);
-        $document->expects(self::once())->method('save')->willReturn(false);
+        $document->expects($this->once())->method('save')->willReturn(false);
 
         $xml = new DefaultDocument($document);
 
