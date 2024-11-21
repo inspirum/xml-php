@@ -653,7 +653,7 @@ The MIT License (MIT). Please see [License File][link-licence] for more informat
 [ico-code-quality]:         https://img.shields.io/scrutinizer/g/inspirum/xml-php.svg?style=flat-square
 [ico-packagist-stable]:     https://img.shields.io/packagist/v/inspirum/xml.svg?style=flat-square&colorB=blue
 [ico-packagist-download]:   https://img.shields.io/packagist/dt/inspirum/xml.svg?style=flat-square&colorB=blue
-[ico-phpstan]:              https://img.shields.io/badge/style-level%209-brightgreen.svg?style=flat-square&label=phpstan
+[ico-phpstan]:              https://img.shields.io/badge/style-level%2010-brightgreen.svg?style=flat-square&label=phpstan
 
 [link-author]:              https://github.com/inspirum
 [link-contributors]:        https://github.com/inspirum/xml-php/contributors
