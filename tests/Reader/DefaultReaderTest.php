@@ -30,7 +30,7 @@ class DefaultReaderTest extends BaseTestCase
     public function testEmptyFilepath(): void
     {
         $this->expectException(ValueError::class);
-        $this->expectExceptionMessage('Argument #1 ($uri) cannot be empty');
+        $this->expectExceptionMessageMatches('#(XMLReader\:\:open\(\)\: )?Argument \#1 \(\$uri\) (must not|cannot) be empty#');
 
         $this->newReader('');
     }
