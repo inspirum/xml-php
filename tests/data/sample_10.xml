@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed>
+<c a="a"><ca>C</ca></c><b><ba>b1</ba></b>
+<a/><b><ba>b2</ba></b><b>b3</b>
+</feed>

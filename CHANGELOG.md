@@ -6,7 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.1.1...master)
+## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.1.2...master)
+
+
+## [v3.1.2 (2025-03-24)](https://github.com/inspirum/xml-php/compare/v3.1.1...v3.1.2)
+### Fixed
+- Fix `Reader::nextNode` method
 
 
 ## [v3.1.1 (2025-03-21)](https://github.com/inspirum/xml-php/compare/v3.1.0...v3.1.1)

@@ -84,13 +84,13 @@ class DefaultReaderTest extends BaseTestCase
         self::expectException(Throwable::class);
         self::expectExceptionMessage('Data must be loaded before reading');
 
-        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample.xml'));
 
-        self::assertNotNull($reader->nextNode('item'));
+        self::assertNotNull($reader->nextNode('/feed/entry'));
 
         $reader->close();
 
-        self::assertNotNull($reader->nextNode('item'));
+        self::assertNotNull($reader->nextNode('/feed/entry'));
     }
 
     public function testPreviousNode(): void
@@ -205,6 +205,18 @@ class DefaultReaderTest extends BaseTestCase
             ],
             $output,
         );
+    }
+
+    public function testNextNodesWhitespace(): void
+    {
+        $reader = $this->newReader(self::getTestFilePath('sample_10.xml'));
+
+        $node = $reader->nextNode('/feed/b');
+        self::assertSame('b1', $node?->getTextContent());
+        $node = $reader->nextNode('/feed/b');
+        self::assertSame('b2', $node?->getTextContent());
+        $node = $reader->nextNode('/feed/b');
+        self::assertSame('b3', $node?->getTextContent());
     }
 
     public function testIterateInvalidNodes(): void

@@ -28,6 +28,8 @@ final class DefaultReader implements Reader
 {
     private int $depth = 0;
 
+    private bool $next = false;
+
     public function __construct(
         private readonly XMLReader $reader,
         private readonly Document $document,
@@ -88,12 +90,12 @@ final class DefaultReader implements Reader
 
         while ($this->read()) {
             if ($this->isNodeElementType()) {
-                if ($usePath && $this->getNodeName() !== $paths[$this->depth]) {
+                if ($usePath && $this->getNodeName() !== ($paths[$this->depth] ?? null)) {
                     $this->next();
                     continue;
                 }
 
-                if ($usePath && $this->depth === $maxDepth && $this->getNodeName() === $paths[$this->depth]) {
+                if ($usePath && $this->depth === $maxDepth && $this->getNodeName() === ($paths[$this->depth] ?? null)) {
                     return MoveResult::found($namespaces);
                 }
 
@@ -231,12 +233,18 @@ final class DefaultReader implements Reader
      */
     private function read(): bool
     {
+        if ($this->next) {
+            $this->next = false;
+
+            return $this->reader->next();
+        }
+
         return Handler::withErrorHandlerForXMLReader(fn (): bool => $this->reader->read());
     }
 
-    private function next(?string $name = null): bool
+    private function next(): void
     {
-        return $this->reader->next($name);
+        $this->next = true;
     }
 
     private function getNodeName(): string
