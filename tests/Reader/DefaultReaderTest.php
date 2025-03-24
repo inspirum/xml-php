@@ -84,13 +84,13 @@ class DefaultReaderTest extends BaseTestCase
         self::expectException(Throwable::class);
         self::expectExceptionMessage('Data must be loaded before reading');
 
-        $reader = $this->newReader(self::getTestFilePath('sample.xml'));
+        $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
 
-        self::assertNotNull($reader->nextNode('/feed/entry'));
+        self::assertNotNull($reader->nextNode('item'));
 
         $reader->close();
 
-        self::assertNotNull($reader->nextNode('/feed/entry'));
+        self::assertNotNull($reader->nextNode('item'));
     }
 
     public function testPreviousNode(): void
