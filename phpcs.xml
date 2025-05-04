@@ -4,6 +4,6 @@
     <file>src</file>
     <file>tests</file>
     <rule ref="InspirumCodingStandard">
-        <exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
+        <exclude name="SlevomatCodingStandard.TypeHints.ClassConstantTypeHint.MissingNativeTypeHint"/>
     </rule>
 </ruleset>
