@@ -29,11 +29,10 @@
   },
   "require-dev": {
     "ext-simplexml": "*",
-    "inspirum/coding-standard": "^1.7",
+    "inspirum/coding-standard": "^1.8",
     "phpstan/phpstan": "^2.0",
-    "phpunit/phpunit": "^11.5",
-    "shipmonk/composer-dependency-analyser": "^1.8",
-    "squizlabs/php_codesniffer": "^3.12"
+    "phpunit/phpunit": "^11.5 || ^12.5 || ^13.0",
+    "shipmonk/composer-dependency-analyser": "^1.8"
   },
   "autoload": {
     "psr-4": {
@@ -62,7 +61,7 @@
       "@test:unit"
     ],
     "test:unit": [
-      "@phpunit --testsuite=Unit"
+      "@phpunit --testsuite=Unit --no-coverage"
     ],
     "test:coverage": [
       "@phpunit --coverage-text --coverage-html=var/phpunit/coverage"
