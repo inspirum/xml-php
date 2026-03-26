@@ -11,7 +11,7 @@ interface Reader
     /**
      * Parse file by node name or node xpath and yield next node
      *
-     * @return iterable<\Inspirum\XML\Builder\Node>
+     * @return iterable<int,\Inspirum\XML\Builder\Node>
      *
      * @throws \Exception
      */

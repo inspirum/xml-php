@@ -8,6 +8,7 @@ use DOMDocument;
 use DOMDocumentFragment;
 use DOMElement;
 use DOMException;
+use DOMNameSpaceNode;
 use DOMNode;
 use DOMText;
 use DOMXPath;
@@ -310,6 +311,10 @@ abstract class BaseNode implements Node
 
         $results = [];
         foreach ($nodes as $node) {
+            if ($node instanceof DOMNameSpaceNode) {
+                continue;
+            }
+
             $results[] = $this->createElementFromNode($node);
         }
 

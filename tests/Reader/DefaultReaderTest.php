@@ -372,8 +372,8 @@ class DefaultReaderTest extends BaseTestCase
     }
 
     /**
-     * @param array<list<string>|string> $expected
-     * @param array<list<string>|string>|null $expectedOverride
+     * @param list<list<string>|string> $expected
+     * @param list<list<string>|string>|null $expectedOverride
      */
     #[DataProvider('provideIterateXpath')]
     public function testIterateWithSimpleLoadString(string $file, bool $withNamespaces, string $path, array $expected, ?array $expectedOverride = null): void
@@ -412,8 +412,8 @@ class DefaultReaderTest extends BaseTestCase
     }
 
     /**
-     * @param array<list<string>|string> $expected
-     * @param array<list<string>|string>|null $expectedOverride
+     * @param list<list<string>|string> $expected
+     * @param list<list<string>|string>|null $expectedOverride
      */
     #[DataProvider('provideIterateXpath')]
     public function testIterateWithXpath(string $file, bool $withNamespaces, string $path, array $expected, ?array $expectedOverride = null): void
@@ -559,6 +559,17 @@ class DefaultReaderTest extends BaseTestCase
             'expectedOverride' => [
                 'SimpleXMLElement::xpath(): Undefined namespace prefix',
                 ['<g:title test="bb">Title 2</g:title>'],
+                [],
+            ],
+        ];
+
+        yield [
+            'file' => 'sample_08.xml',
+            'withNamespaces' => true,
+            'path' => 'namespace::*',
+            'expected' => [
+                [],
+                [],
                 [],
             ],
         ];

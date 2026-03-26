@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.1.2...master)
+### Changed
+- Skip `\DOMNameSpaceNode` in `Node::xpath` method
 
 
 ## [v3.1.2 (2025-03-24)](https://github.com/inspirum/xml-php/compare/v3.1.1...v3.1.2)
