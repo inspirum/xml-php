@@ -8,13 +8,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.2.0...main)
 ### Changed
-- Threw `\DOMException` instead of emitting warnings for invalid `Node::addXMLData` content
-- Threw `\DOMException` instead of emitting warnings and returning `null` for an invalid `Node::xpath` expression, so `Node::xpath` always returns a list
-- Threw `\DOMException` from `Node::xpath` on a node with undeclared namespace prefixes, such as a node read without namespaces
+- **Breaking**: Threw `\DOMException` instead of emitting warnings for invalid `Node::addXMLData` content
+- **Breaking**: Threw `\DOMException` instead of emitting warnings and returning `null` for an invalid `Node::xpath` expression, so `Node::xpath` always returns a list
+- **Breaking**: Threw `\DOMException` from `Node::xpath` on a node with undeclared namespace prefixes, such as a node read without namespaces
 - Checked results of DOM and `\XMLReader` methods through `Handler::checkResultForDOMDocument` and `Handler::checkResultForXMLReader`
-- Cast only lossless numbers with `autoCast`, keeping values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
-- Copied `Node::addElementFromNode` and `Node::createElementFromNode` with `\DOMDocument::importNode`, converting text to CDATA only with `forcedEscape`
-- Required `inspirum/arrayable` ^2.0
+- **Breaking**: Cast only lossless numbers with `autoCast`, keeping values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
+- **Breaking**: Copied `Node::addElementFromNode` and `Node::createElementFromNode` with `\DOMDocument::importNode`, converting text to CDATA only with `forcedEscape`
+- **Breaking**: Required `inspirum/arrayable` ^2.0
 - Switched CI to the shared [inspirum/.github](https://github.com/inspirum/.github) workflow
 - Renamed the default branch from `master` to `main`
 
@@ -23,8 +23,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Fixed element name validation for non-ASCII names
-- Fixed `FlattenConfig` with `withoutRoot` on a node
-- Fixed `DocumentFactory::createForFile` and `DocumentFactory::createForContent` ignoring version and encoding
+- **Breaking**: Fixed `FlattenConfig` with `withoutRoot` on a node
+- **Breaking**: Fixed `DocumentFactory::createForFile` and `DocumentFactory::createForContent` ignoring version and encoding
 - Fixed `Node::addElementFromNode` and `Node::createElementFromNode` losing comments, processing instructions, mixed content order and namespace declarations
 - Fixed `Node::toArray` including comments and processing instructions as keys
 - Fixed `Reader` keeping only the last text of an element with mixed content
