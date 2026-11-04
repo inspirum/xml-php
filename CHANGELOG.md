@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - **Breaking**: Added `withNamespaces` parameter to `Reader::nextNode`
 - Added `ReaderException` for `Reader` and `ReaderFactory` errors
+- Documented XPath, errors, limitations and upgrading from 3.x in README
 
 ### Changed
 - **Breaking**: Threw `ReaderException` instead of `\Exception` for `Reader` and `ReaderFactory` errors
@@ -22,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Checked results of DOM and `\XMLReader` methods through `Handler::checkResultForDOMDocument` and `Handler::checkResultForXMLReader`
 - **Breaking**: Cast only lossless numbers with `autoCast`, keeping values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
 - **Breaking**: Copied `Node::addElementFromNode` and `Node::createElementFromNode` with `\DOMDocument::importNode`, converting text to CDATA only with `forcedEscape`
-- **Breaking**: Required `inspirum/arrayable` ^2.0
+- Allowed `inspirum/arrayable` ^2.0 next to ^1.3
 - Switched CI to the shared [inspirum/.github](https://github.com/inspirum/.github) workflow
 - Renamed the default branch from `master` to `main`
 
@@ -37,6 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed `Node::toArray` including comments and processing instructions as keys
 - Fixed `Reader` keeping only the last text of an element with mixed content
 - Fixed `Node::toString` and `Document::save` leaving `formatOutput` changed on the document
+- Fixed outdated and broken examples in README
 
 
 ## [v3.2.0 (2026-11-04)](https://github.com/inspirum/xml-php/compare/v3.1.2...v3.2.0)

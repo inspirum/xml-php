@@ -162,7 +162,7 @@ $reader = $factory->create('/output/feeds/google.xml');
 
 foreach ($reader->iterateNode('/rss/channel/item', true) as $item) {
     $data = $item->toString();
-    $id = ($item->xpath('/item/g:id')[0] ?? null)?->getTextContent()
+    $id = ($item->xpath('/item/g:id')[0] ?? null)?->getTextContent();
     // ...
 }
 ```
@@ -184,7 +184,7 @@ $ composer require inspirum/xml
 ```
 or add requirement to your `composer.json`
 ```json
-"inspirum/xml": "^3.0"
+"inspirum/xml": "^4.0"
 ```
 
 ## Usage
@@ -217,8 +217,9 @@ Optionally you can specify XML version and encoding (defaults to UTF-8).
 
 ```php
 use Inspirum\XML\Builder\DefaultDocumentFactory;
+use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 
-$factory = new DefaultDocumentFactory()
+$factory = new DefaultDocumentFactory(new DefaultDOMDocumentFactory());
 
 $xml = $factory->create('1.0', 'WINDOWS-1250');
 /**
@@ -241,7 +242,7 @@ $b->addTextElement('c', 'CC');
 /**
 <?xml version="1.0" encoding="UTF-8"?>
 <a>
-  <b id="1">BB</a>
+  <b id="1">BB</b>
   <b id="2">
     <c>CC</c>
   </b>
@@ -257,7 +258,7 @@ $xml->addElement('root')->addElement('a')->addElement('b', ['id' => 1])->addText
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <a>
-    <b id="2">
+    <b id="1">
       <c>CC</c>
     </b>
   </a>
@@ -319,6 +320,30 @@ $a->addTextElement('b', '1');
 */
 ```
 
+Invalid XML fragment throws `\DOMException`
+```php
+try {
+    $a->addXMLData('<b>');
+} catch (\DOMException $exception) {
+    // DOMDocumentFragment::appendXML(): Entity: line 1: parser error : Premature end of data in tag b line 1
+}
+```
+
+Copying nodes from another document keeps their namespaces, comments and mixed content, `forcedEscape` converts all their text to CDATA
+```php
+$source = $factory->createForContent('<a xmlns:g="stock.xsd"><!-- note --><g:b>me &amp; you</g:b></a>');
+
+$xml->addElementFromNode($source->getDocument()->documentElement);
+/**
+<a xmlns:g="stock.xsd"><!-- note --><g:b>me &amp; you</g:b></a>
+*/
+
+$xml->addElementFromNode($source->getDocument()->documentElement, forcedEscape: true);
+/**
+<a xmlns:g="stock.xsd"><!-- note --><g:b><![CDATA[me & you]]></g:b></a>
+*/
+```
+
 To use automatic namespace usage you only have to set `xmlns:{prefix}` attribute on (usually) root element.
 
 Elements (or/and attributes) use given prefix as `{prefix}:{localName}`, and it will be created with [`createElementNS`](https://php.net/manual/domdocument.createelementns.php) or [`createAttributeNS`](https://php.net/manual/domdocument.createattributens.php) method.
@@ -336,8 +361,8 @@ $items->addTextElement('g:item', 3);
      <g:item>1</g:item>
      <g:item>2</g:item>
      <g:item>3</g:item>
-  </a>
-</root>
+  </g:items>
+</g:root>
 */
 ```
 
@@ -393,12 +418,22 @@ $node->toString();
 */
 ```
 
+Read next node with its namespace declarations
+```php
+$node = $reader->nextNode('g:item', true);
+
+$node->toString();
+/**
+<g:item xmlns:g="stock.xsd" active="true" price="99.9"><g:id>1</g:id><g:name>Test 1</g:name></g:item>
+*/
+```
+
 Powerful cast to array method
 ```php
 $data = $reader->nextNode('g:items')->toArray();
 
 /**
-var_dump($ids);
+var_dump($data);
 [
   'g:item' => [
     0 => [
@@ -437,9 +472,10 @@ Optional config supported for `toArray` method
 
 ```php
 use Inspirum\XML\Builder\DefaultDocumentFactory;
+use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Formatter\FullResponseConfig;
 
-$factory = new DefaultDocumentFactory()
+$factory = new DefaultDocumentFactory(new DefaultDOMDocumentFactory());
 
 $config = new FullResponseConfig(
     attributesName: '@attr', 
@@ -450,7 +486,7 @@ $config = new FullResponseConfig(
 $data = $factory->createForFile('/sample.xml')->toArray($config);
 
 /**
-var_dump($ids);
+var_dump($data);
 [
   '@attr'  => []
   '@val'   => null
@@ -566,6 +602,26 @@ var_dump($ids);
 */
 ```
 
+`autoCast` casts only values that survive the cast unchanged: integers, decimal numbers and `true` / `false`
+```php
+use Inspirum\XML\Formatter\DefaultConfig;
+
+$data = $factory->createForContent('<a><zip>0123</zip><id>12</id><price>1.50</price><e>1e3</e><b>true</b></a>')->toArray(new DefaultConfig(autoCast: true));
+
+/**
+var_dump($data);
+[
+  'a' => [
+    'zip'   => '0123'
+    'id'    => 12
+    'price' => 1.5
+    'e'     => '1e3'
+    'b'     => true
+  ]
+]
+*/
+```
+
 Iterate all nodes with given name
 
 ```php
@@ -601,6 +657,50 @@ var_dump($items);
 */
 ```
 
+#### XPath
+
+Querying document or node returns list of copied nodes
+```php
+use Inspirum\XML\Builder\Node;
+
+$ids = array_map(
+    static fn (Node $node): string => $node->getTextContent(),
+    $factory->createForFile('/sample.xml')->xpath('/g:feed/g:items/g:item/g:id'),
+);
+
+/**
+var_dump($ids);
+[
+  0 => '1'
+  1 => '3'
+]
+*/
+```
+
+#### Errors
+
+DOM errors throw `\DOMException`, reader errors throw [`ReaderException`](./src/Exception/ReaderException.php)
+```php
+use Inspirum\XML\Exception\ReaderException;
+
+try {
+    $document->xpath('/g:feed[');
+} catch (\DOMException $exception) {
+    // DOMXPath::query(): Invalid expression
+}
+
+try {
+    $reader = $readerFactory->create('/missing.xml');
+} catch (ReaderException $exception) {
+    // XMLReader::open(): Unable to open source data
+}
+```
+
+#### Limitations
+
+- Reader joins all text of an element with mixed content before its child elements, so `<a>foo<b/>bar</a>` is read as `<a>foobar<b/></a>`
+- Copied nodes can repeat a namespace declaration on their root element, as [`DOMNode::appendChild`](https://www.php.net/manual/domnode.appendchild.php) does
+
 
 ### All available methods
 
@@ -609,6 +709,21 @@ var_dump($items);
 - [`Inspirum\XML\Builder\Node`](./src/Builder/Node.php)
 - [`Inspirum\XML\Reader\ReaderFactory`](./src/Reader/ReaderFactory.php)
 - [`Inspirum\XML\Reader\Reader`](./src/Reader/Reader.php)
+
+
+## Upgrading from 3.x
+
+- `Node::xpath()` returns a list and throws `\DOMException` for an invalid expression instead of a warning and `null`
+- `Node::addXMLData()` throws `\DOMException` for invalid XML instead of a warning
+- `Node::getTextContent()` returns `string`
+- `Reader` and `ReaderFactory` throw `ReaderException` instead of `\Exception`
+- `Reader::nextNode()` has `bool $withNamespaces = false` parameter, update your own `Reader` implementations
+- `autoCast` keeps values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
+- `FlattenConfig(withoutRoot: true)` on a node keeps its child names in keys
+- `DocumentFactory::createForFile()` and `createForContent()` apply given version and encoding
+- `inspirum/arrayable` 2.0 is supported next to 1.3
+
+See [CHANGELOG][link-changelog] for all changes.
 
 
 ## Testing
