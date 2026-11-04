@@ -71,6 +71,8 @@ interface Node extends Model
 
     /**
      * Add XML data
+     *
+     * @throws \DOMException
      */
     public function addXMLData(string $content): ?Node;
 

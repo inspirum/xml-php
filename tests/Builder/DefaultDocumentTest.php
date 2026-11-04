@@ -738,6 +738,17 @@ final class DefaultDocumentTest extends BaseTestCase
         );
     }
 
+    public function testAddInvalidXMLData(): void
+    {
+        $xml = $this->newDocument();
+        $aE = $xml->addElement('a');
+
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('DOMDocumentFragment::appendXML()');
+
+        $aE->addXMLData('<b>');
+    }
+
     public function testToStringKeepsFormatOutput(): void
     {
         $xml = $this->newDocument();

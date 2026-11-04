@@ -167,14 +167,21 @@ abstract class BaseNode implements Node
 
     /**
      * Create new DOM fragment element
+     *
+     * @throws \DOMException
      */
     private function createDOMFragment(string $content): DOMDocumentFragment
     {
-        $element = $this->document->createDocumentFragment();
+        return Handler::withErrorHandlerForDOMDocument(function () use ($content): DOMDocumentFragment {
+            $element = $this->document->createDocumentFragment();
 
-        $element->appendXML($content);
+            $appended = $element->appendXML($content);
+            if ($appended === false) {
+                throw new DOMException('\DOMDocumentFragment::appendXML() method failed');
+            }
 
-        return $element;
+            return $element;
+        });
     }
 
     /**

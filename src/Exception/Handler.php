@@ -9,6 +9,7 @@ use Exception;
 use function restore_error_handler;
 use function set_error_handler;
 use function str_contains;
+use function str_starts_with;
 
 final class Handler
 {
@@ -46,7 +47,7 @@ final class Handler
     public static function withErrorHandlerForDOMDocument(callable $callback): mixed
     {
         return self::withErrorHandler(static function (int $code, string $message): bool {
-            if (str_contains($message, 'DOMDocument::')) {
+            if (str_starts_with($message, 'DOM')) {
                 throw new DOMException($message, $code);
             }
 
