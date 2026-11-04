@@ -6,8 +6,8 @@ namespace Inspirum\XML\Tests\Exception;
 
 use DOMException;
 use Inspirum\XML\Exception\Handler;
+use Inspirum\XML\Exception\ReaderException;
 use Inspirum\XML\Tests\BaseTestCase;
-use Throwable;
 use function trigger_error;
 use const E_USER_WARNING;
 
@@ -35,6 +35,28 @@ final class HandlerTest extends BaseTestCase
         self::assertSame('result', $result);
     }
 
+    public function testXMLReaderHandlerThrowsWithoutCode(): void
+    {
+        $this->expectException(ReaderException::class);
+        $this->expectExceptionMessage('XMLReader::read(): error');
+        $this->expectExceptionCode(0);
+
+        Handler::withErrorHandlerForXMLReader(static function (): void {
+            trigger_error('XMLReader::read(): error', E_USER_WARNING);
+        });
+    }
+
+    public function testDOMDocumentHandlerThrowsWithoutCode(): void
+    {
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('DOMDocument::loadXML(): error');
+        $this->expectExceptionCode(0);
+
+        Handler::withErrorHandlerForDOMDocument(static function (): void {
+            trigger_error('DOMDocument::loadXML(): error', E_USER_WARNING);
+        });
+    }
+
     public function testCheckResultForXMLReader(): void
     {
         self::assertSame('result', Handler::checkResultForXMLReader('result', '\XMLReader::open()'));
@@ -42,7 +64,7 @@ final class HandlerTest extends BaseTestCase
 
     public function testCheckFailedResultForXMLReader(): void
     {
-        $this->expectException(Throwable::class);
+        $this->expectException(ReaderException::class);
         $this->expectExceptionMessage('\XMLReader::open() method failed');
 
         Handler::checkResultForXMLReader(false, '\XMLReader::open()');

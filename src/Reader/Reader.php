@@ -13,14 +13,14 @@ interface Reader
      *
      * @return iterable<int,\Inspirum\XML\Builder\Node>
      *
-     * @throws \Exception
+     * @throws \Inspirum\XML\Exception\ReaderException
      */
     public function iterateNode(string $nodeName, bool $withNamespaces = false): iterable;
 
     /**
      * Get next node by node name or node xpath
      *
-     * @throws \Exception
+     * @throws \Inspirum\XML\Exception\ReaderException
      */
     public function nextNode(string $nodeName, bool $withNamespaces = false): ?Node;
 

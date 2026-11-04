@@ -16,7 +16,7 @@ final class DefaultReaderFactory implements ReaderFactory
     }
 
     /**
-     * @throws \Exception
+     * @throws \Inspirum\XML\Exception\ReaderException
      */
     public function create(string $filepath, ?string $version = null, ?string $encoding = null, ?int $flags = null): Reader
     {

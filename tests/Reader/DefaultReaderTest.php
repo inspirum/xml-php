@@ -9,6 +9,7 @@ use Exception;
 use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocumentFactory;
 use Inspirum\XML\Builder\Node;
+use Inspirum\XML\Exception\ReaderException;
 use Inspirum\XML\Reader\DefaultReader;
 use Inspirum\XML\Reader\DefaultReaderFactory;
 use Inspirum\XML\Reader\DefaultXMLReaderFactory;
@@ -116,7 +117,7 @@ class DefaultReaderTest extends BaseTestCase
         $documentFactory = new DefaultDocumentFactory(new DefaultDOMDocumentFactory());
         $reader = new DefaultReader($xmlReader, $documentFactory->create());
 
-        $this->expectException(Throwable::class);
+        $this->expectException(ReaderException::class);
         $this->expectExceptionMessage('\XMLReader::read() opening and ending tag mismatch');
 
         $reader->nextNode('název');

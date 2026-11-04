@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Inspirum\XML\Exception;
 
 use DOMException;
-use Exception;
 use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
@@ -19,7 +18,7 @@ final class Handler
      *
      * @return T
      *
-     * @throws \Exception
+     * @throws \Inspirum\XML\Exception\ReaderException
      *
      * @template T
      */
@@ -27,7 +26,7 @@ final class Handler
     {
         return self::withErrorHandler(static function (int $code, string $message): bool {
             if (str_contains($message, 'XMLReader::')) {
-                throw new Exception($message, $code);
+                throw new ReaderException($message);
             }
 
             return false;
@@ -47,7 +46,7 @@ final class Handler
     {
         return self::withErrorHandler(static function (int $code, string $message): bool {
             if (str_starts_with($message, 'DOM')) {
-                throw new DOMException($message, $code);
+                throw new DOMException($message);
             }
 
             return false;
@@ -55,20 +54,20 @@ final class Handler
     }
 
     /**
-     * Throw \Exception if XMLReader method failed without warning
+     * Throw \Inspirum\XML\Exception\ReaderException if XMLReader method failed without warning
      *
      * @param T|false $result
      *
      * @return T
      *
-     * @throws \Exception
+     * @throws \Inspirum\XML\Exception\ReaderException
      *
      * @template T
      */
     public static function checkResultForXMLReader(mixed $result, string $method): mixed
     {
         if ($result === false) {
-            throw new Exception(sprintf('%s method failed', $method));
+            throw new ReaderException(sprintf('%s method failed', $method));
         }
 
         return $result;
@@ -95,7 +94,7 @@ final class Handler
     }
 
     /**
-     * Register custom error handler to throw \Exception on warning message
+     * Register custom error handler to throw exception on warning message
      */
     private static function withErrorHandler(callable $errorCallback, callable $functionCallback): mixed
     {

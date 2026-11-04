@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Inspirum\XML\Reader;
 
-use Exception;
 use Inspirum\XML\Builder\Document;
 use Inspirum\XML\Builder\Node;
 use Inspirum\XML\Exception\Handler;
+use Inspirum\XML\Exception\ReaderException;
 use Inspirum\XML\Formatter\Formatter;
 use Inspirum\XML\Parser\Parser;
 use XMLReader;
@@ -78,7 +78,7 @@ final class DefaultReader implements Reader
     }
 
     /**
-     * @throws \Exception
+     * @throws \Inspirum\XML\Exception\ReaderException
      */
     private function moveToNode(string $nodeName): MoveResult
     {
@@ -121,7 +121,7 @@ final class DefaultReader implements Reader
     /**
      * @param array<string,string>|null $rootNamespaces
      *
-     * @throws \Exception
+     * @throws \Inspirum\XML\Exception\ReaderException
      */
     private function readNode(?array $rootNamespaces = null): ReadResult
     {
@@ -149,7 +149,7 @@ final class DefaultReader implements Reader
             }
         }
 
-        throw new Exception('\XMLReader::read() opening and ending tag mismatch');
+        throw new ReaderException('\XMLReader::read() opening and ending tag mismatch');
     }
 
     /**
@@ -227,7 +227,7 @@ final class DefaultReader implements Reader
     }
 
     /**
-     * @throws \Exception
+     * @throws \Inspirum\XML\Exception\ReaderException
      */
     private function read(): bool
     {

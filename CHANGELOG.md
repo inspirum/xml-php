@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.2.0...main)
 ### Added
 - **Breaking**: Added `withNamespaces` parameter to `Reader::nextNode`
+- Added `ReaderException` for `Reader` and `ReaderFactory` errors
 
 ### Changed
+- **Breaking**: Threw `ReaderException` instead of `\Exception` for `Reader` and `ReaderFactory` errors
+- **Breaking**: Threw `\DOMException` and `ReaderException` without the PHP error level as exception code
 - **Breaking**: Changed `Node::getTextContent` return type to `string`
 - **Breaking**: Threw `\DOMException` instead of emitting warnings for invalid `Node::addXMLData` content
 - **Breaking**: Threw `\DOMException` instead of emitting warnings and returning `null` for an invalid `Node::xpath` expression, so `Node::xpath` always returns a list
