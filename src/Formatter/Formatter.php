@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Inspirum\XML\Formatter;
 
+use DOMDocument;
 use DOMNode;
 use Stringable;
 use function array_keys;
@@ -91,11 +92,6 @@ final class Formatter
      */
     public static function nodeToArray(DOMNode $node, Config $config): mixed
     {
-        return self::nodeToArrayRecursive($node, $config, 1);
-    }
-
-    private static function nodeToArrayRecursive(DOMNode $node, Config $config, int $depth): mixed
-    {
         $value = null;
         /** @var array<string,mixed> $attributes */
         $attributes = [];
@@ -124,9 +120,9 @@ final class Formatter
                     continue;
                 }
 
-                $childNodes = self::nodeToArrayRecursive($child, $config, $depth + 1);
+                $childNodes = self::nodeToArray($child, $config);
                 if ($config->isFlatten()) {
-                    self::flattenArray($nodes, $config->isWithoutRoot() && $depth === 1 ? '' : $child->nodeName, $childNodes, $config);
+                    self::flattenArray($nodes, $config->isWithoutRoot() && $node instanceof DOMDocument ? '' : $child->nodeName, $childNodes, $config);
                 } else {
                     $nodes[$child->nodeName][] = $childNodes;
                 }

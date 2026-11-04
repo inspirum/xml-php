@@ -686,6 +686,20 @@ class NodeToArrayTest extends BaseTestCase
         );
     }
 
+    public function testWithFlattenWithoutRootConfigOnNode(): void
+    {
+        $xml = $this->newDocument();
+
+        $aE = $xml->addElement('a');
+        $bE = $aE->addElement('b', ['x' => 1]);
+        $bE->addTextElement('c', 1);
+        $aE->addTextElement('d', 2);
+
+        $config = new FlattenConfig(withoutRoot: true);
+
+        self::assertSame(['b/c' => '1', 'b@x' => '1', 'd' => '2'], $aE->toArray($config));
+    }
+
     private function newDocument(?string $version = null, ?string $encoding = null): DefaultDocument
     {
         return new DefaultDocument(new DOMDocument($version ?? '1.0', $encoding ?? 'UTF-8'));

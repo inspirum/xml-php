@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.2.0...master)
 ### Fixed
 - Fixed element name validation for non-ASCII names
+- Fixed `FlattenConfig` with `withoutRoot` on a node
 
 
 ## [v3.2.0 (2026-11-04)](https://github.com/inspirum/xml-php/compare/v3.1.2...v3.2.0)
