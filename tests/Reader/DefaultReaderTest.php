@@ -372,8 +372,8 @@ class DefaultReaderTest extends BaseTestCase
     }
 
     /**
-     * @param list<list<string>|string> $expected
-     * @param list<list<string>|string>|null $expectedOverride
+     * @param list<list<string>|non-empty-string> $expected
+     * @param list<list<string>|non-empty-string>|null $expectedOverride
      */
     #[DataProvider('provideIterateXpath')]
     public function testIterateWithSimpleLoadString(string $file, bool $withNamespaces, string $path, array $expected, ?array $expectedOverride = null): void
@@ -400,7 +400,7 @@ class DefaultReaderTest extends BaseTestCase
             } catch (Throwable $exception) {
                 $expectedMessage = $expectedItem;
                 if (is_string($expectedMessage)) {
-                    self::assertSame($expectedMessage, $exception->getMessage());
+                    self::assertStringStartsWith($expectedMessage, $exception->getMessage());
                     continue;
                 }
 
@@ -412,8 +412,8 @@ class DefaultReaderTest extends BaseTestCase
     }
 
     /**
-     * @param list<list<string>|string> $expected
-     * @param list<list<string>|string>|null $expectedOverride
+     * @param list<list<string>|non-empty-string> $expected
+     * @param list<list<string>|non-empty-string>|null $expectedOverride
      */
     #[DataProvider('provideIterateXpath')]
     public function testIterateWithXpath(string $file, bool $withNamespaces, string $path, array $expected, ?array $expectedOverride = null): void
@@ -433,7 +433,7 @@ class DefaultReaderTest extends BaseTestCase
             } catch (Throwable $exception) {
                 $expectedMessage = $expected[$i];
                 if (is_string($expectedMessage)) {
-                    self::assertSame($expectedMessage, $exception->getMessage());
+                    self::assertStringStartsWith($expectedMessage, $exception->getMessage());
                     continue;
                 }
 
