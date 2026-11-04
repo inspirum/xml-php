@@ -17,9 +17,7 @@ use function is_scalar;
 use function is_string;
 use function ltrim;
 use function preg_match;
-use function rtrim;
 use function sprintf;
-use function str_starts_with;
 use function trim;
 use const XML_CDATA_SECTION_NODE;
 use const XML_ELEMENT_NODE;
@@ -27,28 +25,6 @@ use const XML_TEXT_NODE;
 
 final class Formatter
 {
-    /**
-     * Prefix namespaces with xmlns
-     *
-     * @param array<string,string> $namespaces
-     *
-     * @return array<string,string>
-     */
-    public static function namespacesToAttributes(array $namespaces): array
-    {
-        $attributes = [];
-
-        foreach ($namespaces as $namespaceLocalName => $namespaceValue) {
-            if (str_starts_with($namespaceLocalName, 'xmlns') === false) {
-                $namespaceLocalName = rtrim(sprintf('xmlns:%s', $namespaceLocalName), ':');
-            }
-
-            $attributes[$namespaceLocalName] = $namespaceValue;
-        }
-
-        return $attributes;
-    }
-
     /**
      * Normalize value.
      */

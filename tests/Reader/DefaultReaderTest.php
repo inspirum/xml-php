@@ -10,7 +10,6 @@ use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocumentFactory;
 use Inspirum\XML\Builder\Node;
 use Inspirum\XML\Exception\ReaderException;
-use Inspirum\XML\Reader\DefaultReader;
 use Inspirum\XML\Reader\DefaultReaderFactory;
 use Inspirum\XML\Reader\DefaultXMLReaderFactory;
 use Inspirum\XML\Reader\Reader;
@@ -20,7 +19,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use SimpleXMLElement;
 use Throwable;
 use ValueError;
-use XMLReader;
 use function array_map;
 use function is_array;
 use function is_numeric;
@@ -71,7 +69,7 @@ class DefaultReaderTest extends BaseTestCase
 
         $node = $reader->nextNode('mixed');
 
-        self::assertSame('<mixed>foobar<b/></mixed>', $node?->toString());
+        self::assertSame('<mixed>foo<b/>bar</mixed>', $node?->toString());
     }
 
     #[DataProvider('provideNextNodeWithNamespaces')]
@@ -132,27 +130,14 @@ class DefaultReaderTest extends BaseTestCase
         ], $nodes);
     }
 
-    public function testNextNodeWithoutEndingTag(): void
+    public function testNextNodeWithMalformedContent(): void
     {
-        $xmlReader = new class extends XMLReader {
-            private int $reads = 0;
-
-            public function read(): bool
-            {
-                $this->reads++;
-
-                return $this->reads < 5 && parent::read();
-            }
-        };
-        $xmlReader->open(self::getTestFilePath('sample_11.xml'));
-
-        $documentFactory = new DefaultDocumentFactory(new DefaultDOMDocumentFactory());
-        $reader = new DefaultReader($xmlReader, $documentFactory->create());
+        $reader = $this->newReader(self::getTestFilePath('sample_14.xml'));
 
         $this->expectException(ReaderException::class);
-        $this->expectExceptionMessage('\XMLReader::read() opening and ending tag mismatch');
+        $this->expectExceptionMessage('Opening and ending tag mismatch');
 
-        $reader->nextNode('název');
+        $reader->nextNode('item');
     }
 
     public function testNextNodeByPathWithMalformedSkippedContent(): void
@@ -163,6 +148,21 @@ class DefaultReaderTest extends BaseTestCase
         $this->expectExceptionMessage('XMLReader::next()');
 
         $reader->nextNode('/root/a/item');
+    }
+
+    public function testIterateNodesWithRedeclaredNamespaces(): void
+    {
+        $reader = $this->newReader(self::getTestFilePath('sample_15.xml'));
+
+        $nodes = [];
+        foreach ($reader->iterateNode('item', true) as $node) {
+            $nodes[] = $node->toString();
+        }
+
+        self::assertSame([
+            '<item xmlns:b="urn:outer"><c><b:y xmlns:b="urn:inner"/></c><b:z/></item>',
+            '<item xmlns:b="urn:1"><c><b:y/></c><d><b:z xmlns:b="urn:2"/></d></item>',
+        ], $nodes);
     }
 
     public function testNextInvalidNode(): void
@@ -247,7 +247,7 @@ class DefaultReaderTest extends BaseTestCase
         $node = $reader->nextNode('feed');
 
         self::assertSame(
-            '<feed version="2.0"><updated>2020-08-25T13:53:38+00:00</updated><title>Test feed</title><errors id="1"/><errors2 id="2"/><items><item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item><item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item><item i="2"><id>3</id><name price="500"><![CDATA[Test 3 & 9]]></name></item><item i="3"><id uuid="894654">4</id><name>Test 4</name></item><item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item></items></feed>',
+            '<feed version="2.0"><updated>2020-08-25T13:53:38+00:00</updated><title>Test feed</title><errors id="1"/><errors2 id="2"/><items><item i="0"><id uuid="12345">1</id><name price="10.1"><![CDATA[Test 1]]></name></item><item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item><item i="2"><id>3</id><name price="500"><![CDATA[Test 3 & 9]]></name></item><item i="3"><id uuid="894654">4</id><name>Test 4</name></item><item i="4"><id uuid="78954">5</id><name price="0.99">Test 5</name></item></items></feed>',
             $node?->toString(),
         );
     }
@@ -285,7 +285,7 @@ class DefaultReaderTest extends BaseTestCase
 
         self::assertSame(
             [
-                '<item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item>',
+                '<item i="0"><id uuid="12345">1</id><name price="10.1"><![CDATA[Test 1]]></name></item>',
                 '<item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item>',
                 '<item i="2"><id>3</id><name price="500"><![CDATA[Test 3 & 9]]></name></item>',
                 '<item i="3"><id uuid="894654">4</id><name>Test 4</name></item>',
@@ -359,7 +359,7 @@ class DefaultReaderTest extends BaseTestCase
 
         self::assertSame(
             [
-                '<item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item>',
+                '<item i="0"><id uuid="12345">1</id><name price="10.1"><![CDATA[Test 1]]></name></item>',
                 '<item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item>',
                 '<item i="2"><id>3</id><name price="500"><![CDATA[Test 3 & 9]]></name></item>',
                 '<item i="3"><id uuid="894654">4</id><name>Test 4</name></item>',
@@ -438,7 +438,7 @@ class DefaultReaderTest extends BaseTestCase
         self::assertSame(
             [
                 '<item attr="2"><id>1/L1</id><title>Title 1</title></item>',
-                '<item xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/2.0" attr="1"><data><g:id h:test="asd">1/L2</g:id><g:title test="bb">Title 2</g:title><link>https://www.example.com/v/1</link></data></item>',
+                '<item xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/2.0" attr="1"><data><g:id h:test="asd">1/L2</g:id><g:title xmlns:g="http://base.google.com/ns/2.0" test="bb">Title 2</g:title><link>https://www.example.com/v/1</link></data></item>',
                 '<item xmlns:g="http://base.google.com/ns/1.0"><g:id>1/L3</g:id><title>Title 3</title></item>',
             ],
             $output,
@@ -477,7 +477,7 @@ class DefaultReaderTest extends BaseTestCase
         self::assertSame(
             [
                 '<item attr="2"><id>1/L1</id><title>Title 1</title></item>',
-                '<item xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/2.0" attr="1"><data><g:id h:test="asd">1/L2</g:id><g:title test="bb">Title 2</g:title><link>https://www.example.com/v/1</link></data></item>',
+                '<item xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/2.0" attr="1"><data><g:id h:test="asd">1/L2</g:id><g:title xmlns:g="http://base.google.com/ns/2.0" test="bb">Title 2</g:title><link>https://www.example.com/v/1</link></data></item>',
                 '<item xmlns:g="http://base.google.com/ns/1.0"><g:id>1/L3</g:id><title>Title 3</title></item>',
             ],
             $output,
@@ -573,7 +573,7 @@ class DefaultReaderTest extends BaseTestCase
             'withNamespaces' => false,
             'path' => '/item',
             'expected' => [
-                ['<item i="0"><id uuid="12345">1</id><name price="10.1">Test 1</name></item>'],
+                ['<item i="0"><id uuid="12345">1</id><name price="10.1"><![CDATA[Test 1]]></name></item>'],
                 ['<item i="1"><id uuid="61648">2</id><name price="5">Test 2</name></item>'],
                 ['<item i="2"><id>3</id><name price="500"><![CDATA[Test 3 & 9]]></name></item>'],
                 ['<item i="3"><id uuid="894654">4</id><name>Test 4</name></item>'],
@@ -586,7 +586,7 @@ class DefaultReaderTest extends BaseTestCase
             'withNamespaces' => false,
             'path' => '/item/name[@price>10]',
             'expected' => [
-                ['<name price="10.1">Test 1</name>'],
+                ['<name price="10.1"><![CDATA[Test 1]]></name>'],
                 [],
                 ['<name price="500"><![CDATA[Test 3 & 9]]></name>'],
                 [],
@@ -659,12 +659,12 @@ class DefaultReaderTest extends BaseTestCase
             'path' => '/item/data/g:title',
             'expected' => [
                 'DOMXPath::query(): Undefined namespace prefix',
-                ['<g:title xmlns:g="http://base.google.com/ns/1.0" test="bb">Title 2</g:title>'],
+                [],
                 [],
             ],
             'expectedOverride' => [
                 'SimpleXMLElement::xpath(): Undefined namespace prefix',
-                ['<g:title test="bb">Title 2</g:title>'],
+                [],
                 [],
             ],
         ];

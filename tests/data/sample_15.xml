@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:b="urn:outer">
+    <item><c xmlns:b="urn:inner"><b:y/></c><b:z/></item>
+    <group>
+        <item><c xmlns:b="urn:1"><b:y/></c><d xmlns:b="urn:2"><b:z/></d></item>
+    </group>
+</root>

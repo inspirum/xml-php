@@ -698,7 +698,7 @@ try {
 
 #### Limitations
 
-- Reader joins all text of an element with mixed content before its child elements, so `<a>foo<b/>bar</a>` is read as `<a>foobar<b/></a>`
+- Builder and Reader never put unprefixed elements into a default namespace: `xmlns="..."` is written as an attribute by Builder and dropped by Reader, so XPath matches unprefixed names without a prefix. Documents loaded by `DocumentFactory` keep their default namespace
 - Copied nodes can repeat a namespace declaration on their root element, as [`DOMNode::appendChild`](https://www.php.net/manual/domnode.appendchild.php) does
 
 
@@ -718,6 +718,7 @@ try {
 - `Node::xpath()` throws `\DOMException` on attribute and text nodes
 - `Node::getTextContent()` returns `string`
 - `Reader` and `ReaderFactory` throw `ReaderException` instead of `\Exception`
+- `Reader` keeps text, CDATA sections and mixed content order as in the source, and declares redeclared namespace prefixes on the elements that use them
 - `Reader::nextNode()` has `bool $withNamespaces = false` parameter, update your own `Reader` implementations
 - `autoCast` keeps values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
 - `FlattenConfig(withoutRoot: true)` on a node keeps its child names in keys

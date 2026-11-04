@@ -6,6 +6,7 @@ namespace Inspirum\XML\Reader;
 
 use Inspirum\XML\Builder\DocumentFactory;
 use Inspirum\XML\Exception\Handler;
+use const LIBXML_NOBLANKS;
 
 final class DefaultReaderFactory implements ReaderFactory
 {
@@ -24,7 +25,7 @@ final class DefaultReaderFactory implements ReaderFactory
         $document = $this->documentFactory->create($version, $encoding);
 
         Handler::withErrorHandlerForXMLReader(static function () use ($xmlReader, $filepath, $encoding, $flags): void {
-            Handler::checkResultForXMLReader($xmlReader->open($filepath, $encoding, $flags ?? 0), '\XMLReader::open()');
+            Handler::checkResultForXMLReader($xmlReader->open($filepath, $encoding, ($flags ?? 0) | LIBXML_NOBLANKS), '\XMLReader::open()');
         });
 
         return new DefaultReader($xmlReader, $document);

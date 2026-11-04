@@ -24,6 +24,7 @@
     "php": "^8.2",
     "ext-dom": "*",
     "ext-json": "*",
+    "ext-libxml": "*",
     "ext-xmlreader": "*",
     "inspirum/arrayable": "^2.0"
   },

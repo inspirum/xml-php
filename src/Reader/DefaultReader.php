@@ -4,38 +4,26 @@ declare(strict_types=1);
 
 namespace Inspirum\XML\Reader;
 
+use DOMElement;
+use DOMNode;
 use Inspirum\XML\Builder\Document;
 use Inspirum\XML\Builder\Node;
 use Inspirum\XML\Exception\Handler;
-use Inspirum\XML\Exception\ReaderException;
-use Inspirum\XML\Formatter\Formatter;
-use Inspirum\XML\Parser\Parser;
 use XMLReader;
-use function array_filter;
-use function array_keys;
-use function array_map;
-use function array_merge;
-use function array_values;
 use function count;
 use function explode;
-use function in_array;
 use function ksort;
 use function ltrim;
+use function sprintf;
 use function str_starts_with;
-use const ARRAY_FILTER_USE_KEY;
 
 final class DefaultReader implements Reader
 {
+    private const XMLNS_NAMESPACE = 'http://www.w3.org/2000/xmlns/';
+
     private int $depth = 0;
 
     private bool $next = false;
-
-    /**
-     * Namespaces declared on each open element by its depth
-     *
-     * @var array<int,array<string,string>>
-     */
-    private array $namespaceScopes = [];
 
     public function __construct(
         private readonly XMLReader $reader,
@@ -53,24 +41,18 @@ final class DefaultReader implements Reader
      */
     public function iterateNode(string $nodeName, bool $withNamespaces = false): iterable
     {
-        $found = $this->moveToNode($nodeName);
-
-        while ($found->found) {
-            yield $this->readNode($withNamespaces ? $found->namespaces : null)->node;
-
-            $found = $this->moveToNode($nodeName);
+        while ($this->moveToNode($nodeName)) {
+            yield $this->readNode($withNamespaces);
         }
     }
 
     public function nextNode(string $nodeName, bool $withNamespaces = false): ?Node
     {
-        $found = $this->moveToNode($nodeName);
-
-        if ($found->found === false) {
+        if ($this->moveToNode($nodeName) === false) {
             return null;
         }
 
-        return $this->readNode($withNamespaces ? $found->namespaces : null)->node;
+        return $this->readNode($withNamespaces);
     }
 
     public function close(): void
@@ -81,7 +63,7 @@ final class DefaultReader implements Reader
     /**
      * @throws \Inspirum\XML\Exception\ReaderException
      */
-    private function moveToNode(string $nodeName): MoveResult
+    private function moveToNode(string $nodeName): bool
     {
         $usePath = str_starts_with($nodeName, '/');
         $paths = explode('/', ltrim($nodeName, '/'));
@@ -95,134 +77,129 @@ final class DefaultReader implements Reader
                 }
 
                 if ($usePath && $this->depth === $maxDepth) {
-                    return MoveResult::found($this->getScopeNamespaces());
+                    return true;
                 }
 
                 if (!$usePath && $this->getNodeName() === $nodeName) {
-                    return MoveResult::found($this->getScopeNamespaces());
+                    return true;
                 }
 
                 if (!$this->isNodeEmptyElementType()) {
-                    $this->namespaceScopes[$this->depth] = $this->getNodeNamespaces();
                     $this->depth++;
                 }
             }
 
             if ($this->isNodeElementEndType()) {
                 $this->depth--;
-                unset($this->namespaceScopes[$this->depth]);
             }
         }
 
-        return MoveResult::notFound();
+        return false;
     }
 
     /**
-     * @param array<string,string>|null $rootNamespaces
-     *
      * @throws \Inspirum\XML\Exception\ReaderException
+     * @throws \DOMException
      */
-    private function readNode(?array $rootNamespaces = null): ReadResult
+    private function readNode(bool $withNamespaces): Node
     {
-        $name = $this->getNodeName();
-        $attributes = $this->getNodeAttributes();
-        $namespaces = Parser::parseNamespaces($attributes);
+        $node = Handler::withErrorHandlerForXMLReader(
+            fn (): DOMNode => Handler::checkResultForXMLReader($this->reader->expand(), '\XMLReader::expand()'),
+        );
 
-        if ($this->isNodeEmptyElementType()) {
-            return $this->createEmptyNode($name, $attributes, $namespaces, $rootNamespaces);
+        $this->next();
+
+        if ($withNamespaces && $node instanceof DOMElement) {
+            return $this->document->createElementFromNode($this->importWithNamespaces($node));
         }
 
-        /** @var list<\Inspirum\XML\Reader\ReadResult> $elements */
-        $elements = [];
-        $text = null;
-
-        while ($this->read()) {
-            if ($this->isNodeElementEndType() && $this->getNodeName() === $name) {
-                return $this->createNode($name, $text, $attributes, $namespaces, $rootNamespaces, $elements);
-            }
-
-            if ($this->isNodeTextType()) {
-                $text = ($text ?? '') . $this->getNodeValue();
-            } elseif ($this->isNodeElementType()) {
-                $elements[] = $this->readNode();
-            }
-        }
-
-        throw new ReaderException('\XMLReader::read() opening and ending tag mismatch');
+        return $this->document->createElementFromNode($node, withNamespaces: false);
     }
 
     /**
-     * @param array<string,string> $attributes
-     * @param array<string,string> $namespaces
-     * @param array<string,string>|null $rootNamespaces
-     */
-    private function createEmptyNode(string $name, array $attributes, array $namespaces, ?array $rootNamespaces): ReadResult
-    {
-        return $this->createNode($name, null, $attributes, $namespaces, $rootNamespaces, []);
-    }
-
-    /**
-     * @param array<string,string> $attributes
-     * @param array<string,string> $namespaces
-     * @param array<string,string>|null $rootNamespaces
-     * @param list<\Inspirum\XML\Reader\ReadResult> $elements
+     * Copy element with prefixed namespaces declared on its root, unprefixed elements stay without namespace
      *
      * @throws \DOMException
      */
-    private function createNode(string $name, mixed $text, array $attributes, array $namespaces, ?array $rootNamespaces, array $elements): ReadResult
+    private function importWithNamespaces(DOMElement $source): DOMElement
     {
-        $usedNamespaces = $this->getUsedNamespaces($name, $attributes);
+        $element = $this->createDOMElement($source);
 
-        $namespaces = array_merge($namespaces, ...array_map(static fn (ReadResult $element) => $element->namespaces, $elements));
-        $usedNamespaces = array_merge($usedNamespaces, ...array_map(static fn (ReadResult $element) => $element->usedNamespaces, $elements));
+        $namespaces = $this->getUsedNamespaces($source);
+        ksort($namespaces);
 
-        $withNamespace = $rootNamespaces !== null;
-
-        if ($withNamespace) {
-            $namespaceAttributes = $this->namespacesToAttributes($namespaces, $rootNamespaces);
-            $namespaceAttributes = array_filter(
-                $namespaceAttributes,
-                static fn ($namespaceLocalName) => in_array(Parser::getLocalName($namespaceLocalName), $usedNamespaces),
-                ARRAY_FILTER_USE_KEY,
-            );
-
-            $attributes = array_merge($namespaceAttributes, $attributes);
+        foreach ($namespaces as $prefix => $namespaceURI) {
+            $namespaceURI = $source->lookupNamespaceURI($prefix) ?? $namespaceURI;
+            $element->setAttributeNS(self::XMLNS_NAMESPACE, sprintf('xmlns:%s', $prefix), $namespaceURI);
         }
 
-        $node = $this->document->createTextElement($name, $text, $attributes, withNamespaces: $withNamespace);
-
-        foreach ($elements as $element) {
-            $node->append($element->node);
-        }
-
-        return ReadResult::create($node, $namespaces, $usedNamespaces);
+        return $this->importWithoutDefaultNamespace($source, $element);
     }
 
     /**
-     * @param array<string,string> $attributes
+     * Get first binding of each namespace prefix used by element or its descendants
      *
-     * @return list<string>
-     */
-    private function getUsedNamespaces(string $name, array $attributes): array
-    {
-        return array_values(array_filter([
-            Parser::getNamespacePrefix($name),
-            ...array_map(static fn ($attributeName) => Parser::getNamespacePrefix($attributeName), array_keys($attributes)),
-        ], static fn ($ns) => $ns !== null && $ns !== 'xmlns'));
-    }
-
-    /**
      * @param array<string,string> $namespaces
-     * @param array<string,string> $rootNamespaces
      *
      * @return array<string,string>
      */
-    private function namespacesToAttributes(array $namespaces, array $rootNamespaces): array
+    private function getUsedNamespaces(DOMElement $element, array $namespaces = []): array
     {
-        $mergedNamespaces = Formatter::namespacesToAttributes(array_merge($namespaces, $rootNamespaces));
-        ksort($mergedNamespaces);
+        foreach ([$element, ...$element->attributes] as $node) {
+            if ($node->prefix !== '' && $node->prefix !== 'xml') {
+                $namespaces[$node->prefix] ??= (string) $node->namespaceURI;
+            }
+        }
 
-        return $mergedNamespaces;
+        foreach ($element->childNodes as $child) {
+            if ($child instanceof DOMElement) {
+                $namespaces = $this->getUsedNamespaces($child, $namespaces);
+            }
+        }
+
+        return $namespaces;
+    }
+
+    /**
+     * Copy attributes and children of source element, unprefixed elements stay without namespace
+     *
+     * @throws \DOMException
+     */
+    private function importWithoutDefaultNamespace(DOMElement $source, DOMElement $element): DOMElement
+    {
+        foreach ($source->attributes as $attribute) {
+            if ($attribute->prefix !== '') {
+                $element->setAttributeNS((string) $attribute->namespaceURI, $attribute->nodeName, $attribute->value);
+            } else {
+                $element->setAttribute($attribute->nodeName, $attribute->value);
+            }
+        }
+
+        foreach ($source->childNodes as $sourceChild) {
+            if ($sourceChild instanceof DOMElement) {
+                $child = $this->createDOMElement($sourceChild);
+                $element->appendChild($child);
+                $this->importWithoutDefaultNamespace($sourceChild, $child);
+            } else {
+                $element->appendChild($this->document->getDocument()->importNode($sourceChild));
+            }
+        }
+
+        return $element;
+    }
+
+    /**
+     * @throws \DOMException
+     */
+    private function createDOMElement(DOMElement $source): DOMElement
+    {
+        $document = $this->document->getDocument();
+
+        if ($source->prefix !== '') {
+            return $document->createElementNS((string) $source->namespaceURI, $source->nodeName);
+        }
+
+        return $document->createElement($source->nodeName);
     }
 
     /**
@@ -249,19 +226,9 @@ final class DefaultReader implements Reader
         return $this->reader->name;
     }
 
-    private function getNodeType(): int
-    {
-        return $this->reader->nodeType;
-    }
-
-    private function getNodeValue(): string
-    {
-        return $this->reader->value;
-    }
-
     private function isNodeElementType(): bool
     {
-        return $this->isNodeType(XMLReader::ELEMENT);
+        return $this->reader->nodeType === XMLReader::ELEMENT;
     }
 
     private function isNodeEmptyElementType(): bool
@@ -271,52 +238,6 @@ final class DefaultReader implements Reader
 
     private function isNodeElementEndType(): bool
     {
-        return $this->isNodeType(XMLReader::END_ELEMENT);
-    }
-
-    private function isNodeTextType(): bool
-    {
-        return $this->isNodeType(XMLReader::TEXT) || $this->isNodeType(XMLReader::CDATA);
-    }
-
-    private function isNodeType(int $type): bool
-    {
-        return $this->getNodeType() === $type;
-    }
-
-    /**
-     * @return array<string,string>
-     */
-    private function getNodeAttributes(): array
-    {
-        $attributes = [];
-
-        if ($this->reader->hasAttributes) {
-            while ($this->reader->moveToNextAttribute()) {
-                $attributes[$this->getNodeName()] = $this->getNodeValue();
-            }
-
-            $this->reader->moveToElement();
-        }
-
-        return $attributes;
-    }
-
-    /**
-     * Get namespaces in scope of current node, inner declarations override outer ones
-     *
-     * @return array<string,string>
-     */
-    private function getScopeNamespaces(): array
-    {
-        return array_merge(...$this->namespaceScopes);
-    }
-
-    /**
-     * @return array<string,string>
-     */
-    private function getNodeNamespaces(): array
-    {
-        return Parser::parseNamespaces($this->getNodeAttributes());
+        return $this->reader->nodeType === XMLReader::END_ELEMENT;
     }
 }

@@ -38,14 +38,6 @@ final class Parser
     }
 
     /**
-     * Get local name from node name
-     */
-    public static function getLocalName(string $name): string
-    {
-        return self::parseQualifiedName($name)[1];
-    }
-
-    /**
      * Get namespace prefix from node name
      */
     public static function getNamespacePrefix(string $name): ?string
@@ -67,27 +59,5 @@ final class Parser
                 sprintf('Element name or namespace prefix [%s] has invalid value', $value),
             );
         }
-    }
-
-    /**
-     * Prefix namespaces with xmlns
-     *
-     * @param array<string,string> $attributes
-     *
-     * @return array<string,string>
-     */
-    public static function parseNamespaces(array $attributes): array
-    {
-        $namespaces = [];
-
-        foreach ($attributes as $attributeName => $attributeValue) {
-            [$prefix, $namespaceLocalName] = self::parseQualifiedName($attributeName);
-
-            if ($prefix === 'xmlns' && $attributeValue !== '') {
-                $namespaces[$namespaceLocalName] = $attributeValue;
-            }
-        }
-
-        return $namespaces;
     }
 }

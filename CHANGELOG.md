@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Breaking**: Threw `\DOMException` instead of emitting warnings and returning `null` for an invalid `Node::xpath` expression, so `Node::xpath` always returns a list
 - **Breaking**: Threw `\DOMException` from `Node::xpath` on a node with undeclared namespace prefixes, such as a node read without namespaces
 - Checked results of DOM and `\XMLReader` methods through `Handler::checkResultForDOMDocument` and `Handler::checkResultForXMLReader`
+- **Breaking**: Read nodes with `\XMLReader::expand()`, keeping text, CDATA sections and mixed content order as in the source, about three times faster
+- Required `ext-libxml`
 - **Breaking**: Cast only lossless numbers with `autoCast`, keeping values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
 - **Breaking**: Copied `Node::addElementFromNode` and `Node::createElementFromNode` with `\DOMDocument::importNode`, converting text to CDATA only with `forcedEscape`
 - **Breaking**: Required `inspirum/arrayable` ^2.0
@@ -30,6 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Renamed the default branch from `master` to `main`
 
 ### Removed
+- **Breaking**: Removed `Formatter::namespacesToAttributes`
 - Removed local issue and pull request templates, code of conduct and contributing guide in favour of the shared [inspirum/.github](https://github.com/inspirum/.github) defaults
 
 ### Fixed
@@ -38,9 +41,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Breaking**: Fixed `DocumentFactory::createForFile` and `DocumentFactory::createForContent` ignoring version and encoding
 - Fixed `Node::addElementFromNode` and `Node::createElementFromNode` losing comments, processing instructions, mixed content order and namespace declarations
 - Fixed `Node::toArray` including comments and processing instructions as keys
-- Fixed `Reader` keeping only the last text of an element with mixed content
+- Fixed `Reader` keeping only the last text of an element with mixed content and moving it before child elements
 - Fixed `Node::toString` and `Document::save` leaving `formatOutput` changed on the document
 - Fixed `Reader` with `withNamespaces` giving nodes after the first one namespaces from outside their scope
+- Fixed `Reader` with `withNamespaces` binding a prefix redeclared inside the node to the outer or a sibling namespace
 - Fixed `Reader` emitting warnings and returning no node instead of throwing `ReaderException` for malformed content skipped by a path
 - Fixed `Node::xpath` on a node with namespaces declared on its ancestors
 - Fixed `Handler` bypassing the application error handler for warnings that are not from DOM or `\XMLReader`
