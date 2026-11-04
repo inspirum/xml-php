@@ -686,6 +686,15 @@ class NodeToArrayTest extends BaseTestCase
         );
     }
 
+    public function testWithoutCommentsAndProcessingInstructions(): void
+    {
+        $xml = $this->newDocument();
+
+        $xml->addXMLData('<a><!-- c --><?pi data?><b>x</b></a>');
+
+        self::assertSame(['a' => ['b' => 'x']], $xml->toArray());
+    }
+
     public function testWithFlattenWithoutRootConfigOnNode(): void
     {
         $xml = $this->newDocument();

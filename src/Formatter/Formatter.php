@@ -21,6 +21,7 @@ use function sprintf;
 use function str_starts_with;
 use function trim;
 use const XML_CDATA_SECTION_NODE;
+use const XML_ELEMENT_NODE;
 use const XML_TEXT_NODE;
 
 final class Formatter
@@ -117,6 +118,10 @@ final class Formatter
                             : $child->nodeValue;
                     }
 
+                    continue;
+                }
+
+                if ($child->nodeType !== XML_ELEMENT_NODE) {
                     continue;
                 }
 
