@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fixed `Node::xpath` on a node returned by `Node::xpath` of a namespaced document
 - Fixed `Node::xpath` for `text()` expressions
+- Fixed `.gitattributes` export-ignore paths so `phpcs.xml` and `phpstan.neon` are not shipped in the package
 
 
 ## [v3.1.2 (2025-03-24)](https://github.com/inspirum/xml-php/compare/v3.1.1...v3.1.2)
