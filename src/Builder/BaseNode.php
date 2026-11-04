@@ -365,9 +365,15 @@ abstract class BaseNode implements Node
     public function toString(bool $formatOutput = false): string
     {
         return Handler::withErrorHandlerForDOMDocument(function () use ($formatOutput): string {
+            $previousFormatOutput = $this->document->formatOutput;
             $this->document->formatOutput = $formatOutput;
 
-            $xml = $this->document->saveXML($this->node);
+            try {
+                $xml = $this->document->saveXML($this->node);
+            } finally {
+                $this->document->formatOutput = $previousFormatOutput;
+            }
+
             if ($xml === false) {
                 throw new DOMException('\DOMDocument::saveXML() method failed');
             }

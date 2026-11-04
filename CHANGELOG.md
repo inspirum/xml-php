@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed `DocumentFactory::createForFile` and `DocumentFactory::createForContent` ignoring version and encoding
 - Fixed `Node::toArray` including comments and processing instructions as keys
 - Fixed `Reader` keeping only the last text of an element with mixed content
+- Fixed `Node::toString` and `Document::save` leaving `formatOutput` changed on the document
 
 
 ## [v3.2.0 (2026-11-04)](https://github.com/inspirum/xml-php/compare/v3.1.2...v3.2.0)

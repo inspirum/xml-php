@@ -46,9 +46,16 @@ final class DefaultDocument extends BaseNode implements Document
                 throw new DOMException('Filename must not be empty');
             }
 
-            $this->getDocument()->formatOutput = $formatOutput;
+            $document = $this->getDocument();
+            $previousFormatOutput = $document->formatOutput;
+            $document->formatOutput = $formatOutput;
 
-            $saved = $this->getDocument()->save($filename);
+            try {
+                $saved = $document->save($filename);
+            } finally {
+                $document->formatOutput = $previousFormatOutput;
+            }
+
             if ($saved === false) {
                 throw new DOMException('\DOMDocument::save() method failed');
             }

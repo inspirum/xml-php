@@ -738,6 +738,16 @@ final class DefaultDocumentTest extends BaseTestCase
         );
     }
 
+    public function testToStringKeepsFormatOutput(): void
+    {
+        $xml = $this->newDocument();
+        $xml->addElement('a')->addElement('b');
+
+        $xml->toString(true);
+
+        self::assertFalse($xml->getDocument()->formatOutput);
+    }
+
     #[DataProvider('provideCreateForContentDeclaration')]
     public function testCreateForContentDeclaration(string $content, ?string $version, ?string $encoding, string $expected): void
     {
