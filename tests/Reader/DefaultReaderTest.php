@@ -100,6 +100,38 @@ class DefaultReaderTest extends BaseTestCase
         ];
     }
 
+    public function testNextNodesWithNamespaces(): void
+    {
+        $reader = $this->newReader(self::getTestFilePath('sample_13.xml'));
+
+        $nodes = [];
+        for ($i = 0; $i < 2; $i++) {
+            $nodes[] = $reader->nextNode('item', true)?->toString();
+        }
+
+        self::assertSame([
+            '<item xmlns:g="http://base.google.com/ns/1.0"><g:id>1</g:id></item>',
+            '<item xmlns:g="http://base.google.com/ns/1.0"><g:id>2</g:id></item>',
+        ], $nodes);
+    }
+
+    public function testIterateNodesWithNamespacesInScope(): void
+    {
+        $reader = $this->newReader(self::getTestFilePath('sample_13.xml'));
+
+        $nodes = [];
+        foreach ($reader->iterateNode('item', true) as $node) {
+            $nodes[] = $node->toString();
+        }
+
+        self::assertSame([
+            '<item xmlns:g="http://base.google.com/ns/1.0"><g:id>1</g:id></item>',
+            '<item xmlns:g="http://base.google.com/ns/1.0"><g:id>2</g:id></item>',
+            '<item xmlns:x="urn:1"><x:id>3</x:id></item>',
+            '<item xmlns:x="urn:2"><x:id>4</x:id></item>',
+        ], $nodes);
+    }
+
     public function testNextNodeWithoutEndingTag(): void
     {
         $xmlReader = new class extends XMLReader {

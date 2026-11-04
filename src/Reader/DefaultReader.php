@@ -30,6 +30,13 @@ final class DefaultReader implements Reader
 
     private bool $next = false;
 
+    /**
+     * Namespaces declared on each open element by its depth
+     *
+     * @var array<int,array<string,string>>
+     */
+    private array $namespaceScopes = [];
+
     public function __construct(
         private readonly XMLReader $reader,
         private readonly Document $document,
@@ -48,14 +55,8 @@ final class DefaultReader implements Reader
     {
         $found = $this->moveToNode($nodeName);
 
-        if ($found->found === false) {
-            return yield from [];
-        }
-
-        $rootNamespaces = $withNamespaces ? $found->namespaces : null;
-
         while ($found->found) {
-            yield $this->readNode($rootNamespaces)->node;
+            yield $this->readNode($withNamespaces ? $found->namespaces : null)->node;
 
             $found = $this->moveToNode($nodeName);
         }
@@ -86,8 +87,6 @@ final class DefaultReader implements Reader
         $paths = explode('/', ltrim($nodeName, '/'));
         $maxDepth = count($paths) - 1;
 
-        $namespaces = [];
-
         while ($this->read()) {
             if ($this->isNodeElementType()) {
                 if ($usePath && $this->getNodeName() !== ($paths[$this->depth] ?? null)) {
@@ -96,23 +95,23 @@ final class DefaultReader implements Reader
                 }
 
                 if ($usePath && $this->depth === $maxDepth) {
-                    return MoveResult::found($namespaces);
+                    return MoveResult::found($this->getScopeNamespaces());
                 }
 
                 if (!$usePath && $this->getNodeName() === $nodeName) {
-                    return MoveResult::found($namespaces);
+                    return MoveResult::found($this->getScopeNamespaces());
                 }
 
                 if (!$this->isNodeEmptyElementType()) {
+                    $this->namespaceScopes[$this->depth] = $this->getNodeNamespaces();
                     $this->depth++;
                 }
             }
 
             if ($this->isNodeElementEndType()) {
                 $this->depth--;
+                unset($this->namespaceScopes[$this->depth]);
             }
-
-            $namespaces = array_merge($namespaces, $this->getNodeNamespaces());
         }
 
         return MoveResult::notFound();
@@ -301,6 +300,16 @@ final class DefaultReader implements Reader
         }
 
         return $attributes;
+    }
+
+    /**
+     * Get namespaces in scope of current node, inner declarations override outer ones
+     *
+     * @return array<string,string>
+     */
+    private function getScopeNamespaces(): array
+    {
+        return array_merge(...$this->namespaceScopes);
     }
 
     /**

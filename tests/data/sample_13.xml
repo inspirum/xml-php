@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:g="http://base.google.com/ns/1.0">
+    <channel>
+        <item><g:id>1</g:id></item>
+        <item><g:id>2</g:id></item>
+    </channel>
+    <group xmlns:x="urn:1"><item><x:id>3</x:id></item></group>
+    <group xmlns:x="urn:2"><item><x:id>4</x:id></item></group>
+</rss>

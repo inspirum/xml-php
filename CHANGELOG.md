@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed `Node::toArray` including comments and processing instructions as keys
 - Fixed `Reader` keeping only the last text of an element with mixed content
 - Fixed `Node::toString` and `Document::save` leaving `formatOutput` changed on the document
+- Fixed `Reader` with `withNamespaces` giving nodes after the first one namespaces from outside their scope
 - Fixed outdated and broken examples in README
 
 
