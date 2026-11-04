@@ -9,14 +9,26 @@ use DOMException;
 use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocument;
 use Inspirum\XML\Builder\DefaultDocumentFactory;
+use Inspirum\XML\Builder\Node;
 use Inspirum\XML\Tests\BaseTestCase;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use function array_map;
 use function file_get_contents;
 use function sys_get_temp_dir;
 use function tempnam;
 
 final class DefaultDocumentTest extends BaseTestCase
 {
+    private const string XPATH_CONTENT = <<<'XML'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <item xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/2.0">
+            <g:detail><g:name>Color</g:name><g:value>white</g:value><g:value>gold</g:value></g:detail>
+            <g:detail><g:name>Length</g:name><g:value>60 cm</g:value></g:detail>
+            <note>a <b>bold</b> <![CDATA[x & y]]></note>
+        </item>
+        XML;
+
     public function testCreateElements(): void
     {
         $xml = $this->newDocument();
@@ -641,6 +653,77 @@ final class DefaultDocumentTest extends BaseTestCase
         $xml = new DefaultDocument($document);
 
         $xml->save('test.xml', true);
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('provideXpath')]
+    public function testXpath(string $path, array $expected): void
+    {
+        $xml = $this->newDocumentFactory()->createForContent(self::XPATH_CONTENT);
+
+        self::assertSame($expected, array_map(static fn (Node $node): string => $node->toString(), $xml->xpath($path) ?? []));
+    }
+
+    /**
+     * @return iterable<string,array<string,mixed>>
+     */
+    public static function provideXpath(): iterable
+    {
+        yield 'namespaced elements' => [
+            'path' => '/item/g:detail/g:name',
+            'expected' => [
+                '<g:name xmlns:g="http://base.google.com/ns/1.0">Color</g:name>',
+                '<g:name xmlns:g="http://base.google.com/ns/1.0">Length</g:name>',
+            ],
+        ];
+
+        yield 'element with mixed content' => [
+            'path' => '/item/note',
+            'expected' => [
+                '<note>a <b>bold</b> <![CDATA[x & y]]></note>',
+            ],
+        ];
+
+        yield 'text nodes' => [
+            'path' => '/item/g:detail/g:value/text()',
+            'expected' => ['white', 'gold', '60 cm'],
+        ];
+    }
+
+    /**
+     * @param list<list<string>> $expected
+     */
+    #[DataProvider('provideXpathInsideResult')]
+    public function testXpathInsideResult(string $path, string $innerPath, array $expected): void
+    {
+        $xml = $this->newDocumentFactory()->createForContent(self::XPATH_CONTENT);
+
+        $results = array_map(
+            static fn (Node $node): array => array_map(static fn (Node $inner): string => (string) $inner->getTextContent(), $node->xpath($innerPath) ?? []),
+            $xml->xpath($path) ?? [],
+        );
+
+        self::assertSame($expected, $results);
+    }
+
+    /**
+     * @return iterable<string,array<string,mixed>>
+     */
+    public static function provideXpathInsideResult(): iterable
+    {
+        yield 'relative path' => [
+            'path' => '/item/g:detail',
+            'innerPath' => 'g:value',
+            'expected' => [['white', 'gold'], ['60 cm']],
+        ];
+
+        yield 'absolute path' => [
+            'path' => '/item/g:detail',
+            'innerPath' => '/g:detail/g:name',
+            'expected' => [['Color'], ['Length']],
+        ];
     }
 
     private function newDocument(?string $version = null, ?string $encoding = null): DefaultDocument

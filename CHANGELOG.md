@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.1.2...master)
 ### Changed
 - Skip `\DOMNameSpaceNode` in `Node::xpath` method
+- Queried `Document::xpath` directly instead of a serialized copy of the document
+- Copied `Node::xpath` results as DOM nodes, so they keep CDATA sections, mixed content and attribute or text node types
+
+### Fixed
+- Fixed `Node::xpath` on a node returned by `Node::xpath` of a namespaced document
+- Fixed `Node::xpath` for `text()` expressions
 
 
 ## [v3.1.2 (2025-03-24)](https://github.com/inspirum/xml-php/compare/v3.1.1...v3.1.2)

@@ -302,7 +302,7 @@ abstract class BaseNode implements Node
      */
     public function xpath(string $expression): ?array
     {
-        $xpath = new DOMXPath($this->toDOMDocument());
+        $xpath = new DOMXPath($this->toQueryDocument());
 
         $nodes = $xpath->query($expression);
         if ($nodes === false) {
@@ -315,21 +315,37 @@ abstract class BaseNode implements Node
                 continue;
             }
 
-            $results[] = $this->createElementFromNode($node);
+            $results[] = $this->createNode($this->copyNode($node));
         }
 
         return $results;
     }
 
     /**
-     * Copy current node to new \DOMDocument
+     * Copy node to (unconnected) node of the current \DOMDocument with its namespaces declared
      */
-    private function toDOMDocument(): DOMDocument
+    private function copyNode(DOMNode $node): DOMNode
     {
-        $doc = new DOMDocument($this->document->xmlVersion ?? '1.0', $this->document->encoding ?? 'UTF-8');
-        $doc->loadXML($this->toString());
+        if ($node->ownerDocument === $this->document) {
+            return $node->cloneNode(true);
+        }
 
-        return $doc;
+        return $this->document->importNode($node, true);
+    }
+
+    /**
+     * Get \DOMDocument with current node as its root element
+     */
+    private function toQueryDocument(): DOMDocument
+    {
+        if ($this->node === null) {
+            return $this->document;
+        }
+
+        $document = new DOMDocument($this->document->xmlVersion ?? '1.0', $this->document->encoding ?? 'UTF-8');
+        $document->loadXML($this->toString());
+
+        return $document;
     }
 
     /**
