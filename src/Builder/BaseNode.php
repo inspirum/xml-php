@@ -379,9 +379,15 @@ abstract class BaseNode implements Node
 
     /**
      * Copy node to (unconnected) node of the current \DOMDocument with its namespaces declared
+     *
+     * @throws \DOMException
      */
     private function copyNode(DOMNode $node): DOMNode
     {
+        if ($node instanceof DOMDocument) {
+            throw new DOMException('Node::xpath() cannot return document node, query its root element instead');
+        }
+
         if ($node->ownerDocument === $this->document) {
             return $node->cloneNode(true);
         }

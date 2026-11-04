@@ -830,6 +830,16 @@ final class DefaultDocumentTest extends BaseTestCase
         ];
     }
 
+    public function testXpathReturningDocumentNode(): void
+    {
+        $xml = $this->newDocumentFactory()->createForContent('<r><a/></r>');
+
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('Node::xpath() cannot return document node, query its root element instead');
+
+        $xml->xpath('/');
+    }
+
     /**
      * @param array<string,mixed> $attributes
      */

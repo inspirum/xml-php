@@ -678,6 +678,8 @@ var_dump($ids);
 */
 ```
 
+Querying `/` throws `\DOMException`, query the root element instead
+
 #### Errors
 
 DOM errors throw `\DOMException`, reader errors throw [`ReaderException`](./src/Exception/ReaderException.php)
@@ -717,7 +719,7 @@ try {
 
 - `Node::xpath()` returns a list and throws `\DOMException` for an invalid expression instead of a warning and `null`
 - `Node::addXMLData()` throws `\DOMException` for invalid XML instead of a warning, and returns list of added nodes instead of `?Node`
-- `Node::xpath()` throws `\DOMException` on attribute and text nodes
+- `Node::xpath()` throws `\DOMException` on attribute and text nodes, and when querying `/`
 - `Node::getTextContent()` returns `string`
 - `Reader` and `ReaderFactory` throw `ReaderException` instead of `\Exception`
 - `Reader` keeps text, CDATA sections and mixed content order as in the source, and declares redeclared namespace prefixes on the elements that use them

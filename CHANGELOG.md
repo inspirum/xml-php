@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Breaking**: Read nodes with `\XMLReader::expand()`, keeping text, CDATA sections and mixed content order as in the source, about three times faster
 - **Breaking**: Threw `\InvalidArgumentException` for element and attribute values that are not `null`, scalar or `\Stringable` instead of writing an empty value
 - **Breaking**: Joined all text of an element in `Node::toArray` instead of keeping only its last text node
+- **Breaking**: Threw `\DOMException` from `Node::xpath` when the expression returns the document node
 - Required `ext-libxml`
 - **Breaking**: Cast only numbers whose value survives the cast with `autoCast`, keeping values like `0123`, `1e3`, integers over `PHP_INT_MAX` or decimals with more than 15 significant digits as strings
 - **Breaking**: Copied `Node::addElementFromNode` and `Node::createElementFromNode` with `\DOMDocument::importNode`, converting text to CDATA only with `forcedEscape`
