@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.2.0...main)
+## [Unreleased](https://github.com/inspirum/xml-php/compare/v4.0.0...main)
+
+
+## [v4.0.0 (2026-11-04)](https://github.com/inspirum/xml-php/compare/v3.2.0...v4.0.0)
 ### Added
 - **Breaking**: Added `withNamespaces` parameter to `Reader::nextNode`
 - Added `ReaderException` for `Reader` and `ReaderFactory` errors
