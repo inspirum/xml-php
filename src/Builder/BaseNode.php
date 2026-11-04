@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Inspirum\XML\Builder;
 
+use DOMCdataSection;
 use DOMDocument;
 use DOMDocumentFragment;
 use DOMElement;
@@ -19,6 +20,7 @@ use Inspirum\XML\Formatter\Formatter;
 use Inspirum\XML\Parser\Parser;
 use function is_array;
 use function is_string;
+use function iterator_to_array;
 use function str_contains;
 
 abstract class BaseNode implements Node
@@ -67,7 +69,7 @@ abstract class BaseNode implements Node
 
     public function addElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): Node
     {
-        $element = $this->createFullDOMElementFromNode($node, $forcedEscape, $withNamespaces);
+        $element = $this->createDOMNodeFromNode($node, $forcedEscape, $withNamespaces);
 
         $this->appendChild($element);
 
@@ -101,7 +103,7 @@ abstract class BaseNode implements Node
 
     public function createElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): Node
     {
-        $element = $this->createFullDOMElementFromNode($node, $forcedEscape, $withNamespaces);
+        $element = $this->createDOMNodeFromNode($node, $forcedEscape, $withNamespaces);
 
         return $this->createNode($element);
     }
@@ -141,28 +143,72 @@ abstract class BaseNode implements Node
         return $element;
     }
 
-    private function createFullDOMElementFromNode(DOMNode $node, bool $forcedEscape = false, bool $withNamespaces = true): DOMElement
+    /**
+     * @throws \DOMException
+     */
+    private function createDOMNodeFromNode(DOMNode $node, bool $forcedEscape, bool $withNamespaces): DOMNode
     {
-        $value = null;
-        $childElements = [];
+        $imported = $this->importDOMNode($node, $withNamespaces);
 
-        /** @var \DOMNode $child */
-        foreach ($node->childNodes as $child) {
-            if ($child instanceof DOMText) {
-                $value = $child->textContent;
-                continue;
+        if ($forcedEscape) {
+            return $this->escapeDOMNode($imported);
+        }
+
+        return $imported;
+    }
+
+    /**
+     * @throws \DOMException
+     */
+    private function importDOMNode(DOMNode $node, bool $withNamespaces): DOMNode
+    {
+        if ($withNamespaces) {
+            return $this->document->importNode($node, true);
+        }
+
+        return $this->importDOMNodeWithoutNamespaces($node);
+    }
+
+    /**
+     * @throws \DOMException
+     */
+    private function importDOMNodeWithoutNamespaces(DOMNode $node): DOMNode
+    {
+        if ($node instanceof DOMElement) {
+            $element = $this->createFullDOMElement($node->nodeName, null, $this->getAttributesFromNode($node), false, false);
+
+            foreach ($node->childNodes as $child) {
+                $element->appendChild($this->importDOMNodeWithoutNamespaces($child));
             }
 
-            $childElements[] = $this->createFullDOMElementFromNode($child, $forcedEscape, $withNamespaces);
+            return $element;
         }
 
-        $element = $this->createFullDOMElement($node->nodeName, $value, $this->getAttributesFromNode($node), $forcedEscape, $withNamespaces);
+        return $this->document->importNode($node, true);
+    }
 
-        foreach ($childElements as $childElement) {
-            $element->appendChild($childElement);
+    /**
+     * Replace text nodes with CDATA sections
+     */
+    private function escapeDOMNode(DOMNode $node): DOMNode
+    {
+        if ($node instanceof DOMCdataSection) {
+            return $node;
         }
 
-        return $element;
+        if ($node instanceof DOMText) {
+            return $this->document->createCDATASection($node->textContent);
+        }
+
+        foreach (iterator_to_array($node->childNodes) as $child) {
+            $escaped = $this->escapeDOMNode($child);
+
+            if ($escaped !== $child) {
+                $node->replaceChild($escaped, $child);
+            }
+        }
+
+        return $node;
     }
 
     /**

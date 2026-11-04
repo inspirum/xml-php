@@ -808,6 +808,78 @@ final class DefaultDocumentTest extends BaseTestCase
         self::assertSame(self::getSampleXMLString('<a>č</a>'), $xml->toString());
     }
 
+    #[DataProvider('provideElementFromNode')]
+    public function testAddElementFromNode(string $content, bool $forcedEscape, bool $withNamespaces, string $expected): void
+    {
+        $node = $this->newDocumentFactory()->createForContent($content)->getDocument()->documentElement;
+        self::assertNotNull($node);
+
+        $xml = $this->newDocument();
+        $xml->addElementFromNode($node, $forcedEscape, $withNamespaces);
+
+        self::assertSame(self::getSampleXMLString($expected), $xml->toString());
+    }
+
+    #[DataProvider('provideElementFromNode')]
+    public function testCreateElementFromNode(string $content, bool $forcedEscape, bool $withNamespaces, string $expected): void
+    {
+        $node = $this->newDocumentFactory()->createForContent($content)->getDocument()->documentElement;
+        self::assertNotNull($node);
+
+        $xml = $this->newDocument();
+        $xml->append($xml->createElementFromNode($node, $forcedEscape, $withNamespaces));
+
+        self::assertSame(self::getSampleXMLString($expected), $xml->toString());
+    }
+
+    /**
+     * @return iterable<string,array<string,mixed>>
+     */
+    public static function provideElementFromNode(): iterable
+    {
+        yield 'comment and processing instruction' => [
+            'content' => '<a><!-- c --><?pi data?><b>x</b></a>',
+            'forcedEscape' => false,
+            'withNamespaces' => true,
+            'expected' => '<a><!-- c --><?pi data?><b>x</b></a>',
+        ];
+
+        yield 'mixed content' => [
+            'content' => '<a>foo<b>bar</b>baz</a>',
+            'forcedEscape' => false,
+            'withNamespaces' => true,
+            'expected' => '<a>foo<b>bar</b>baz</a>',
+        ];
+
+        yield 'namespaces' => [
+            'content' => '<a xmlns:g="urn:g"><g:b g:x="1">x</g:b></a>',
+            'forcedEscape' => false,
+            'withNamespaces' => true,
+            'expected' => '<a xmlns:g="urn:g"><g:b g:x="1">x</g:b></a>',
+        ];
+
+        yield 'without namespaces' => [
+            'content' => '<a xmlns:g="urn:g"><g:b g:x="1">x &amp; y</g:b></a>',
+            'forcedEscape' => false,
+            'withNamespaces' => false,
+            'expected' => '<a><g:b g:x="1">x &amp; y</g:b></a>',
+        ];
+
+        yield 'forced escape' => [
+            'content' => '<a>x<b>y &amp; z</b><c><![CDATA[w]]></c></a>',
+            'forcedEscape' => true,
+            'withNamespaces' => true,
+            'expected' => '<a><![CDATA[x]]><b><![CDATA[y & z]]></b><c><![CDATA[w]]></c></a>',
+        ];
+
+        yield 'forced escape without namespaces' => [
+            'content' => '<a xmlns:g="urn:g"><g:b>x</g:b></a>',
+            'forcedEscape' => true,
+            'withNamespaces' => false,
+            'expected' => '<a><g:b><![CDATA[x]]></g:b></a>',
+        ];
+    }
+
     private function newDocument(?string $version = null, ?string $encoding = null): DefaultDocument
     {
         return new DefaultDocument(new DOMDocument($version ?? '1.0', $encoding ?? 'UTF-8'));

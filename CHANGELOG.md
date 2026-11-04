@@ -10,11 +10,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Threw `\DOMException` instead of emitting warnings for invalid `Node::addXMLData` content
 - Cast only lossless numbers with `autoCast`, keeping values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
+- Copied `Node::addElementFromNode` and `Node::createElementFromNode` with `\DOMDocument::importNode`, converting text to CDATA only with `forcedEscape`
 
 ### Fixed
 - Fixed element name validation for non-ASCII names
 - Fixed `FlattenConfig` with `withoutRoot` on a node
 - Fixed `DocumentFactory::createForFile` and `DocumentFactory::createForContent` ignoring version and encoding
+- Fixed `Node::addElementFromNode` and `Node::createElementFromNode` losing comments, processing instructions, mixed content order and namespace declarations
 - Fixed `Node::toArray` including comments and processing instructions as keys
 - Fixed `Reader` keeping only the last text of an element with mixed content
 - Fixed `Node::toString` and `Document::save` leaving `formatOutput` changed on the document
