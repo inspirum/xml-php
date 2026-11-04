@@ -663,7 +663,7 @@ final class DefaultDocumentTest extends BaseTestCase
     {
         $xml = $this->newDocumentFactory()->createForContent(self::XPATH_CONTENT);
 
-        self::assertSame($expected, array_map(static fn (Node $node): string => $node->toString(), $xml->xpath($path) ?? []));
+        self::assertSame($expected, array_map(static fn (Node $node): string => $node->toString(), $xml->xpath($path)));
     }
 
     /**
@@ -701,8 +701,8 @@ final class DefaultDocumentTest extends BaseTestCase
         $xml = $this->newDocumentFactory()->createForContent(self::XPATH_CONTENT);
 
         $results = array_map(
-            static fn (Node $node): array => array_map(static fn (Node $inner): string => (string) $inner->getTextContent(), $node->xpath($innerPath) ?? []),
-            $xml->xpath($path) ?? [],
+            static fn (Node $node): array => array_map(static fn (Node $inner): string => (string) $inner->getTextContent(), $node->xpath($innerPath)),
+            $xml->xpath($path),
         );
 
         self::assertSame($expected, $results);
@@ -730,7 +730,10 @@ final class DefaultDocumentTest extends BaseTestCase
     {
         $xml = $this->newDocumentFactory()->createForContent(self::XPATH_CONTENT);
 
-        self::assertNull(@$xml->xpath('/item['));
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('DOMXPath::query(): Invalid expression');
+
+        $xml->xpath('/item[');
     }
 
     public function testUnicodeElementName(): void

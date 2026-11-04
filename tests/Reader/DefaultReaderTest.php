@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Inspirum\XML\Tests\Reader;
 
+use DOMException;
 use Exception;
 use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocumentFactory;
@@ -439,16 +440,9 @@ class DefaultReaderTest extends BaseTestCase
         $reader = $this->newReader(self::getTestFilePath($file));
 
         foreach ($reader->iterateNode('item', $withNamespaces) as $i => $item) {
-            $elements = [];
             try {
-                self::withErrorHandler(static function () use ($item, $path, &$elements): void {
-                    $elements = $item->xpath($path);
-                });
-
-                if ($elements === null) {
-                    throw new Exception('xpath: error');
-                }
-            } catch (Throwable $exception) {
+                $elements = $item->xpath($path);
+            } catch (DOMException $exception) {
                 $expectedMessage = $expected[$i];
                 if (is_string($expectedMessage)) {
                     self::assertStringStartsWith($expectedMessage, $exception->getMessage());

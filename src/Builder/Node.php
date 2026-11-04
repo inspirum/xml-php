@@ -89,9 +89,11 @@ interface Node extends Model
     public function getAttributes(bool $autoCast = false): array;
 
     /**
-     * @return list<\Inspirum\XML\Builder\Node>|null
+     * @return list<\Inspirum\XML\Builder\Node>
+     *
+     * @throws \DOMException
      */
-    public function xpath(string $expression): ?array;
+    public function xpath(string $expression): array;
 
     /**
      * Get connected \DOMDocument

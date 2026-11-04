@@ -354,25 +354,29 @@ abstract class BaseNode implements Node
     /**
      * @inheritDoc
      */
-    public function xpath(string $expression): ?array
+    public function xpath(string $expression): array
     {
-        $xpath = new DOMXPath($this->toQueryDocument());
+        return Handler::withErrorHandlerForDOMDocument(function () use ($expression): array {
+            $xpath = new DOMXPath($this->toQueryDocument());
 
-        $nodes = $xpath->query($expression);
-        if ($nodes === false) {
-            return null;
-        }
-
-        $results = [];
-        foreach ($nodes as $node) {
-            if ($node instanceof DOMNameSpaceNode) {
-                continue;
+            $nodes = $xpath->query($expression);
+            if ($nodes === false) {
+                // @codeCoverageIgnoreStart
+                throw new DOMException('\DOMXPath::query() method failed');
+                // @codeCoverageIgnoreEnd
             }
 
-            $results[] = $this->createNode($this->copyNode($node));
-        }
+            $results = [];
+            foreach ($nodes as $node) {
+                if ($node instanceof DOMNameSpaceNode) {
+                    continue;
+                }
 
-        return $results;
+                $results[] = $this->createNode($this->copyNode($node));
+            }
+
+            return $results;
+        });
     }
 
     /**
