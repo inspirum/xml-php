@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Inspirum\XML\Tests\Builder;
 
 use DOMDocument;
+use DOMDocumentFragment;
 use DOMException;
 use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocument;
@@ -757,6 +758,21 @@ final class DefaultDocumentTest extends BaseTestCase
         $this->expectExceptionMessage('DOMDocumentFragment::appendXML()');
 
         $aE->addXMLData('<b>');
+    }
+
+    public function testAddXMLDataFailed(): void
+    {
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('DOMDocumentFragment::appendXML() method failed');
+
+        $fragment = $this->createMock(DOMDocumentFragment::class);
+        $fragment->expects($this->once())->method('appendXML')->willReturn(false);
+
+        $document = $this->createMock(DOMDocument::class);
+        $document->expects($this->once())->method('createDocumentFragment')->willReturn($fragment);
+
+        $xml = new DefaultDocument($document);
+        $xml->addXMLData('<a/>');
     }
 
     public function testToStringKeepsFormatOutput(): void

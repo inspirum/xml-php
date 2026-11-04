@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Inspirum\XML\Reader;
 
-use Exception;
 use Inspirum\XML\Builder\DocumentFactory;
 use Inspirum\XML\Exception\Handler;
 
@@ -25,12 +24,7 @@ final class DefaultReaderFactory implements ReaderFactory
         $document = $this->documentFactory->create($version, $encoding);
 
         Handler::withErrorHandlerForXMLReader(static function () use ($xmlReader, $filepath, $encoding, $flags): void {
-            $opened = $xmlReader->open($filepath, $encoding, $flags ?? 0);
-            // @codeCoverageIgnoreStart
-            if ($opened === false) {
-                throw new Exception('\XMLReader::open() method failed');
-            }
-            // @codeCoverageIgnoreEnd
+            Handler::checkResultForXMLReader($xmlReader->open($filepath, $encoding, $flags ?? 0), '\XMLReader::open()');
         });
 
         return new DefaultReader($xmlReader, $document);

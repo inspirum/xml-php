@@ -8,7 +8,6 @@ use DOMCdataSection;
 use DOMDocument;
 use DOMDocumentFragment;
 use DOMElement;
-use DOMException;
 use DOMNameSpaceNode;
 use DOMNode;
 use DOMText;
@@ -221,10 +220,7 @@ abstract class BaseNode implements Node
         return Handler::withErrorHandlerForDOMDocument(function () use ($content): DOMDocumentFragment {
             $element = $this->document->createDocumentFragment();
 
-            $appended = $element->appendXML($content);
-            if ($appended === false) {
-                throw new DOMException('\DOMDocumentFragment::appendXML() method failed');
-            }
+            Handler::checkResultForDOMDocument($element->appendXML($content), '\DOMDocumentFragment::appendXML()');
 
             return $element;
         });
@@ -359,12 +355,7 @@ abstract class BaseNode implements Node
         return Handler::withErrorHandlerForDOMDocument(function () use ($expression): array {
             $xpath = new DOMXPath($this->toQueryDocument());
 
-            $nodes = $xpath->query($expression);
-            if ($nodes === false) {
-                // @codeCoverageIgnoreStart
-                throw new DOMException('\DOMXPath::query() method failed');
-                // @codeCoverageIgnoreEnd
-            }
+            $nodes = Handler::checkResultForDOMDocument($xpath->query($expression), '\DOMXPath::query()');
 
             $results = [];
             foreach ($nodes as $node) {
@@ -406,7 +397,7 @@ abstract class BaseNode implements Node
             return $document;
         }
 
-        $document->loadXML($content);
+        Handler::checkResultForDOMDocument($document->loadXML($content), '\DOMDocument::loadXML()');
 
         return $document;
     }
@@ -426,16 +417,10 @@ abstract class BaseNode implements Node
             $this->document->formatOutput = $formatOutput;
 
             try {
-                $xml = $this->document->saveXML($this->node);
+                return Handler::checkResultForDOMDocument($this->document->saveXML($this->node), '\DOMDocument::saveXML()');
             } finally {
                 $this->document->formatOutput = $previousFormatOutput;
             }
-
-            if ($xml === false) {
-                throw new DOMException('\DOMDocument::saveXML() method failed');
-            }
-
-            return $xml;
         });
     }
 

@@ -8,6 +8,7 @@ use DOMException;
 use Exception;
 use function restore_error_handler;
 use function set_error_handler;
+use function sprintf;
 use function str_contains;
 use function str_starts_with;
 
@@ -55,6 +56,46 @@ final class Handler
             return false;
             // @codeCoverageIgnoreEnd
         }, $callback);
+    }
+
+    /**
+     * Throw \Exception if XMLReader method failed without warning
+     *
+     * @param T|false $result
+     *
+     * @return T
+     *
+     * @throws \Exception
+     *
+     * @template T
+     */
+    public static function checkResultForXMLReader(mixed $result, string $method): mixed
+    {
+        if ($result === false) {
+            throw new Exception(sprintf('%s method failed', $method));
+        }
+
+        return $result;
+    }
+
+    /**
+     * Throw \DOMException if DOM method failed without warning
+     *
+     * @param T|false $result
+     *
+     * @return T
+     *
+     * @throws \DOMException
+     *
+     * @template T
+     */
+    public static function checkResultForDOMDocument(mixed $result, string $method): mixed
+    {
+        if ($result === false) {
+            throw new DOMException(sprintf('%s method failed', $method));
+        }
+
+        return $result;
     }
 
     /**

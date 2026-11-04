@@ -69,10 +69,7 @@ final class DefaultDocumentFactory implements DocumentFactory
 
             $document->preserveWhiteSpace = false;
 
-            $loaded = $document->loadXML($content);
-            if ($loaded === false) {
-                throw new DOMException('\DOMDocument::loadXML() method failed');
-            }
+            Handler::checkResultForDOMDocument($document->loadXML($content), '\DOMDocument::loadXML()');
         });
     }
 }

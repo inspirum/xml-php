@@ -32,10 +32,7 @@ final class DefaultDocument extends BaseNode implements Document
                 throw new DOMException('Schema filename must not be empty');
             }
 
-            $validated = $this->getDocument()->schemaValidate($filename);
-            if ($validated === false) {
-                throw new DOMException('\DOMDocument::schemaValidate() method failed');
-            }
+            Handler::checkResultForDOMDocument($this->getDocument()->schemaValidate($filename), '\DOMDocument::schemaValidate()');
         });
     }
 
@@ -51,13 +48,9 @@ final class DefaultDocument extends BaseNode implements Document
             $document->formatOutput = $formatOutput;
 
             try {
-                $saved = $document->save($filename);
+                Handler::checkResultForDOMDocument($document->save($filename), '\DOMDocument::save()');
             } finally {
                 $document->formatOutput = $previousFormatOutput;
-            }
-
-            if ($saved === false) {
-                throw new DOMException('\DOMDocument::save() method failed');
             }
         });
     }
