@@ -24,7 +24,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug
+          coverage: ${{ matrix.php == '8.2' && 'xdebug' || 'none' }}
       - name: Get composer cache directory
         id: composercache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
@@ -43,8 +43,10 @@ jobs:
           vendor/bin/composer-dependency-analyser
       - name: Run tests
         run: |
-          vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
           if [[ "${{ matrix.php }}" == '8.2' ]]; then
+            vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
             composer require --dev --no-interaction --no-progress --quiet scrutinizer/ocular
             vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
+          else
+            vendor/bin/phpunit --no-coverage
           fi
