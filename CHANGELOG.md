@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Checked results of DOM and `\XMLReader` methods through `Handler::checkResultForDOMDocument` and `Handler::checkResultForXMLReader`
 - **Breaking**: Cast only lossless numbers with `autoCast`, keeping values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
 - **Breaking**: Copied `Node::addElementFromNode` and `Node::createElementFromNode` with `\DOMDocument::importNode`, converting text to CDATA only with `forcedEscape`
-- Allowed `inspirum/arrayable` ^2.0 next to ^1.3
+- **Breaking**: Required `inspirum/arrayable` ^2.0
 - Switched CI to the shared [inspirum/.github](https://github.com/inspirum/.github) workflow
 - Renamed the default branch from `master` to `main`
 

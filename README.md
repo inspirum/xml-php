@@ -721,7 +721,7 @@ try {
 - `autoCast` keeps values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
 - `FlattenConfig(withoutRoot: true)` on a node keeps its child names in keys
 - `DocumentFactory::createForFile()` and `createForContent()` apply given version and encoding
-- `inspirum/arrayable` 2.0 is supported next to 1.3
+- `inspirum/arrayable` ^2.0 is required
 
 See [CHANGELOG][link-changelog] for all changes.
 
