@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed `Node::toString` and `Document::save` leaving `formatOutput` changed on the document
 - Fixed `Reader` with `withNamespaces` giving nodes after the first one namespaces from outside their scope
 - Fixed `Node::xpath` on a node with namespaces declared on its ancestors
+- Fixed `Handler` bypassing the application error handler for warnings that are not from DOM or `\XMLReader`
 - Fixed outdated and broken examples in README
 
 

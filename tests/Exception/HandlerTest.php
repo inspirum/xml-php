@@ -8,31 +8,69 @@ use DOMException;
 use Inspirum\XML\Exception\Handler;
 use Inspirum\XML\Exception\ReaderException;
 use Inspirum\XML\Tests\BaseTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use function restore_error_handler;
+use function set_error_handler;
 use function trigger_error;
 use const E_USER_WARNING;
 
 final class HandlerTest extends BaseTestCase
 {
-    public function testXMLReaderHandlerSkipsOtherWarnings(): void
+    /**
+     * @param callable(callable(): string): string $handler
+     */
+    #[DataProvider('provideHandler')]
+    public function testHandlerPassesOtherWarningsToPreviousHandler(callable $handler): void
     {
-        $result = @Handler::withErrorHandlerForXMLReader(static function (): string {
-            trigger_error('Other warning', E_USER_WARNING);
+        $messages = [];
+        set_error_handler(static function (int $code, string $message) use (&$messages): bool {
+            $messages[] = $message;
 
-            return 'result';
+            return true;
         });
+
+        try {
+            $result = $handler(static function (): string {
+                trigger_error('Other warning', E_USER_WARNING);
+
+                return 'result';
+            });
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertSame('result', $result);
+        self::assertSame(['Other warning'], $messages);
+    }
+
+    /**
+     * @param callable(callable(): string): string $handler
+     */
+    #[DataProvider('provideHandler')]
+    public function testHandlerSkipsOtherWarningsWithoutPreviousHandler(callable $handler): void
+    {
+        set_error_handler(null);
+
+        try {
+            $result = @$handler(static function (): string {
+                trigger_error('Other warning', E_USER_WARNING);
+
+                return 'result';
+            });
+        } finally {
+            restore_error_handler();
+        }
 
         self::assertSame('result', $result);
     }
 
-    public function testDOMDocumentHandlerSkipsOtherWarnings(): void
+    /**
+     * @return iterable<string,array<string,mixed>>
+     */
+    public static function provideHandler(): iterable
     {
-        $result = @Handler::withErrorHandlerForDOMDocument(static function (): string {
-            trigger_error('Other warning', E_USER_WARNING);
-
-            return 'result';
-        });
-
-        self::assertSame('result', $result);
+        yield 'XMLReader' => ['handler' => Handler::withErrorHandlerForXMLReader(...)];
+        yield 'DOMDocument' => ['handler' => Handler::withErrorHandlerForDOMDocument(...)];
     }
 
     public function testXMLReaderHandlerThrowsWithoutCode(): void

@@ -27,12 +27,12 @@ final class Handler
      */
     public static function withErrorHandlerForXMLReader(callable $callback): mixed
     {
-        return self::withErrorHandler(static function (int $code, string $message): bool {
+        return self::withErrorHandler(static function (string $message): ?ReaderException {
             if (str_contains($message, 'XMLReader::')) {
-                throw new ReaderException($message);
+                return new ReaderException($message);
             }
 
-            return false;
+            return null;
         }, $callback);
     }
 
@@ -47,12 +47,12 @@ final class Handler
      */
     public static function withErrorHandlerForDOMDocument(callable $callback): mixed
     {
-        return self::withErrorHandler(static function (int $code, string $message): bool {
+        return self::withErrorHandler(static function (string $message): ?DOMException {
             if (str_starts_with($message, 'DOM')) {
-                throw new DOMException($message);
+                return new DOMException($message);
             }
 
-            return false;
+            return null;
         }, $callback);
     }
 
@@ -97,14 +97,33 @@ final class Handler
     }
 
     /**
-     * Register custom error handler to throw exception on warning message
+     * Register custom error handler to throw exception on warning message, other warnings pass to previous error handler
+     *
+     * @param callable(string): (\Throwable|null) $createException
+     * @param callable(): T $callback
+     *
+     * @return T
+     *
+     * @template T
      */
-    private static function withErrorHandler(callable $errorCallback, callable $functionCallback): mixed
+    private static function withErrorHandler(callable $createException, callable $callback): mixed
     {
-        set_error_handler($errorCallback);
+        $previous = null;
+        $previous = set_error_handler(static function (int $code, string $message, string $file, int $line) use ($createException, &$previous): bool {
+            $exception = $createException($message);
+            if ($exception !== null) {
+                throw $exception;
+            }
+
+            if ($previous === null) {
+                return false;
+            }
+
+            return $previous($code, $message, $file, $line) !== false;
+        });
 
         try {
-            return $functionCallback();
+            return $callback();
         } finally {
             restore_error_handler();
         }
