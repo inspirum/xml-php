@@ -602,11 +602,11 @@ var_dump($data);
 */
 ```
 
-`autoCast` casts only values that survive the cast unchanged: integers, decimal numbers and `true` / `false`
+`autoCast` casts only values whose meaning survives the cast: integers without leading zeros, decimals with at most 15 significant digits (trailing zeros are not significant) and `true` / `false`
 ```php
 use Inspirum\XML\Formatter\DefaultConfig;
 
-$data = $factory->createForContent('<a><zip>0123</zip><id>12</id><price>1.50</price><e>1e3</e><b>true</b></a>')->toArray(new DefaultConfig(autoCast: true));
+$data = $factory->createForContent('<a><zip>0123</zip><id>12</id><price>1.50</price><ratio>12345678901234567890.5</ratio><e>1e3</e><b>true</b></a>')->toArray(new DefaultConfig(autoCast: true));
 
 /**
 var_dump($data);
@@ -615,6 +615,7 @@ var_dump($data);
     'zip'   => '0123'
     'id'    => 12
     'price' => 1.5
+    'ratio' => '12345678901234567890.5'
     'e'     => '1e3'
     'b'     => true
   ]
@@ -722,7 +723,7 @@ try {
 - `Reader` keeps text, CDATA sections and mixed content order as in the source, and declares redeclared namespace prefixes on the elements that use them
 - `Node::toArray()` joins all text of an element instead of keeping only its last text node
 - `Reader::nextNode()` has `bool $withNamespaces = false` parameter, update your own `Reader` implementations
-- `autoCast` keeps values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
+- `autoCast` keeps values like `0123`, `1e3`, integers over `PHP_INT_MAX` or decimals with more than 15 significant digits as strings
 - `FlattenConfig(withoutRoot: true)` on a node keeps its child names in keys
 - `DocumentFactory::createForFile()` and `createForContent()` apply given version and encoding
 - `inspirum/arrayable` ^2.0 is required

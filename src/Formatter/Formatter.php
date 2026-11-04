@@ -7,6 +7,7 @@ namespace Inspirum\XML\Formatter;
 use DOMDocument;
 use DOMNode;
 use Stringable;
+use function abs;
 use function array_keys;
 use function array_merge;
 use function count;
@@ -17,14 +18,19 @@ use function is_scalar;
 use function is_string;
 use function ltrim;
 use function preg_match;
+use function rtrim;
 use function sprintf;
+use function strlen;
 use function trim;
+use const PHP_FLOAT_MIN;
 use const XML_CDATA_SECTION_NODE;
 use const XML_ELEMENT_NODE;
 use const XML_TEXT_NODE;
 
 final class Formatter
 {
+    private const FLOAT_DIGITS = 15;
+
     /**
      * Normalize value.
      */
@@ -58,8 +64,8 @@ final class Formatter
             return self::decodeInteger($value);
         }
 
-        if (preg_match('/^-?(0|[1-9]\d*)\.\d+$/', $value) === 1) {
-            return (float) $value;
+        if (preg_match('/^-?(0|[1-9]\d*)\.(\d+)$/', $value, $matches) === 1) {
+            return self::decodeFloat($value, $matches[1], $matches[2]);
         }
 
         if (in_array($value, ['true', 'True'], true)) {
@@ -85,6 +91,25 @@ final class Formatter
         }
 
         return $value;
+    }
+
+    /**
+     * Keep decimals with more significant digits than float can hold as string, trailing zeros are not significant
+     */
+    private static function decodeFloat(string $value, string $integerPart, string $fractionalPart): float|string
+    {
+        $digits = ltrim($integerPart . rtrim($fractionalPart, '0'), '0');
+        $float = (float) $value;
+
+        if (strlen($digits) > self::FLOAT_DIGITS) {
+            return $value;
+        }
+
+        if ($digits !== '' && abs($float) < PHP_FLOAT_MIN) {
+            return $value;
+        }
+
+        return $float;
     }
 
     /**

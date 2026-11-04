@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Breaking**: Read nodes with `\XMLReader::expand()`, keeping text, CDATA sections and mixed content order as in the source, about three times faster
 - **Breaking**: Joined all text of an element in `Node::toArray` instead of keeping only its last text node
 - Required `ext-libxml`
-- **Breaking**: Cast only lossless numbers with `autoCast`, keeping values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
+- **Breaking**: Cast only numbers whose value survives the cast with `autoCast`, keeping values like `0123`, `1e3`, integers over `PHP_INT_MAX` or decimals with more than 15 significant digits as strings
 - **Breaking**: Copied `Node::addElementFromNode` and `Node::createElementFromNode` with `\DOMDocument::importNode`, converting text to CDATA only with `forcedEscape`
 - **Breaking**: Required `inspirum/arrayable` ^2.0
 - Switched CI to the shared [inspirum/.github](https://github.com/inspirum/.github) workflow

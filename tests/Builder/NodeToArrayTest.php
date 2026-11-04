@@ -12,6 +12,7 @@ use Inspirum\XML\Formatter\FullResponseConfig;
 use Inspirum\XML\Tests\BaseTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use function json_encode;
+use function str_repeat;
 
 class NodeToArrayTest extends BaseTestCase
 {
@@ -760,6 +761,11 @@ class NodeToArrayTest extends BaseTestCase
         yield 'negative integer' => ['value' => '-12', 'expected' => -12];
         yield 'zero' => ['value' => '0', 'expected' => 0];
         yield 'decimal' => ['value' => '1.50', 'expected' => 1.5];
+        yield 'decimal with zero fraction' => ['value' => '1.0', 'expected' => 1.0];
+        yield 'decimal with leading fractional zeros' => ['value' => '0.000123', 'expected' => 0.000123];
+        yield 'decimal with 15 digits' => ['value' => '12345678901234.5', 'expected' => 12345678901234.5];
+        yield 'decimal over float precision' => ['value' => '12345678901234567890.5', 'expected' => '12345678901234567890.5'];
+        yield 'decimal under float minimum' => ['value' => '0.' . str_repeat('0', 400) . '1', 'expected' => '0.' . str_repeat('0', 400) . '1'];
         yield 'leading zero' => ['value' => '0123', 'expected' => '0123'];
         yield 'integer over max' => ['value' => '123456789012345678901', 'expected' => '123456789012345678901'];
         yield 'exponent' => ['value' => '1e3', 'expected' => '1e3'];
