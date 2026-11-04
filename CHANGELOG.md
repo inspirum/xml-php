@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Breaking**: Marked `Handler` as internal
 - **Breaking**: Threw `\DOMException` instead of emitting warnings for invalid `Node::addXMLData` content
 - **Breaking**: Returned list of added nodes from `Node::addXMLData` instead of the emptied fragment node
+- **Breaking**: Threw `\DOMException` from `Node::xpath` on attribute, text and other nodes that are not document or element
 - **Breaking**: Threw `\DOMException` instead of emitting warnings and returning `null` for an invalid `Node::xpath` expression, so `Node::xpath` always returns a list
 - **Breaking**: Threw `\DOMException` from `Node::xpath` on a node with undeclared namespace prefixes, such as a node read without namespaces
 - Checked results of DOM and `\XMLReader` methods through `Handler::checkResultForDOMDocument` and `Handler::checkResultForXMLReader`

@@ -659,7 +659,7 @@ var_dump($items);
 
 #### XPath
 
-Querying document or node returns list of copied nodes
+Querying document or element node returns list of copied nodes, other nodes throw `\DOMException`
 ```php
 use Inspirum\XML\Builder\Node;
 
@@ -715,6 +715,7 @@ try {
 
 - `Node::xpath()` returns a list and throws `\DOMException` for an invalid expression instead of a warning and `null`
 - `Node::addXMLData()` throws `\DOMException` for invalid XML instead of a warning, and returns list of added nodes instead of `?Node`
+- `Node::xpath()` throws `\DOMException` on attribute and text nodes
 - `Node::getTextContent()` returns `string`
 - `Reader` and `ReaderFactory` throw `ReaderException` instead of `\Exception`
 - `Reader::nextNode()` has `bool $withNamespaces = false` parameter, update your own `Reader` implementations

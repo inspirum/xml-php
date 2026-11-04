@@ -802,6 +802,33 @@ final class DefaultDocumentTest extends BaseTestCase
         self::assertSame(['5'], array_map(static fn (Node $node): string => $node->getTextContent(), $item->xpath('/item/g:id')));
     }
 
+    #[DataProvider('provideXpathOnNonElementNode')]
+    public function testXpathOnNonElementNode(string $path, string $expectedMessage): void
+    {
+        $node = $this->newDocumentFactory()->createForContent('<r><a id="1">x</a></r>')->xpath($path)[0];
+
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $node->xpath('.');
+    }
+
+    /**
+     * @return iterable<string,array<string,mixed>>
+     */
+    public static function provideXpathOnNonElementNode(): iterable
+    {
+        yield 'attribute' => [
+            'path' => '/r/a/@id',
+            'expectedMessage' => 'Node::xpath() supports only document and element nodes, DOMAttr given',
+        ];
+
+        yield 'text' => [
+            'path' => '/r/a/text()',
+            'expectedMessage' => 'Node::xpath() supports only document and element nodes, DOMText given',
+        ];
+    }
+
     public function testValidateWithEmptyFilename(): void
     {
         $this->expectException(DOMException::class);

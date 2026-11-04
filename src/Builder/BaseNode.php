@@ -8,6 +8,7 @@ use DOMCdataSection;
 use DOMDocument;
 use DOMDocumentFragment;
 use DOMElement;
+use DOMException;
 use DOMNameSpaceNode;
 use DOMNode;
 use DOMText;
@@ -397,6 +398,10 @@ abstract class BaseNode implements Node
     {
         if ($this->node === null) {
             return $this->document;
+        }
+
+        if (!$this->node instanceof DOMElement) {
+            throw new DOMException(sprintf('Node::xpath() supports only document and element nodes, %s given', $this->node::class));
         }
 
         $version = $this->document->xmlVersion ?? '1.0';
