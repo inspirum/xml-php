@@ -155,6 +155,16 @@ class DefaultReaderTest extends BaseTestCase
         $reader->nextNode('název');
     }
 
+    public function testNextNodeByPathWithMalformedSkippedContent(): void
+    {
+        $reader = $this->newReader(self::getTestFilePath('sample_14.xml'));
+
+        $this->expectException(ReaderException::class);
+        $this->expectExceptionMessage('XMLReader::next()');
+
+        $reader->nextNode('/root/a/item');
+    }
+
     public function testNextInvalidNode(): void
     {
         $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));

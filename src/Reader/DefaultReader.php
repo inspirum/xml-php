@@ -233,7 +233,7 @@ final class DefaultReader implements Reader
         if ($this->next) {
             $this->next = false;
 
-            return $this->reader->next();
+            return Handler::withErrorHandlerForXMLReader(fn (): bool => $this->reader->next());
         }
 
         return Handler::withErrorHandlerForXMLReader(fn (): bool => $this->reader->read());
