@@ -143,7 +143,7 @@ final class DefaultReader implements Reader
             }
 
             if ($this->isNodeTextType()) {
-                $text = $this->getNodeValue();
+                $text = ($text ?? '') . $this->getNodeValue();
             } elseif ($this->isNodeElementType()) {
                 $elements[] = $this->readNode();
             }

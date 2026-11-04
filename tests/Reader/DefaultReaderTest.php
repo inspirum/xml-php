@@ -61,6 +61,15 @@ class DefaultReaderTest extends BaseTestCase
         self::assertSame('<název>a</název>', $node?->toString());
     }
 
+    public function testNextNodeWithMixedContent(): void
+    {
+        $reader = $this->newReader(self::getTestFilePath('sample_11.xml'));
+
+        $node = $reader->nextNode('mixed');
+
+        self::assertSame('<mixed>foobar<b/></mixed>', $node?->toString());
+    }
+
     public function testNextInvalidNode(): void
     {
         $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));
