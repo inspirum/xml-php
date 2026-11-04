@@ -702,7 +702,7 @@ final class DefaultDocumentTest extends BaseTestCase
         $xml = $this->newDocumentFactory()->createForContent(self::XPATH_CONTENT);
 
         $results = array_map(
-            static fn (Node $node): array => array_map(static fn (Node $inner): string => (string) $inner->getTextContent(), $node->xpath($innerPath)),
+            static fn (Node $node): array => array_map(static fn (Node $inner): string => $inner->getTextContent(), $node->xpath($innerPath)),
             $xml->xpath($path),
         );
 

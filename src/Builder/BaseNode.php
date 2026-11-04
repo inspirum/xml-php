@@ -310,7 +310,7 @@ abstract class BaseNode implements Node
         }
     }
 
-    public function getTextContent(): ?string
+    public function getTextContent(): string
     {
         $node = $this->resolveNode();
 

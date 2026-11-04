@@ -79,7 +79,7 @@ interface Node extends Model
     /**
      * Get node text content
      */
-    public function getTextContent(): ?string;
+    public function getTextContent(): string;
 
     /**
      * Get node attributes

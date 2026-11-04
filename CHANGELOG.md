@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.2.0...main)
 ### Changed
+- **Breaking**: Changed `Node::getTextContent` return type to `string`
 - **Breaking**: Threw `\DOMException` instead of emitting warnings for invalid `Node::addXMLData` content
 - **Breaking**: Threw `\DOMException` instead of emitting warnings and returning `null` for an invalid `Node::xpath` expression, so `Node::xpath` always returns a list
 - **Breaking**: Threw `\DOMException` from `Node::xpath` on a node with undeclared namespace prefixes, such as a node read without namespaces
