@@ -22,7 +22,7 @@ interface Reader
      *
      * @throws \Exception
      */
-    public function nextNode(string $nodeName): ?Node;
+    public function nextNode(string $nodeName, bool $withNamespaces = false): ?Node;
 
     /**
      * Close the input

@@ -61,7 +61,7 @@ final class DefaultReader implements Reader
         }
     }
 
-    public function nextNode(string $nodeName): ?Node
+    public function nextNode(string $nodeName, bool $withNamespaces = false): ?Node
     {
         $found = $this->moveToNode($nodeName);
 
@@ -69,7 +69,7 @@ final class DefaultReader implements Reader
             return null;
         }
 
-        return $this->readNode()->node;
+        return $this->readNode($withNamespaces ? $found->namespaces : null)->node;
     }
 
     public function close(): void

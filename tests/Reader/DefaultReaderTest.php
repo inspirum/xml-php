@@ -73,6 +73,32 @@ class DefaultReaderTest extends BaseTestCase
         self::assertSame('<mixed>foobar<b/></mixed>', $node?->toString());
     }
 
+    #[DataProvider('provideNextNodeWithNamespaces')]
+    public function testNextNodeWithNamespaces(bool $withNamespaces, string $expected): void
+    {
+        $reader = $this->newReader(self::getTestFilePath('sample_08.xml'));
+
+        $node = $reader->nextNode('g:id', $withNamespaces);
+
+        self::assertSame($expected, $node?->toString());
+    }
+
+    /**
+     * @return iterable<string,array<string,mixed>>
+     */
+    public static function provideNextNodeWithNamespaces(): iterable
+    {
+        yield 'without namespaces' => [
+            'withNamespaces' => false,
+            'expected' => '<g:id h:test="asd">1/L2</g:id>',
+        ];
+
+        yield 'with namespaces' => [
+            'withNamespaces' => true,
+            'expected' => '<g:id xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/2.0" h:test="asd">1/L2</g:id>',
+        ];
+    }
+
     public function testNextNodeWithoutEndingTag(): void
     {
         $xmlReader = new class extends XMLReader {

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.2.0...main)
+### Added
+- **Breaking**: Added `withNamespaces` parameter to `Reader::nextNode`
+
 ### Changed
 - **Breaking**: Changed `Node::getTextContent` return type to `string`
 - **Breaking**: Threw `\DOMException` instead of emitting warnings for invalid `Node::addXMLData` content
