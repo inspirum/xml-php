@@ -14,6 +14,7 @@ use Inspirum\XML\Builder\Node;
 use Inspirum\XML\Tests\BaseTestCase;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use stdClass;
 use function array_map;
 use function file_get_contents;
 use function sys_get_temp_dir;
@@ -215,11 +216,11 @@ final class DefaultDocumentTest extends BaseTestCase
     {
         $xml = $this->newDocument();
 
-        $aE = $xml->addElement('a', ['price' => 23.4, 'domain' => 2, 'wrong' => [1, 2, 3]]);
+        $aE = $xml->addElement('a', ['price' => 23.4, 'domain' => 2]);
 
         self::assertSame('', $aE->getTextContent());
-        self::assertSame(['price' => '23.4', 'domain' => '2', 'wrong' => ''], $aE->getAttributes());
-        self::assertSame(['price' => 23.4, 'domain' => 2, 'wrong' => ''], $aE->getAttributes(true));
+        self::assertSame(['price' => '23.4', 'domain' => '2'], $aE->getAttributes());
+        self::assertSame(['price' => 23.4, 'domain' => 2], $aE->getAttributes(true));
 
         $bE = $aE->addTextElement('b', 'Nazev', ['test' => true, 'locale' => 'cs', 'disable' => null]);
 
@@ -228,7 +229,7 @@ final class DefaultDocumentTest extends BaseTestCase
         self::assertSame(['test' => true, 'locale' => 'cs', 'disable' => ''], $bE->getAttributes(true));
 
         self::assertSame(
-            self::getSampleXMLString('<a price="23.4" domain="2" wrong=""><b test="true" locale="cs" disable="">Nazev</b></a>'),
+            self::getSampleXMLString('<a price="23.4" domain="2"><b test="true" locale="cs" disable="">Nazev</b></a>'),
             $xml->toString(),
         );
     }
@@ -826,6 +827,38 @@ final class DefaultDocumentTest extends BaseTestCase
         yield 'text' => [
             'path' => '/r/a/text()',
             'expectedMessage' => 'Node::xpath() supports only document and element nodes, DOMText given',
+        ];
+    }
+
+    /**
+     * @param array<string,mixed> $attributes
+     */
+    #[DataProvider('provideUnsupportedValue')]
+    public function testUnsupportedValue(mixed $value, array $attributes, string $expectedMessage): void
+    {
+        $xml = $this->newDocument();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        $xml->addTextElement('a', $value, $attributes);
+    }
+
+    /**
+     * @return iterable<string,array<string,mixed>>
+     */
+    public static function provideUnsupportedValue(): iterable
+    {
+        yield 'array value' => [
+            'value' => ['x'],
+            'attributes' => [],
+            'expectedMessage' => 'Value of type array cannot be converted to string',
+        ];
+
+        yield 'object attribute' => [
+            'value' => null,
+            'attributes' => ['b' => new stdClass()],
+            'expectedMessage' => 'Value of type stdClass cannot be converted to string',
         ];
     }
 

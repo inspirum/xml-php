@@ -721,6 +721,7 @@ try {
 - `Node::getTextContent()` returns `string`
 - `Reader` and `ReaderFactory` throw `ReaderException` instead of `\Exception`
 - `Reader` keeps text, CDATA sections and mixed content order as in the source, and declares redeclared namespace prefixes on the elements that use them
+- `addTextElement()`, `addElement()` and other builder methods throw `\InvalidArgumentException` for values that are not `null`, scalar or `\Stringable` instead of writing an empty value
 - `Node::toArray()` joins all text of an element instead of keeping only its last text node
 - `Reader::nextNode()` has `bool $withNamespaces = false` parameter, update your own `Reader` implementations
 - `autoCast` keeps values like `0123`, `1e3`, integers over `PHP_INT_MAX` or decimals with more than 15 significant digits as strings

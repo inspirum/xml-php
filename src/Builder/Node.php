@@ -20,6 +20,7 @@ interface Node extends Model
      * @param array<string,mixed> $attributes
      *
      * @throws \DOMException
+     * @throws \InvalidArgumentException
      */
     public function addElement(string $name, array $attributes = [], bool $withNamespaces = true): Node;
 
@@ -29,6 +30,7 @@ interface Node extends Model
      * @param array<string,mixed> $attributes
      *
      * @throws \DOMException
+     * @throws \InvalidArgumentException
      */
     public function addTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false, bool $withNamespaces = true): Node;
 
@@ -50,6 +52,7 @@ interface Node extends Model
      * @param array<string,mixed> $attributes
      *
      * @throws \DOMException
+     * @throws \InvalidArgumentException
      */
     public function createElement(string $name, array $attributes = [], bool $withNamespaces = true): Node;
 
@@ -59,6 +62,7 @@ interface Node extends Model
      * @param array<string,mixed> $attributes
      *
      * @throws \DOMException
+     * @throws \InvalidArgumentException
      */
     public function createTextElement(string $name, mixed $value, array $attributes = [], bool $forcedEscape = false, bool $withNamespaces = true): Node;
 

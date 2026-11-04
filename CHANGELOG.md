@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - **Breaking**: Threw `\DOMException` from `Node::xpath` on a node with undeclared namespace prefixes, such as a node read without namespaces
 - Checked results of DOM and `\XMLReader` methods through `Handler::checkResultForDOMDocument` and `Handler::checkResultForXMLReader`
 - **Breaking**: Read nodes with `\XMLReader::expand()`, keeping text, CDATA sections and mixed content order as in the source, about three times faster
+- **Breaking**: Threw `\InvalidArgumentException` for element and attribute values that are not `null`, scalar or `\Stringable` instead of writing an empty value
 - **Breaking**: Joined all text of an element in `Node::toArray` instead of keeping only its last text node
 - Required `ext-libxml`
 - **Breaking**: Cast only numbers whose value survives the cast with `autoCast`, keeping values like `0123`, `1e3`, integers over `PHP_INT_MAX` or decimals with more than 15 significant digits as strings

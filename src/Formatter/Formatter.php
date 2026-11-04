@@ -6,11 +6,13 @@ namespace Inspirum\XML\Formatter;
 
 use DOMDocument;
 use DOMNode;
+use InvalidArgumentException;
 use Stringable;
 use function abs;
 use function array_keys;
 use function array_merge;
 use function count;
+use function get_debug_type;
 use function in_array;
 use function is_array;
 use function is_bool;
@@ -33,6 +35,8 @@ final class Formatter
 
     /**
      * Normalize value.
+     *
+     * @throws \InvalidArgumentException
      */
     public static function encodeValue(mixed $value): ?string
     {
@@ -48,7 +52,7 @@ final class Formatter
             return (string) $value;
         }
 
-        return null;
+        throw new InvalidArgumentException(sprintf('Value of type %s cannot be converted to string', get_debug_type($value)));
     }
 
     /**
