@@ -21,6 +21,7 @@ use function array_map;
 use function is_array;
 use function is_string;
 use function iterator_to_array;
+use function sprintf;
 use function str_contains;
 
 abstract class BaseNode implements Node
@@ -388,7 +389,9 @@ abstract class BaseNode implements Node
     }
 
     /**
-     * Get \DOMDocument with current node as its root element
+     * Get \DOMDocument with copy of current node as its root element
+     *
+     * @throws \DOMException
      */
     private function toQueryDocument(): DOMDocument
     {
@@ -396,11 +399,9 @@ abstract class BaseNode implements Node
             return $this->document;
         }
 
-        $document = new DOMDocument($this->document->xmlVersion ?? '1.0', $this->document->encoding ?? 'UTF-8');
-        $content = $this->toString();
-        if ($content === '') {
-            return $document;
-        }
+        $version = $this->document->xmlVersion ?? '1.0';
+        $document = new DOMDocument($version, $this->document->encoding ?? 'UTF-8');
+        $content = sprintf('<?xml version="%s"?>%s', $version, $this->saveXML($this->node->cloneNode(true), false));
 
         Handler::checkResultForDOMDocument($document->loadXML($content), '\DOMDocument::loadXML()');
 
@@ -417,12 +418,20 @@ abstract class BaseNode implements Node
 
     public function toString(bool $formatOutput = false): string
     {
-        return Handler::withErrorHandlerForDOMDocument(function () use ($formatOutput): string {
+        return $this->saveXML($this->node, $formatOutput);
+    }
+
+    /**
+     * @throws \DOMException
+     */
+    private function saveXML(?DOMNode $node, bool $formatOutput): string
+    {
+        return Handler::withErrorHandlerForDOMDocument(function () use ($node, $formatOutput): string {
             $previousFormatOutput = $this->document->formatOutput;
             $this->document->formatOutput = $formatOutput;
 
             try {
-                return Handler::checkResultForDOMDocument($this->document->saveXML($this->node), '\DOMDocument::saveXML()');
+                return Handler::checkResultForDOMDocument($this->document->saveXML($node), '\DOMDocument::saveXML()');
             } finally {
                 $this->document->formatOutput = $previousFormatOutput;
             }

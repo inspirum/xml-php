@@ -791,6 +791,17 @@ final class DefaultDocumentTest extends BaseTestCase
         self::assertSame([], $xml->addElement('a')->addXMLData(''));
     }
 
+    public function testXpathOnNodeWithNamespaceDeclaredOnAncestor(): void
+    {
+        $xml = $this->newDocument();
+
+        $rss = $xml->addElement('rss', ['xmlns:g' => 'http://g']);
+        $item = $rss->addElement('item');
+        $item->addTextElement('g:id', 5);
+
+        self::assertSame(['5'], array_map(static fn (Node $node): string => $node->getTextContent(), $item->xpath('/item/g:id')));
+    }
+
     public function testValidateWithEmptyFilename(): void
     {
         $this->expectException(DOMException::class);

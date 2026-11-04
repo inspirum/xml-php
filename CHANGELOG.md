@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed `Reader` keeping only the last text of an element with mixed content
 - Fixed `Node::toString` and `Document::save` leaving `formatOutput` changed on the document
 - Fixed `Reader` with `withNamespaces` giving nodes after the first one namespaces from outside their scope
+- Fixed `Node::xpath` on a node with namespaces declared on its ancestors
 - Fixed outdated and broken examples in README
 
 
