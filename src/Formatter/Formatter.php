@@ -13,9 +13,10 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_bool;
-use function is_numeric;
 use function is_scalar;
+use function is_string;
 use function ltrim;
+use function preg_match;
 use function rtrim;
 use function sprintf;
 use function str_starts_with;
@@ -73,8 +74,16 @@ final class Formatter
      */
     public static function decodeValue(mixed $value): mixed
     {
-        if (is_numeric($value)) {
-            return $value + 0;
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        if (preg_match('/^-?(0|[1-9]\d*)$/', $value) === 1) {
+            return self::decodeInteger($value);
+        }
+
+        if (preg_match('/^-?(0|[1-9]\d*)\.\d+$/', $value) === 1) {
+            return (float) $value;
         }
 
         if (in_array($value, ['true', 'True'], true)) {
@@ -83,6 +92,20 @@ final class Formatter
 
         if (in_array($value, ['false', 'False'], true)) {
             return false;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Keep integers beyond PHP_INT_MAX as string
+     */
+    private static function decodeInteger(string $value): int|string
+    {
+        $integer = (int) $value;
+
+        if ((string) $integer === $value) {
+            return $integer;
         }
 
         return $value;

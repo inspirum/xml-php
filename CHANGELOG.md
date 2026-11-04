@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.2.0...master)
+### Changed
+- Cast only lossless numbers with `autoCast`, keeping values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
+
 ### Fixed
 - Fixed element name validation for non-ASCII names
 - Fixed `FlattenConfig` with `withoutRoot` on a node

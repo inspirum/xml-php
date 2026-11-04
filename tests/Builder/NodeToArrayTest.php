@@ -10,6 +10,7 @@ use Inspirum\XML\Formatter\DefaultConfig;
 use Inspirum\XML\Formatter\FlattenConfig;
 use Inspirum\XML\Formatter\FullResponseConfig;
 use Inspirum\XML\Tests\BaseTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use function json_encode;
 
 class NodeToArrayTest extends BaseTestCase
@@ -707,6 +708,35 @@ class NodeToArrayTest extends BaseTestCase
         $config = new FlattenConfig(withoutRoot: true);
 
         self::assertSame(['b/c' => '1', 'b@x' => '1', 'd' => '2'], $aE->toArray($config));
+    }
+
+    #[DataProvider('provideAutoCastValue')]
+    public function testAutoCastValue(string $value, mixed $expected): void
+    {
+        $xml = $this->newDocument();
+
+        $aE = $xml->addTextElement('a', $value);
+
+        self::assertSame([$expected], $aE->toArray(new DefaultConfig(autoCast: true)));
+    }
+
+    /**
+     * @return iterable<string,array<string,mixed>>
+     */
+    public static function provideAutoCastValue(): iterable
+    {
+        yield 'integer' => ['value' => '12', 'expected' => 12];
+        yield 'negative integer' => ['value' => '-12', 'expected' => -12];
+        yield 'zero' => ['value' => '0', 'expected' => 0];
+        yield 'decimal' => ['value' => '1.50', 'expected' => 1.5];
+        yield 'leading zero' => ['value' => '0123', 'expected' => '0123'];
+        yield 'integer over max' => ['value' => '123456789012345678901', 'expected' => '123456789012345678901'];
+        yield 'exponent' => ['value' => '1e3', 'expected' => '1e3'];
+        yield 'leading plus' => ['value' => '+1', 'expected' => '+1'];
+        yield 'leading whitespace' => ['value' => ' 1', 'expected' => ' 1'];
+        yield 'true' => ['value' => 'True', 'expected' => true];
+        yield 'false' => ['value' => 'false', 'expected' => false];
+        yield 'text' => ['value' => 'text', 'expected' => 'text'];
     }
 
     private function newDocument(?string $version = null, ?string $encoding = null): DefaultDocument
