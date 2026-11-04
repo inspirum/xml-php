@@ -710,6 +710,37 @@ class NodeToArrayTest extends BaseTestCase
         self::assertSame(['b/c' => '1', 'b@x' => '1', 'd' => '2'], $aE->toArray($config));
     }
 
+    #[DataProvider('provideMixedText')]
+    public function testMixedText(string $content, mixed $expected): void
+    {
+        $xml = $this->newDocument();
+
+        $xml->addXMLData($content);
+
+        self::assertSame($expected, $xml->toArray());
+    }
+
+    /**
+     * @return iterable<string,array<string,mixed>>
+     */
+    public static function provideMixedText(): iterable
+    {
+        yield 'text and CDATA' => [
+            'content' => '<a>x<![CDATA[y]]>z</a>',
+            'expected' => ['a' => 'xyz'],
+        ];
+
+        yield 'text around comment' => [
+            'content' => '<a>x<!-- c -->y</a>',
+            'expected' => ['a' => 'xy'],
+        ];
+
+        yield 'text around element' => [
+            'content' => '<r>a<b>1</b>c</r>',
+            'expected' => ['r' => ['b' => '1', '@value' => 'ac']],
+        ];
+    }
+
     #[DataProvider('provideAutoCastValue')]
     public function testAutoCastValue(string $value, mixed $expected): void
     {

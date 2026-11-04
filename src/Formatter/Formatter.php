@@ -92,7 +92,7 @@ final class Formatter
      */
     public static function nodeToArray(DOMNode $node, Config $config): mixed
     {
-        $value = null;
+        $text = null;
         /** @var array<string,mixed> $attributes */
         $attributes = [];
         /** @var array<string,array<mixed>> $nodes */
@@ -110,11 +110,9 @@ final class Formatter
         if ($node->hasChildNodes()) {
             /** @var \DOMNode $child */
             foreach ($node->childNodes ?? [] as $child) {
-                if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE])) {
+                if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE], true)) {
                     if (trim((string) $child->nodeValue) !== '') {
-                        $value = $config->isAutoCast()
-                            ? self::decodeValue($child->nodeValue)
-                            : $child->nodeValue;
+                        $text = ($text ?? '') . $child->nodeValue;
                     }
 
                     continue;
@@ -132,6 +130,8 @@ final class Formatter
                 }
             }
         }
+
+        $value = $text !== null && $config->isAutoCast() ? self::decodeValue($text) : $text;
 
         if ($config->isFullResponse()) {
             return [
