@@ -11,6 +11,9 @@ use function sprintf;
 use function str_contains;
 use function str_starts_with;
 
+/**
+ * @internal
+ */
 final class Handler
 {
     /**
