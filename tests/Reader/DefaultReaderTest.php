@@ -9,6 +9,7 @@ use Exception;
 use Inspirum\XML\Builder\DefaultDOMDocumentFactory;
 use Inspirum\XML\Builder\DefaultDocumentFactory;
 use Inspirum\XML\Builder\Node;
+use Inspirum\XML\Reader\DefaultReader;
 use Inspirum\XML\Reader\DefaultReaderFactory;
 use Inspirum\XML\Reader\DefaultXMLReaderFactory;
 use Inspirum\XML\Reader\Reader;
@@ -18,6 +19,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use SimpleXMLElement;
 use Throwable;
 use ValueError;
+use XMLReader;
 use function array_map;
 use function is_array;
 use function is_numeric;
@@ -69,6 +71,29 @@ class DefaultReaderTest extends BaseTestCase
         $node = $reader->nextNode('mixed');
 
         self::assertSame('<mixed>foobar<b/></mixed>', $node?->toString());
+    }
+
+    public function testNextNodeWithoutEndingTag(): void
+    {
+        $xmlReader = new class extends XMLReader {
+            private int $reads = 0;
+
+            public function read(): bool
+            {
+                $this->reads++;
+
+                return $this->reads < 5 && parent::read();
+            }
+        };
+        $xmlReader->open(self::getTestFilePath('sample_11.xml'));
+
+        $documentFactory = new DefaultDocumentFactory(new DefaultDOMDocumentFactory());
+        $reader = new DefaultReader($xmlReader, $documentFactory->create());
+
+        $this->expectException(Throwable::class);
+        $this->expectExceptionMessage('\XMLReader::read() opening and ending tag mismatch');
+
+        $reader->nextNode('název');
     }
 
     public function testNextInvalidNode(): void

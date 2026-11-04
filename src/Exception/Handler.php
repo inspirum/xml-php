@@ -30,9 +30,7 @@ final class Handler
                 throw new Exception($message, $code);
             }
 
-            // @codeCoverageIgnoreStart
             return false;
-            // @codeCoverageIgnoreEnd
         }, $callback);
     }
 
@@ -52,9 +50,7 @@ final class Handler
                 throw new DOMException($message, $code);
             }
 
-            // @codeCoverageIgnoreStart
             return false;
-            // @codeCoverageIgnoreEnd
         }, $callback);
     }
 

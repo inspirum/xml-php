@@ -102,6 +102,15 @@ class DefaultDocumentFactoryTest extends BaseTestCase
         $factory->createForFile('wrong.xml');
     }
 
+    public function testCreateForEmptyContent(): void
+    {
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('Content must not be empty');
+
+        $factory = $this->newDocumentFactory();
+        $factory->createForContent('');
+    }
+
     public function testCreateForFileMethodFailed(): void
     {
         $this->expectException(DOMException::class);

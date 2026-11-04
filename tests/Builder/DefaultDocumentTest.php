@@ -775,6 +775,31 @@ final class DefaultDocumentTest extends BaseTestCase
         $xml->addXMLData('<a/>');
     }
 
+    public function testXpathOnEmptyNode(): void
+    {
+        $xml = $this->newDocument();
+
+        $node = $xml->addElement('a')->addXMLData('<b/>');
+
+        self::assertSame([], $node?->xpath('b'));
+    }
+
+    public function testValidateWithEmptyFilename(): void
+    {
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('Schema filename must not be empty');
+
+        $this->newDocument()->validate('');
+    }
+
+    public function testSaveWithEmptyFilename(): void
+    {
+        $this->expectException(DOMException::class);
+        $this->expectExceptionMessage('Filename must not be empty');
+
+        $this->newDocument()->save('');
+    }
+
     public function testToStringKeepsFormatOutput(): void
     {
         $xml = $this->newDocument();

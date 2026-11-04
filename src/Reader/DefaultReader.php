@@ -149,9 +149,7 @@ final class DefaultReader implements Reader
             }
         }
 
-        // @codeCoverageIgnoreStart
         throw new Exception('\XMLReader::read() opening and ending tag mismatch');
-        // @codeCoverageIgnoreEnd
     }
 
     /**
