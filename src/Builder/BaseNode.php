@@ -17,6 +17,7 @@ use Inspirum\XML\Formatter\Config;
 use Inspirum\XML\Formatter\DefaultConfig;
 use Inspirum\XML\Formatter\Formatter;
 use Inspirum\XML\Parser\Parser;
+use function array_map;
 use function is_array;
 use function is_string;
 use function iterator_to_array;
@@ -107,17 +108,21 @@ abstract class BaseNode implements Node
         return $this->createNode($element);
     }
 
-    public function addXMLData(string $content): ?Node
+    /**
+     * @inheritDoc
+     */
+    public function addXMLData(string $content): array
     {
         if ($content === '') {
-            return null;
+            return [];
         }
 
-        $element = $this->createDOMFragment($content);
+        $fragment = $this->createDOMFragment($content);
+        $nodes = iterator_to_array($fragment->childNodes, false);
 
-        $this->appendChild($element);
+        $this->appendChild($fragment);
 
-        return $this->createNode($element);
+        return array_map(fn (DOMNode $node): Node => $this->createNode($node), $nodes);
     }
 
     /**

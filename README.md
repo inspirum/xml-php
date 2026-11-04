@@ -302,10 +302,10 @@ $a->addTextElement('b', 'you', forcedEscape: true);
 */
 ```
 
-Adding XML fragments
+Adding XML fragments, returns list of added nodes
 ```php
 $a = $xml->addElement('a');
-$a->addXMLData('<b><c>CC</c></b><b>0</b>');
+$nodes = $a->addXMLData('<b><c>CC</c></b><b>0</b>');
 $a->addTextElement('b', '1');
 
 /**
@@ -714,7 +714,7 @@ try {
 ## Upgrading from 3.x
 
 - `Node::xpath()` returns a list and throws `\DOMException` for an invalid expression instead of a warning and `null`
-- `Node::addXMLData()` throws `\DOMException` for invalid XML instead of a warning
+- `Node::addXMLData()` throws `\DOMException` for invalid XML instead of a warning, and returns list of added nodes instead of `?Node`
 - `Node::getTextContent()` returns `string`
 - `Reader` and `ReaderFactory` throw `ReaderException` instead of `\Exception`
 - `Reader::nextNode()` has `bool $withNamespaces = false` parameter, update your own `Reader` implementations

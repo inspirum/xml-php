@@ -72,9 +72,11 @@ interface Node extends Model
     /**
      * Add XML data
      *
+     * @return list<\Inspirum\XML\Builder\Node>
+     *
      * @throws \DOMException
      */
-    public function addXMLData(string $content): ?Node;
+    public function addXMLData(string $content): array;
 
     /**
      * Get node text content

@@ -775,13 +775,20 @@ final class DefaultDocumentTest extends BaseTestCase
         $xml->addXMLData('<a/>');
     }
 
-    public function testXpathOnEmptyNode(): void
+    public function testAddXMLDataReturnsAddedNodes(): void
     {
         $xml = $this->newDocument();
 
-        $node = $xml->addElement('a')->addXMLData('<b/>');
+        $nodes = $xml->addElement('a')->addXMLData('<b>1</b>text<c/>');
 
-        self::assertSame([], $node?->xpath('b'));
+        self::assertSame(['<b>1</b>', 'text', '<c/>'], array_map(static fn (Node $node): string => $node->toString(), $nodes));
+    }
+
+    public function testAddEmptyXMLDataReturnsNoNodes(): void
+    {
+        $xml = $this->newDocument();
+
+        self::assertSame([], $xml->addElement('a')->addXMLData(''));
     }
 
     public function testValidateWithEmptyFilename(): void
