@@ -840,6 +840,14 @@ final class DefaultDocumentTest extends BaseTestCase
         $xml->xpath('/');
     }
 
+    public function testXpathOnNodeOfXML11Document(): void
+    {
+        $node = $this->newDocumentFactory()->create('1.1')->addElement('a');
+        $node->addTextElement('b', 1);
+
+        self::assertSame(['<b>1</b>'], array_map(static fn (Node $node): string => $node->toString(), $node->xpath('/a/b')));
+    }
+
     /**
      * @param array<string,mixed> $attributes
      */

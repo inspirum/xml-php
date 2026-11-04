@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed `Reader` with `withNamespaces` giving nodes after the first one namespaces from outside their scope
 - Fixed `Reader` with `withNamespaces` binding a prefix redeclared inside the node to the outer or a sibling namespace
 - Fixed `Reader` emitting warnings and returning no node instead of throwing `ReaderException` for malformed content skipped by a path
+- Fixed `Node::xpath` on a node of an XML 1.1 document
 - Fixed `Node::xpath` on a node with namespaces declared on its ancestors
 - Fixed `Handler` bypassing the application error handler for warnings that are not from DOM or `\XMLReader`
 - Fixed outdated and broken examples in README

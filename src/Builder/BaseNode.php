@@ -410,9 +410,8 @@ abstract class BaseNode implements Node
             throw new DOMException(sprintf('Node::xpath() supports only document and element nodes, %s given', $this->node::class));
         }
 
-        $version = $this->document->xmlVersion ?? '1.0';
-        $document = new DOMDocument($version, $this->document->encoding ?? 'UTF-8');
-        $content = sprintf('<?xml version="%s"?>%s', $version, $this->saveXML($this->node->cloneNode(true), false));
+        $document = new DOMDocument('1.0', $this->document->encoding ?? 'UTF-8');
+        $content = sprintf('<?xml version="1.0"?>%s', $this->saveXML($this->node->cloneNode(true), false));
 
         Handler::checkResultForDOMDocument($document->loadXML($content), '\DOMDocument::loadXML()');
 
