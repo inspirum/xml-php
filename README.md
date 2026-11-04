@@ -678,6 +678,15 @@ var_dump($ids);
 */
 ```
 
+Querying a node runs on its copy with the node as the root element, so paths start at the node itself, not at the document root
+```php
+$item = $factory->createForContent('<feed><item><id>1</id></item></feed>')->xpath('/feed/item')[0];
+
+$item->xpath('/item/id');       // [<id>1</id>]
+$item->xpath('id');             // [<id>1</id>]
+$item->xpath('/feed/item/id');  // []
+```
+
 Querying `/` throws `\DOMException`, query the root element instead
 
 #### Errors
@@ -719,11 +728,14 @@ try {
 
 - `Node::xpath()` returns a list and throws `\DOMException` for an invalid expression instead of a warning and `null`
 - `Node::addXMLData()` throws `\DOMException` for invalid XML instead of a warning, and returns list of added nodes instead of `?Node`
-- `Node::xpath()` throws `\DOMException` on attribute and text nodes, and when querying `/`
+- `Node::xpath()` throws `\DOMException` on attribute and text nodes, when querying `/`, and on a node with undeclared namespace prefixes, such as a node read without namespaces
 - `Node::getTextContent()` returns `string`
 - `Reader` and `ReaderFactory` throw `ReaderException` instead of `\Exception`
+- `\DOMException` and `ReaderException` have code `0` instead of the PHP error level
+- `Handler` is internal
 - `Reader` keeps text, CDATA sections and mixed content order as in the source, and declares redeclared namespace prefixes on the elements that use them
 - `addTextElement()`, `addElement()` and other builder methods throw `\InvalidArgumentException` for values that are not `null`, scalar or `\Stringable` instead of writing an empty value
+- `addElementFromNode()` and `createElementFromNode()` convert text to CDATA only with `forcedEscape`
 - `Node::toArray()` joins all text of an element instead of keeping only its last text node
 - `Reader::nextNode()` has `bool $withNamespaces = false` parameter, update your own `Reader` implementations
 - `autoCast` keeps values like `0123`, `1e3`, integers over `PHP_INT_MAX` or decimals with more than 15 significant digits as strings
