@@ -648,8 +648,8 @@ The MIT License (MIT). Please see [License File][link-licence] for more informat
 
 
 [ico-license]:              https://img.shields.io/github/license/inspirum/xml-php.svg?style=flat-square&colorB=blue
-[ico-workflow]:             https://img.shields.io/github/actions/workflow/status/inspirum/xml-php/master.yml?branch=master&style=flat-square
-[ico-scrutinizer]:          https://img.shields.io/scrutinizer/coverage/g/inspirum/xml-php/master.svg?style=flat-square
+[ico-workflow]:             https://img.shields.io/github/actions/workflow/status/inspirum/xml-php/test.yml?branch=main&style=flat-square
+[ico-scrutinizer]:          https://img.shields.io/scrutinizer/coverage/g/inspirum/xml-php/main.svg?style=flat-square
 [ico-code-quality]:         https://img.shields.io/scrutinizer/g/inspirum/xml-php.svg?style=flat-square
 [ico-packagist-stable]:     https://img.shields.io/packagist/v/inspirum/xml.svg?style=flat-square&colorB=blue
 [ico-packagist-download]:   https://img.shields.io/packagist/dt/inspirum/xml.svg?style=flat-square&colorB=blue
@@ -659,8 +659,8 @@ The MIT License (MIT). Please see [License File][link-licence] for more informat
 [link-contributors]:        https://github.com/inspirum/xml-php/contributors
 [link-licence]:             ./LICENSE.md
 [link-changelog]:           ./CHANGELOG.md
-[link-contributing]:        ./docs/CONTRIBUTING.md
-[link-code-of-conduct]:     ./docs/CODE_OF_CONDUCT.md
+[link-contributing]:        https://github.com/inspirum/.github/blob/main/docs/CONTRIBUTING.md
+[link-code-of-conduct]:     https://github.com/inspirum/.github/blob/main/docs/CODE_OF_CONDUCT.md
 [link-workflow]:            https://github.com/inspirum/xml-php/actions
 [link-scrutinizer]:         https://scrutinizer-ci.com/g/inspirum/xml-php/code-structure
 [link-code-quality]:        https://scrutinizer-ci.com/g/inspirum/xml-php

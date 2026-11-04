@@ -6,11 +6,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.2.0...master)
+## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.2.0...main)
 ### Changed
 - Threw `\DOMException` instead of emitting warnings for invalid `Node::addXMLData` content
 - Cast only lossless numbers with `autoCast`, keeping values like `0123`, `1e3` or integers over `PHP_INT_MAX` as strings
 - Copied `Node::addElementFromNode` and `Node::createElementFromNode` with `\DOMDocument::importNode`, converting text to CDATA only with `forcedEscape`
+- Switched CI to the shared [inspirum/.github](https://github.com/inspirum/.github) workflow
+- Renamed the default branch from `master` to `main`
+
+### Removed
+- Removed local issue and pull request templates, code of conduct and contributing guide in favour of the shared [inspirum/.github](https://github.com/inspirum/.github) defaults
 
 ### Fixed
 - Fixed element name validation for non-ASCII names
