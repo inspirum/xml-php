@@ -17,7 +17,6 @@ use Inspirum\XML\Formatter\Config;
 use Inspirum\XML\Formatter\DefaultConfig;
 use Inspirum\XML\Formatter\Formatter;
 use Inspirum\XML\Parser\Parser;
-use Throwable;
 use function is_array;
 use function is_string;
 use function str_contains;
@@ -131,7 +130,7 @@ abstract class BaseNode implements Node
     {
         $this->registerNamespaces($attributes);
 
-        $element = $this->createDOMElementNS($name, null, $withNamespaces);
+        $element = $this->createDOMElementNS($name, $withNamespaces);
 
         $this->setDOMElementValue($element, $value, $forcedEscape);
 
@@ -183,16 +182,15 @@ abstract class BaseNode implements Node
      *
      * @throws \DOMException
      */
-    private function createDOMElementNS(string $name, ?string $value, bool $withNamespaces): DOMElement
+    private function createDOMElementNS(string $name, bool $withNamespaces): DOMElement
     {
         $prefix = Parser::getNamespacePrefix($name);
-        $value = Formatter::encodeValue($value);
 
         if ($withNamespaces && $prefix !== null && $this->namespaceRegistry->hasNamespace($prefix)) {
-            return $this->document->createElementNS($this->namespaceRegistry->getNamespace($prefix), $name, (string) $value);
+            return $this->document->createElementNS($this->namespaceRegistry->getNamespace($prefix), $name);
         }
 
-        return $this->document->createElement($name, (string) $value);
+        return $this->document->createElement($name);
     }
 
     /**
@@ -206,16 +204,19 @@ abstract class BaseNode implements Node
             return;
         }
 
-        try {
-            if (str_contains($value, '&') || $forcedEscape) {
-                throw new DOMException('DOMDocument::createElement(): unterminated entity reference');
-            }
+        $element->appendChild($this->createDOMValueNode($value, $forcedEscape));
+    }
 
-            $element->nodeValue = $value;
-        } catch (Throwable) {
-            $cdata = $this->document->createCDATASection($value);
-            $element->appendChild($cdata);
+    /**
+     * Create text node, or CDATA section if value contains entity or escape is forced
+     */
+    private function createDOMValueNode(string $value, bool $forcedEscape): DOMText
+    {
+        if ($forcedEscape || str_contains($value, '&')) {
+            return $this->document->createCDATASection($value);
         }
+
+        return $this->document->createTextNode($value);
     }
 
     /**
