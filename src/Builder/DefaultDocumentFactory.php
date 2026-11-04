@@ -31,15 +31,30 @@ final class DefaultDocumentFactory implements DocumentFactory
             throw new RuntimeException(error_get_last()['message'] ?? sprintf('Failed to open file [%s]', $filepath));
         }
 
-        return $this->createForContent($content);
+        return $this->createForContent($content, $version, $encoding);
     }
 
     public function createForContent(string $content, ?string $version = null, ?string $encoding = null): Document
     {
         $document = $this->factory->create($version, $encoding);
         $this->loadXML($document, $content);
+        $this->overrideDeclaration($document, $version, $encoding);
 
         return new DefaultDocument($document);
+    }
+
+    /**
+     * Restore version and encoding replaced by the declaration of loaded content
+     */
+    private function overrideDeclaration(DOMDocument $document, ?string $version, ?string $encoding): void
+    {
+        if ($version !== null) {
+            $document->xmlVersion = $version;
+        }
+
+        if ($encoding !== null) {
+            $document->encoding = $encoding;
+        }
     }
 
     /**

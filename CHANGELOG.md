@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fixed element name validation for non-ASCII names
 - Fixed `FlattenConfig` with `withoutRoot` on a node
+- Fixed `DocumentFactory::createForFile` and `DocumentFactory::createForContent` ignoring version and encoding
 - Fixed `Node::toArray` including comments and processing instructions as keys
 
 

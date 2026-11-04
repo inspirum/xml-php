@@ -738,6 +738,55 @@ final class DefaultDocumentTest extends BaseTestCase
         );
     }
 
+    #[DataProvider('provideCreateForContentDeclaration')]
+    public function testCreateForContentDeclaration(string $content, ?string $version, ?string $encoding, string $expected): void
+    {
+        $xml = $this->newDocumentFactory()->createForContent($content, $version, $encoding);
+
+        self::assertSame($expected, $xml->toString());
+    }
+
+    /**
+     * @return iterable<string,array<string,mixed>>
+     */
+    public static function provideCreateForContentDeclaration(): iterable
+    {
+        yield 'without declaration' => [
+            'content' => '<a>č</a>',
+            'version' => null,
+            'encoding' => null,
+            'expected' => "<?xml version=\"1.0\"?>\n<a>&#x10D;</a>\n",
+        ];
+
+        yield 'with encoding' => [
+            'content' => '<a>č</a>',
+            'version' => null,
+            'encoding' => 'UTF-8',
+            'expected' => self::getSampleXMLString('<a>č</a>'),
+        ];
+
+        yield 'with declared encoding' => [
+            'content' => '<?xml version="1.0" encoding="ISO-8859-2"?><a/>',
+            'version' => null,
+            'encoding' => null,
+            'expected' => self::getSampleXMLString('<a/>', encoding: 'ISO-8859-2'),
+        ];
+
+        yield 'with overridden declaration' => [
+            'content' => '<?xml version="1.0" encoding="UTF-8"?><a/>',
+            'version' => '1.1',
+            'encoding' => 'ISO-8859-2',
+            'expected' => self::getSampleXMLString('<a/>', '1.1', 'ISO-8859-2'),
+        ];
+    }
+
+    public function testCreateForFileDeclaration(): void
+    {
+        $xml = $this->newDocumentFactory()->createForFile(self::getTestFilePath('sample_12.xml'), encoding: 'UTF-8');
+
+        self::assertSame(self::getSampleXMLString('<a>č</a>'), $xml->toString());
+    }
+
     private function newDocument(?string $version = null, ?string $encoding = null): DefaultDocument
     {
         return new DefaultDocument(new DOMDocument($version ?? '1.0', $encoding ?? 'UTF-8'));
