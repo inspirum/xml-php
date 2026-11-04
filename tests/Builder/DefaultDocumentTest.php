@@ -726,6 +726,13 @@ final class DefaultDocumentTest extends BaseTestCase
         ];
     }
 
+    public function testXpathWithInvalidExpression(): void
+    {
+        $xml = $this->newDocumentFactory()->createForContent(self::XPATH_CONTENT);
+
+        self::assertNull(@$xml->xpath('/item['));
+    }
+
     public function testUnicodeElementName(): void
     {
         $xml = $this->newDocument();
