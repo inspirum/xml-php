@@ -95,7 +95,7 @@ final class DefaultReader implements Reader
                     continue;
                 }
 
-                if ($usePath && $this->depth === $maxDepth && $this->getNodeName() === ($paths[$this->depth] ?? null)) {
+                if ($usePath && $this->depth === $maxDepth) {
                     return MoveResult::found($namespaces);
                 }
 

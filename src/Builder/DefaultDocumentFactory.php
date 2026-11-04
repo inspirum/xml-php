@@ -48,6 +48,10 @@ final class DefaultDocumentFactory implements DocumentFactory
     private function loadXML(DOMDocument $document, string $content): void
     {
         Handler::withErrorHandlerForDOMDocument(static function () use ($document, $content): void {
+            if ($content === '') {
+                throw new DOMException('Content must not be empty');
+            }
+
             $document->preserveWhiteSpace = false;
 
             $loaded = $document->loadXML($content);

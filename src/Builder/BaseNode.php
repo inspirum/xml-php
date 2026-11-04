@@ -343,7 +343,12 @@ abstract class BaseNode implements Node
         }
 
         $document = new DOMDocument($this->document->xmlVersion ?? '1.0', $this->document->encoding ?? 'UTF-8');
-        $document->loadXML($this->toString());
+        $content = $this->toString();
+        if ($content === '') {
+            return $document;
+        }
+
+        $document->loadXML($content);
 
         return $document;
     }

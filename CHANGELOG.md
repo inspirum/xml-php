@@ -6,9 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.1.2...master)
+## [Unreleased](https://github.com/inspirum/xml-php/compare/v3.2.0...master)
+
+
+## [v3.2.0 (2026-11-04)](https://github.com/inspirum/xml-php/compare/v3.1.2...v3.2.0)
 ### Changed
 - Skip `\DOMNameSpaceNode` in `Node::xpath` method
+- Threw `\DOMException` instead of `\ValueError` for empty `Document::validate` and `Document::save` filename and `DocumentFactory::createForContent` content
 - Queried `Document::xpath` directly instead of a serialized copy of the document
 - Copied `Node::xpath` results as DOM nodes, so they keep CDATA sections, mixed content and attribute or text node types
 

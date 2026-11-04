@@ -20,7 +20,7 @@ use function tempnam;
 
 final class DefaultDocumentTest extends BaseTestCase
 {
-    private const string XPATH_CONTENT = <<<'XML'
+    private const XPATH_CONTENT = <<<'XML'
         <?xml version="1.0" encoding="UTF-8"?>
         <item xmlns:g="http://base.google.com/ns/1.0" xmlns:h="http://base.google.com/ns/2.0">
             <g:detail><g:name>Color</g:name><g:value>white</g:value><g:value>gold</g:value></g:detail>
