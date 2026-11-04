@@ -713,6 +713,7 @@ try {
 - Builder and Reader never put unprefixed elements into a default namespace: `xmlns="..."` is written as an attribute by Builder and dropped by Reader, so XPath matches unprefixed names without a prefix. Documents loaded by `DocumentFactory` keep their default namespace
 - `Node::toArray()` joins all text of an element with mixed content, so `<a>foo<b/>bar</a>` gives `foobar` as its value
 - Copied nodes can repeat a namespace declaration on their root element, as [`DOMNode::appendChild`](https://www.php.net/manual/domnode.appendchild.php) does
+- When two prefixes are bound to the same namespace URI, Reader with `withNamespaces` can write a name with the other prefix and repeat the declaration, so `<f:link g:a="a">` can be read as `<f:link f:a="a">`. The names keep their namespace, only the prefix changes
 
 
 ### All available methods
