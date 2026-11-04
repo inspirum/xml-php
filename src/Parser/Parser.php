@@ -60,7 +60,7 @@ final class Parser
      */
     private static function validateElementName(string $value): void
     {
-        $regex = '/^([a-zA-Z_][\w.-]*)(:[a-zA-Z_][\w.-]*)?$/';
+        $regex = '/^([\p{L}_][\p{L}\p{M}\p{N}_.-]*)(:[\p{L}_][\p{L}\p{M}\p{N}_.-]*)?$/u';
 
         if (preg_match($regex, $value) !== 1) {
             throw new InvalidArgumentException(

@@ -52,6 +52,15 @@ class DefaultReaderTest extends BaseTestCase
         self::assertSame('2020-08-25T13:53:38+00:00', $node?->getTextContent());
     }
 
+    public function testNextNodeWithUnicodeName(): void
+    {
+        $reader = $this->newReader(self::getTestFilePath('sample_11.xml'));
+
+        $node = $reader->nextNode('název');
+
+        self::assertSame('<název>a</název>', $node?->toString());
+    }
+
     public function testNextInvalidNode(): void
     {
         $reader = $this->newReader(self::getTestFilePath('sample_04.xml'));

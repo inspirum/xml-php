@@ -726,6 +726,18 @@ final class DefaultDocumentTest extends BaseTestCase
         ];
     }
 
+    public function testUnicodeElementName(): void
+    {
+        $xml = $this->newDocument();
+
+        $xml->addElement('název', ['délka' => 1]);
+
+        self::assertSame(
+            self::getSampleXMLString('<název délka="1"/>'),
+            $xml->toString(),
+        );
+    }
+
     private function newDocument(?string $version = null, ?string $encoding = null): DefaultDocument
     {
         return new DefaultDocument(new DOMDocument($version ?? '1.0', $encoding ?? 'UTF-8'));
