@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [Unreleased](https://github.com/inspirum/xml-php/compare/v4.0.0...main)
+### Changed
+- Changed CI to collect coverage on PHP 8.5
 
 
 ## [v4.0.0 (2026-11-04)](https://github.com/inspirum/xml-php/compare/v3.2.0...v4.0.0)
